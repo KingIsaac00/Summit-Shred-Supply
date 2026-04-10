@@ -1,8 +1,188 @@
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Summit Shred Supply</title>
-</head>
-<body>
-    <h1 id="TopPage">Home Page</h1>
-    <h5>Welcome to Summit Shred Supply!</h5>
-    <p>This is a demo test for our home page, we are </p>
-</body>
+
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #0f1a2f;
+        --text: #e7eefc;
+        --muted: #a8b3cf;
+        --brand: #7cc4ff;
+        --btn: #1b2a4a;
+        --btn-hover: #24365f;
+        --border: rgba(231, 238, 252, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: radial-gradient(1200px 600px at 20% 0%, #172a52 0%, var(--bg) 55%);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      /* Top header */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 64px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(11, 18, 32, 0.85);
+        backdrop-filter: blur(10px);
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 0.6px;
+      }
+
+      /* Profile button pinned top-right */
+      .profile-btn {
+        position: absolute;
+        right: 16px;
+        top: 14px;
+      }
+
+      .btn {
+        border: 1px solid var(--border);
+        background: var(--btn);
+        color: var(--text);
+        padding: 10px 14px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn:hover {
+        background: var(--btn-hover);
+      }
+
+      /* Main layout */
+      .page {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      /* Left categories scrolling window */
+      .categories {
+        border: 1px solid var(--border);
+        background: rgba(15, 26, 47, 0.75);
+        border-radius: 16px;
+        padding: 12px;
+        height: calc(100vh - 64px - 32px);
+        overflow: auto;
+      }
+
+      .categories h2 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 10px;
+      }
+
+      .category-item {
+        border: 1px solid var(--border);
+        background: rgba(27, 42, 74, 0.35);
+        border-radius: 14px;
+        padding: 12px;
+        cursor: pointer;
+      }
+
+      .category-item:hover {
+        border-color: rgba(124, 196, 255, 0.45);
+        background: rgba(27, 42, 74, 0.55);
+      }
+
+      /* Right content area placeholder */
+      .content {
+        border: 1px dashed rgba(231, 238, 252, 0.18);
+        border-radius: 16px;
+        min-height: calc(100vh - 64px - 32px);
+        padding: 16px;
+      }
+
+      .content p {
+        color: var(--muted);
+        margin-top: 0;
+      }
+
+      /* Bottom-right chat button */
+      .chat-btn {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 20;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      }
+
+      /* Mobile tweak */
+      @media (max-width: 820px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
+        .categories {
+          height: auto;
+          max-height: 40vh;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Summit Shred Supply</h1>
+      <button class="btn profile-btn" type="button">Profile</button>
+    </header>
+
+    <main class="page">
+      <aside class="categories" aria-label="Product Categories">
+        <h2>Categories</h2>
+        <ul class="category-list">
+          <li class="category-item">Snowboards</li>
+          <li class="category-item">Bindings</li>
+          <li class="category-item">Boots</li>
+          <li class="category-item">Helmets</li>
+          <li class="category-item">Goggles</li>
+          <li class="category-item">Jackets</li>
+          <li class="category-item">Pants</li>
+          <li class="category-item">Gloves</li>
+          <li class="category-item">Base Layers</li>
+          <li class="category-item">Socks</li>
+          <li class="category-item">Wax & Tuning</li>
+          <li class="category-item">Bags</li>
+          <li class="category-item">Accessories</li>
+        </ul>
+      </aside>
+
+      <section class="content">
+        <p>Main content area (products, featured items, etc.)</p>
+      </section>
+    </main>
+
+    <button class="btn chat-btn" type="button">Chat</button>
+  </body>
+</html>
