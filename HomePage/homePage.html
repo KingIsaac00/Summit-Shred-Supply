@@ -6,6 +6,7 @@
     <title>Summit Shred Supply</title>
 
     <link rel="stylesheet" href="homepage.css" />
+    <script src="../items.js"></script>
   </head>
 
   <body>
@@ -42,118 +43,7 @@
         </div>
 
         <div class="items" id="items">
-          <article class="item-card" data-category="Snowboards">
-            <div class="item-image">
-              <img src="/images/Snowboard1demo.jpg" alt="Summit Carver 155 Snowboard">
-            </div>
-            <div class="item-name">Summit Carver 155</div>
-            <div class="item-meta">Category: Snowboards</div>
-            <div class="item-price">$429.99</div>
-          </article>
-          <article class="item-card" data-category="Snowboards">
-            <div class="item-image">
-              <img src="/images/Snowboard2demo.jpg" alt="Pow Surfer 160W Snowboard">
-            </div>
-            <div class="item-name">Pow Surfer 160W</div>
-            <div class="item-meta">Category: Snowboards</div>
-            <div class="item-price">$499.99</div>
-          </article>
-          <article class="item-card" data-category="Bindings">
-            <div class="item-image">
-              <img src="/images/bindings3demo.png" alt="Peak Grip Bindings">
-            </div>
-            <div class="item-name">Peak Grip Bindings</div>
-            <div class="item-meta">Category: Bindings</div>
-            <div class="item-price">$219.99</div>
-          </article>
-          <article class="item-card" data-category="Boots">
-            <div class="item-image">
-              <img src="/images/boots4demo.png" alt="Alpine Lock Boots">
-            </div>
-            <div class="item-name">Alpine Lock Boots</div>
-            <div class="item-meta">Category: Boots</div>
-            <div class="item-price">$279.99</div>
-          </article>
-          <article class="item-card" data-category="Helmets">
-            <div class="item-image">
-              <img src="/images/helmet5demo.jpg" alt="Ridge Helmet MIPS">
-            </div>
-            <div class="item-name">Ridge Helmet MIPS</div>
-            <div class="item-meta">Category: Helmets</div>
-            <div class="item-price">$129.99</div>
-          </article>
-          <article class="item-card" data-category="Goggles">
-            <div class="item-image">
-              <img src="/images/goggles6demo.jpg" alt="StormView Goggles">
-            </div>
-            <div class="item-name">StormView Goggles</div>
-            <div class="item-meta">Category: Goggles</div>
-            <div class="item-price">$89.99</div>
-          </article>
-          <article class="item-card" data-category="Jackets">
-            <div class="item-image">
-              <img src="/images/jacket7demo.jpg" alt="Summit Shell Jacket">
-            </div>
-            <div class="item-name">Summit Shell Jacket</div>
-            <div class="item-meta">Category: Jackets</div>
-            <div class="item-price">$199.99</div>
-          </article>
-          <article class="item-card" data-category="Gloves">
-            <div class="item-image">
-              <img src="/images/gloves8demo.jpg" alt="FrostGuard Gloves">
-            </div>
-            <div class="item-name">FrostGuard Gloves</div>
-            <div class="item-meta">Category: Gloves</div>
-            <div class="item-price">$49.99</div>
-          </article>
-          <article class="item-card" data-category="Wax & Tuning">
-            <div class="item-image">
-              <img src="/images/waxKit9demo.jpg" alt="All-Temp Wax Kit">
-            </div>
-            <div class="item-name">All-Temp Wax Kit</div>
-            <div class="item-meta">Category: Wax & Tuning</div>
-            <div class="item-price">$34.99</div>
-          </article>
-          <article class="item-card" data-category="Bags">
-            <div class="item-image">
-              <img src="/images/bag10demo.jpg" alt="Board Travel Bag">
-            </div>
-            <div class="item-name">Board Travel Bag</div>
-            <div class="item-meta">Category: Bags</div>
-            <div class="item-price">$149.99</div>
-          </article>
-          <article class="item-card" data-category="Accessories">
-            <div class="item-image">
-              <img src="/images/pockettool11demo.jpg" alt="Pocket Tool">
-            </div>
-            <div class="item-name">Pocket Tool</div>
-            <div class="item-meta">Category: Accessories</div>
-            <div class="item-price">$19.99</div>
-          </article>
-          <article class="item-card" data-category="Pants">
-            <div class="item-image">
-              <img src="/images/pants12demo.jpg" alt="Alpine Snow Pants">
-            </div>
-            <div class="item-name">Alpine Snow Pants</div>
-            <div class="item-meta">Category: Pants</div>
-            <div class="item-price">$189.99</div>
-          </article>
-          <article class="item-card" data-category="Base Layers">
-            <div class="item-image">
-              <img src="/images/baselayer13demo.jpg" alt="Thermal Base Layer Set">
-            </div>
-            <div class="item-name">Thermal Base Layer Set</div>
-            <div class="item-meta">Category: Base Layers</div>
-            <div class="item-price">$79.99</div>
-          </article>
-          <article class="item-card" data-category="Socks">
-            <div class="item-image">
-              <img src="/images/socks14demo.jpg" alt="Merino Ski Socks">
-            </div>
-            <div class="item-name">Merino Ski Socks</div>
-            <div class="item-meta">Category: Socks</div>
-            <div class="item-price">$24.99</div>
-          </article>
+          <!-- Items populated by JavaScript -->
         </div>
       </section>
     </main>
@@ -240,16 +130,35 @@
         if (e.key === 'Escape') closeAllModals();
       });
 
+      // Render items
+      function renderItems(items) {
+        itemsEl.innerHTML = '';
+        items.forEach(item => {
+          const article = document.createElement('article');
+          article.className = 'item-card';
+          article.setAttribute('data-category', item.category);
+          
+          const imageUrl = item.imageUrls[0] || '/images/placeholder.jpg';
+          article.innerHTML = `
+            <div class="item-image">
+              <img src="${imageUrl}" alt="${item.itemName}">
+            </div>
+            <div class="item-name">${item.itemName}</div>
+            <div class="item-description">${item.description.substring(0, 100)}...</div>
+            <div class="item-meta">Category: ${item.category}</div>
+            <div class="item-price">$${(item.price / 100).toFixed(2)}</div>
+          `;
+          
+          itemsEl.appendChild(article);
+        });
+      }
+
       function applyCategoryFilter(category) {
         const normalized = category || 'All';
         filterLabel.textContent = `Showing: ${normalized}`;
 
-        const cards = itemsEl.querySelectorAll('.item-card');
-        cards.forEach((card) => {
-          const cardCategory = card.getAttribute('data-category');
-          const show = normalized === 'All' || cardCategory === normalized;
-          card.classList.toggle('is-hidden', !show);
-        });
+        const items = getItemsByCategory(normalized);
+        renderItems(items);
       }
 
       categoryList?.addEventListener('click', (e) => {
@@ -261,7 +170,7 @@
         applyCategoryFilter(category.trim());
       });
 
-      // Default view
+      // Initialize - load all items
       applyCategoryFilter('All');
     </script>
   </body>
