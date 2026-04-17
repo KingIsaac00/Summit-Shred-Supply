@@ -6,6 +6,7 @@
     <title>Summit Shred Supply</title>
 
     <link rel="stylesheet" href="homepage.css" />
+    <script src="../items.js"></script>
   </head>
 
   <body>
@@ -129,16 +130,35 @@
         if (e.key === 'Escape') closeAllModals();
       });
 
+      // Render items
+      function renderItems(items) {
+        itemsEl.innerHTML = '';
+        items.forEach(item => {
+          const article = document.createElement('article');
+          article.className = 'item-card';
+          article.setAttribute('data-category', item.category);
+          
+          const imageUrl = item.imageUrls[0] || '/images/placeholder.jpg';
+          article.innerHTML = `
+            <div class="item-image">
+              <img src="${imageUrl}" alt="${item.itemName}">
+            </div>
+            <div class="item-name">${item.itemName}</div>
+            <div class="item-description">${item.description.substring(0, 100)}...</div>
+            <div class="item-meta">Category: ${item.category}</div>
+            <div class="item-price">$${(item.price / 100).toFixed(2)}</div>
+          `;
+          
+          itemsEl.appendChild(article);
+        });
+      }
+
       function applyCategoryFilter(category) {
         const normalized = category || 'All';
         filterLabel.textContent = `Showing: ${normalized}`;
 
-        const cards = itemsEl.querySelectorAll('.item-card');
-        cards.forEach((card) => {
-          const cardCategory = card.getAttribute('data-category');
-          const show = normalized === 'All' || cardCategory === normalized;
-          card.classList.toggle('is-hidden', !show);
-        });
+        const items = getItemsByCategory(normalized);
+        renderItems(items);
       }
 
       categoryList?.addEventListener('click', (e) => {
@@ -150,7 +170,7 @@
         applyCategoryFilter(category.trim());
       });
 
-      // Default view
+      // Initialize - load all items
       applyCategoryFilter('All');
     </script>
   </body>
