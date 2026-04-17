@@ -155,6 +155,21 @@ header h1 {
   padding: 14px;
 }
 
+.item-image {
+  width: 100%;
+  height: 200px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .item-name {
   font-weight: 800;
 }
