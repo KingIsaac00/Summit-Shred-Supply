@@ -6,17 +6,12 @@
     <title>Summit Shred Supply</title>
 
     <link rel="stylesheet" href="homepage.css" />
-    <script src="items.js"></script>
   </head>
 
   <body>
     <header>
       <h1>Summit Shred Supply</h1>
-      <div class="header-actions">
-        <span id="userGreeting" class="user-greeting"></span>
-        <button class="btn profile-btn" id="profileBtn" type="button">Profile</button>
-        <button class="btn logout-btn" id="logoutBtn" type="button">Logout</button>
-      </div>
+      <button class="btn profile-btn" id="profileBtn" type="button">Profile</button>
     </header>
 
     <main class="page">
@@ -24,6 +19,19 @@
         <h2>Categories</h2>
         <ul class="category-list" id="categoryList">
           <li class="category-item" data-category="All">All</li>
+          <li class="category-item" data-category="Snowboards">Snowboards</li>
+          <li class="category-item" data-category="Bindings">Bindings</li>
+          <li class="category-item" data-category="Boots">Boots</li>
+          <li class="category-item" data-category="Helmets">Helmets</li>
+          <li class="category-item" data-category="Goggles">Goggles</li>
+          <li class="category-item" data-category="Jackets">Jackets</li>
+          <li class="category-item" data-category="Pants">Pants</li>
+          <li class="category-item" data-category="Gloves">Gloves</li>
+          <li class="category-item" data-category="Base Layers">Base Layers</li>
+          <li class="category-item" data-category="Socks">Socks</li>
+          <li class="category-item" data-category="Wax & Tuning">Wax & Tuning</li>
+          <li class="category-item" data-category="Bags">Bags</li>
+          <li class="category-item" data-category="Accessories">Accessories</li>
         </ul>
       </aside>
 
@@ -34,7 +42,94 @@
         </div>
 
         <div class="items" id="items">
-          <!-- Items populated by JavaScript -->
+          <article class="item-card" data-category="Snowboards">
+            <div class="item-image">
+              <img src="/images/Snowboard1demo.jpg" alt="Summit Carver 155 Snowboard">
+            </div>
+            <div class="item-name">Summit Carver 155</div>
+            <div class="item-meta">Category: Snowboards</div>
+            <div class="item-price">$429.99</div>
+          </article>
+          <article class="item-card" data-category="Snowboards">
+            <div class="item-image">
+              <img src="/images/Snowboard2demo.jpg" alt="Pow Surfer 160W Snowboard">
+            </div>
+            <div class="item-name">Pow Surfer 160W</div>
+            <div class="item-meta">Category: Snowboards</div>
+            <div class="item-price">$499.99</div>
+          </article>
+          <article class="item-card" data-category="Bindings">
+            <div class="item-image">
+              <img src="/images/bindings3demo.png" alt="Peak Grip Bindings">
+            </div>
+            <div class="item-name">Peak Grip Bindings</div>
+            <div class="item-meta">Category: Bindings</div>
+            <div class="item-price">$219.99</div>
+          </article>
+          <article class="item-card" data-category="Boots">
+            <div class="item-image">
+              <img src="/images/boots4demo.png" alt="Alpine Lock Boots">
+            </div>
+            <div class="item-name">Alpine Lock Boots</div>
+            <div class="item-meta">Category: Boots</div>
+            <div class="item-price">$279.99</div>
+          </article>
+          <article class="item-card" data-category="Helmets">
+            <div class="item-image">
+              <img src="/images/helmet5demo.jpg" alt="Ridge Helmet MIPS">
+            </div>
+            <div class="item-name">Ridge Helmet MIPS</div>
+            <div class="item-meta">Category: Helmets</div>
+            <div class="item-price">$129.99</div>
+          </article>
+          <article class="item-card" data-category="Goggles">
+            <div class="item-image">
+              <img src="/images/goggles6demo.jpg" alt="StormView Goggles">
+            </div>
+            <div class="item-name">StormView Goggles</div>
+            <div class="item-meta">Category: Goggles</div>
+            <div class="item-price">$89.99</div>
+          </article>
+          <article class="item-card" data-category="Jackets">
+            <div class="item-image">
+              <img src="/images/jacket7demo.jpg" alt="Summit Shell Jacket">
+            </div>
+            <div class="item-name">Summit Shell Jacket</div>
+            <div class="item-meta">Category: Jackets</div>
+            <div class="item-price">$199.99</div>
+          </article>
+          <article class="item-card" data-category="Gloves">
+            <div class="item-image">
+              <img src="/images/gloves8demo.jpg" alt="FrostGuard Gloves">
+            </div>
+            <div class="item-name">FrostGuard Gloves</div>
+            <div class="item-meta">Category: Gloves</div>
+            <div class="item-price">$49.99</div>
+          </article>
+          <article class="item-card" data-category="Wax & Tuning">
+            <div class="item-image">
+              <img src="/images/waxKit9demo.jpg" alt="All-Temp Wax Kit">
+            </div>
+            <div class="item-name">All-Temp Wax Kit</div>
+            <div class="item-meta">Category: Wax & Tuning</div>
+            <div class="item-price">$34.99</div>
+          </article>
+          <article class="item-card" data-category="Bags">
+            <div class="item-image">
+              <img src="/images/bag10demo.jpg" alt="Board Travel Bag">
+            </div>
+            <div class="item-name">Board Travel Bag</div>
+            <div class="item-meta">Category: Bags</div>
+            <div class="item-price">$149.99</div>
+          </article>
+          <article class="item-card" data-category="Accessories">
+            <div class="item-image">
+              <img src="/images/pockettool11demo.jpg" alt="Pocket Tool">
+            </div>
+            <div class="item-name">Pocket Tool</div>
+            <div class="item-meta">Category: Accessories</div>
+            <div class="item-price">$19.99</div>
+          </article>
         </div>
       </section>
     </main>
@@ -50,12 +145,8 @@
           <button class="btn btn--small" type="button" data-close>Close</button>
         </div>
         <div class="modal__body">
-          <div class="profile-row"><span class="label">Username:</span> <span class="value" id="profileUsername"></span></div>
-          <div class="profile-row"><span class="label">Full Name:</span> <span class="value" id="profileFullName"></span></div>
-          <div class="profile-row"><span class="label">Email:</span> <span class="value" id="profileEmail"></span></div>
-          <div class="profile-row"><span class="label">Phone:</span> <span class="value" id="profilePhone"></span></div>
-          <div class="profile-row"><span class="label">Account Type:</span> <span class="value" id="profileUserType"></span></div>
-          <div class="profile-row"><span class="label">Member Since:</span> <span class="value" id="profileMemberSince"></span></div>
+          <div class="profile-row"><span class="label">Username:</span> <span class="value">SummitRider99</span></div>
+          <div class="profile-row"><span class="label">Member Since:</span> <span class="value">2026</span></div>
         </div>
       </div>
     </div>
@@ -89,27 +180,6 @@
     </div>
 
     <script>
-      // Auth check - redirect to login if not authenticated
-      function checkAuth() {
-        const currentUser = localStorage.getItem('currentUser');
-        if (!currentUser) {
-          window.location.href = 'login.html';
-          return null;
-        }
-        return JSON.parse(currentUser);
-      }
-
-      const currentUser = checkAuth();
-
-      // Display user greeting
-      document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.username}!`;
-
-      // Logout functionality
-      document.getElementById('logoutBtn').addEventListener('click', function() {
-        localStorage.removeItem('currentUser');
-        window.location.href = 'login.html';
-      });
-
       const chatBtn = document.getElementById('chatBtn');
       const profileBtn = document.getElementById('profileBtn');
 
@@ -132,23 +202,7 @@
       }
 
       chatBtn?.addEventListener('click', () => setModalOpen(chatModal, true));
-      profileBtn?.addEventListener('click', () => {
-        // Populate profile data
-        document.getElementById('profileUsername').textContent = currentUser.username;
-        document.getElementById('profileFullName').textContent = currentUser.fullName;
-        document.getElementById('profileEmail').textContent = currentUser.email;
-        document.getElementById('profileUserType').textContent = currentUser.userType;
-        
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const user = users.find(u => u.userId === currentUser.userId);
-        if (user) {
-          document.getElementById('profilePhone').textContent = user.phone;
-          const memberDate = new Date(user.createdAt).toLocaleDateString();
-          document.getElementById('profileMemberSince').textContent = memberDate;
-        }
-        
-        setModalOpen(profileModal, true);
-      });
+      profileBtn?.addEventListener('click', () => setModalOpen(profileModal, true));
 
       document.addEventListener('click', (e) => {
         const target = e.target;
@@ -162,50 +216,16 @@
         if (e.key === 'Escape') closeAllModals();
       });
 
-      // Populate categories dynamically
-      function populateCategories() {
-        const categories = getCategories();
-        const categoryItems = categoryList.querySelectorAll('.category-item:not([data-category="All"])');
-        categoryItems.forEach(item => item.remove());
-        
-        categories.forEach(category => {
-          const li = document.createElement('li');
-          li.className = 'category-item';
-          li.setAttribute('data-category', category);
-          li.textContent = category;
-          categoryList.appendChild(li);
-        });
-      }
-
-      // Render items
-      function renderItems(items) {
-        itemsEl.innerHTML = '';
-        items.forEach(item => {
-          const article = document.createElement('article');
-          article.className = 'item-card';
-          article.setAttribute('data-category', item.category);
-          
-          const imageUrl = item.imageUrls[0] || '/images/placeholder.jpg';
-          article.innerHTML = `
-            <div class="item-image">
-              <img src="${imageUrl}" alt="${item.itemName}">
-            </div>
-            <div class="item-name">${item.itemName}</div>
-            <div class="item-description">${item.description.substring(0, 100)}...</div>
-            <div class="item-meta">Category: ${item.category}</div>
-            <div class="item-price">$${(item.price / 100).toFixed(2)}</div>
-          `;
-          
-          itemsEl.appendChild(article);
-        });
-      }
-
       function applyCategoryFilter(category) {
         const normalized = category || 'All';
         filterLabel.textContent = `Showing: ${normalized}`;
 
-        const items = getItemsByCategory(normalized);
-        renderItems(items);
+        const cards = itemsEl.querySelectorAll('.item-card');
+        cards.forEach((card) => {
+          const cardCategory = card.getAttribute('data-category');
+          const show = normalized === 'All' || cardCategory === normalized;
+          card.classList.toggle('is-hidden', !show);
+        });
       }
 
       categoryList?.addEventListener('click', (e) => {
@@ -217,8 +237,7 @@
         applyCategoryFilter(category.trim());
       });
 
-      // Initialize
-      populateCategories();
+      // Default view
       applyCategoryFilter('All');
     </script>
   </body>

@@ -41,28 +41,11 @@ header h1 {
   letter-spacing: 0.6px;
 }
 
-.header-actions {
+/* Profile button pinned top-right */
+.profile-btn {
   position: absolute;
   right: 16px;
   top: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-greeting {
-  font-size: 13px;
-  color: var(--muted);
-  margin-right: 8px;
-}
-
-/* Profile button pinned top-right */
-.profile-btn {
-  position: relative;
-}
-
-.logout-btn {
-  position: relative;
 }
 
 .btn {
@@ -189,13 +172,6 @@ header h1 {
 
 .item-name {
   font-weight: 800;
-}
-
-.item-description {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
 }
 
 .item-meta {
