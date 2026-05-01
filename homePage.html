@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Summit Shred Supply</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="homepage.css" />
+    <script src="../items.js"></script>
+  </head>
+
+  <body>
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="header__brand">
+        <svg class="header__logo" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M14 2L26 24H2L14 2Z" fill="currentColor" opacity=".18"/>
+          <path d="M14 6L23 22H5L14 6Z" fill="currentColor" opacity=".35"/>
+          <path d="M14 11L19.5 21H8.5L14 11Z" fill="currentColor"/>
+          <circle cx="14" cy="8" r="2" fill="currentColor" opacity=".6"/>
+        </svg>
+        <span class="header__wordmark">Summit Shred Supply</span>
+      </div>
+
+      <div class="header__search">
+        <svg class="header__search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input
+          class="header__search-input"
+          id="searchInput"
+          type="search"
+          placeholder="Search gear, brands, categories…"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="header__actions">
+        <button class="icon-btn" id="cartBtn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+        <button class="icon-btn" id="profileBtn" type="button" aria-label="Profile">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Main layout ── -->
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar" aria-label="Product Categories">
+        <div class="sidebar__section-label">Browse</div>
+        <nav class="sidebar__nav">
+          <ul class="cat-list" id="categoryList">
+            <li class="cat-item is-active" data-category="All">
+              <span class="cat-label">All Items</span>
+              <span class="cat-count" id="count-All"></span>
+            </li>
+            <li class="cat-item" data-category="Snowboards">
+              <span class="cat-label">Snowboards</span>
+              <span class="cat-count" id="count-Snowboards"></span>
+            </li>
+            <li class="cat-item" data-category="Bindings">
+              <span class="cat-label">Bindings</span>
+              <span class="cat-count" id="count-Bindings"></span>
+            </li>
+            <li class="cat-item" data-category="Boots">
+              <span class="cat-label">Boots</span>
+              <span class="cat-count" id="count-Boots"></span>
+            </li>
+            <li class="cat-item" data-category="Helmets">
+              <span class="cat-label">Helmets</span>
+              <span class="cat-count" id="count-Helmets"></span>
+            </li>
+            <li class="cat-item" data-category="Goggles">
+              <span class="cat-label">Goggles</span>
+              <span class="cat-count" id="count-Goggles"></span>
+            </li>
+            <li class="cat-item" data-category="Jackets">
+              <span class="cat-label">Jackets</span>
+              <span class="cat-count" id="count-Jackets"></span>
+            </li>
+            <li class="cat-item" data-category="Pants">
+              <span class="cat-label">Pants</span>
+              <span class="cat-count" id="count-Pants"></span>
+            </li>
+            <li class="cat-item" data-category="Gloves">
+              <span class="cat-label">Gloves</span>
+              <span class="cat-count" id="count-Gloves"></span>
+            </li>
+            <li class="cat-item" data-category="Base Layers">
+              <span class="cat-label">Base Layers</span>
+              <span class="cat-count" id="count-Base Layers"></span>
+            </li>
+            <li class="cat-item" data-category="Socks">
+              <span class="cat-label">Socks</span>
+              <span class="cat-count" id="count-Socks"></span>
+            </li>
+            <li class="cat-item" data-category="Wax & Tuning">
+              <span class="cat-label">Wax &amp; Tuning</span>
+              <span class="cat-count" id="count-Wax &amp; Tuning"></span>
+            </li>
+            <li class="cat-item" data-category="Bags">
+              <span class="cat-label">Bags</span>
+              <span class="cat-count" id="count-Bags"></span>
+            </li>
+            <li class="cat-item" data-category="Accessories">
+              <span class="cat-label">Accessories</span>
+              <span class="cat-count" id="count-Accessories"></span>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <main class="content" id="mainContent">
+        <div class="content__toolbar">
+          <div class="content__meta">
+            <h1 class="content__title" id="contentTitle">All Items</h1>
+            <span class="content__count" id="contentCount"></span>
+          </div>
+          <div class="content__controls">
+            <select class="sort-select" id="sortSelect" aria-label="Sort by">
+              <option value="default">Sort: Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A–Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid" id="itemsGrid">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <circle cx="32" cy="28" r="16" stroke="currentColor" stroke-width="2" opacity=".3"/>
+            <path d="M44 40l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+            <path d="M26 28h12M32 22v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+          </svg>
+          <p class="empty-state__text">No items found</p>
+          <button class="btn btn--secondary" id="clearSearch" type="button">Clear search</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- ── FAB Chat Button ── -->
+    <button class="fab" id="chatBtn" type="button" aria-label="Open chat">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <span>Chat</span>
+    </button>
+
+    <!-- ── Cart Toast ── -->
+    <div class="toast" id="cartToast" aria-live="polite"></div>
+
+    <!-- ── Profile Modal ── -->
+    <div class="modal" id="profileModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Profile">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__sheet">
+        <div class="modal__head">
+          <span class="modal__title">Profile</span>
+          <button class="close-btn" type="button" data-close aria-label="Close">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="profile-avatar">SR</div>
+          <div class="profile-name">SummitRider99</div>
+          <div class="profile-since">Member since 2026</div>
+          <div class="profile-stats">
+            <div class="stat">
+              <div class="stat__val" id="statItems">0</div>
+              <div class="stat__lbl">In Cart</div>
+            </div>
+            <div class="stat">
+              <div class="stat__val">14</div>
+              <div class="stat__lbl">Wish List</div>
+            </div>
+            <div class="stat">
+              <div class="stat__val">3</div>
+              <div class="stat__lbl">Orders</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Chat Modal ── -->
+    <div class="modal" id="chatModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Chat with support">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__sheet">
+        <div class="modal__head">
+          <div class="chat-head-info">
+            <div class="chat-avatar">SS</div>
+            <div>
+              <div class="modal__title">Summit Support</div>
+              <div class="chat-status">Online now</div>
+            </div>
+          </div>
+          <button class="close-btn" type="button" data-close aria-label="Close">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="chat" id="chatMessages">
+            <div class="chat__msg chat__msg--them">
+              <div class="chat__bubble">Hey! Need help finding the right gear?</div>
+            </div>
+            <div class="chat__msg chat__msg--me">
+              <div class="chat__bubble">Yeah — looking for an all-mountain board.</div>
+            </div>
+            <div class="chat__msg chat__msg--them">
+              <div class="chat__bubble">Check out the Summit Carver 155. Great stability and edge hold for all conditions.</div>
+            </div>
+          </div>
+          <div class="chat__footer">
+            <input class="chat__input" type="text" placeholder="Type a message…" disabled />
+            <button class="btn btn--primary btn--sm" type="button" disabled>Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Item Detail Modal ── -->
+    <div class="modal" id="detailModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Item detail">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__sheet modal__sheet--wide">
+        <div class="modal__head">
+          <span class="modal__title" id="detailTitle"></span>
+          <button class="close-btn" type="button" data-close aria-label="Close">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="modal__body modal__body--detail" id="detailBody">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── State ──────────────────────────────────────────────────────────────
+      let activeCategory = 'All';
+      let activeSearch = '';
+      let activeSortOrder = 'default';
+      const cart = {};
+
+      // ── DOM refs ───────────────────────────────────────────────────────────
+      const itemsGrid    = document.getElementById('itemsGrid');
+      const contentTitle = document.getElementById('contentTitle');
+      const contentCount = document.getElementById('contentCount');
+      const categoryList = document.getElementById('categoryList');
+      const searchInput  = document.getElementById('searchInput');
+      const sortSelect   = document.getElementById('sortSelect');
+      const emptyState   = document.getElementById('emptyState');
+      const cartBadge    = document.getElementById('cartBadge');
+      const statItems    = document.getElementById('statItems');
+      const cartToast    = document.getElementById('cartToast');
+
+      // ── Category counts ────────────────────────────────────────────────────
+      function initCounts() {
+        const allEl = document.getElementById('count-All');
+        if (allEl) allEl.textContent = ITEMS.length;
+
+        const cats = [...new Set(ITEMS.map(i => i.category))];
+        cats.forEach(cat => {
+          const id = 'count-' + cat;
+          const el = document.getElementById(id);
+          if (el) el.textContent = ITEMS.filter(i => i.category === cat).length;
+        });
+      }
+
+      // ── Filter + sort ──────────────────────────────────────────────────────
+      function getFilteredItems() {
+        let list = activeSearch
+          ? searchItems(activeSearch)
+          : getItemsByCategory(activeCategory);
+
+        if (activeSortOrder === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
+        if (activeSortOrder === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
+        if (activeSortOrder === 'name-asc')   list = [...list].sort((a, b) => a.itemName.localeCompare(b.itemName));
+        return list;
+      }
+
+      // ── Render grid ────────────────────────────────────────────────────────
+      function renderGrid() {
+        const items = getFilteredItems();
+        itemsGrid.innerHTML = '';
+        emptyState.hidden = items.length > 0;
+
+        contentCount.textContent = items.length + (items.length === 1 ? ' item' : ' items');
+        if (activeSearch) {
+          contentTitle.textContent = `Results for "${activeSearch}"`;
+        } else {
+          contentTitle.textContent = activeCategory === 'All' ? 'All Items' : activeCategory;
+        }
+
+        items.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'card';
+          card.setAttribute('data-id', item.id);
+
+          const imageUrl = (item.imageUrls && item.imageUrls[0]) || '../images/placeholder.jpg';
+          const inCart = cart[item.id] || 0;
+
+          card.innerHTML = `
+            <div class="card__img-wrap">
+              <img class="card__img" src="${imageUrl}" alt="${item.itemName}" loading="lazy" />
+              <span class="card__cat-badge">${item.category}</span>
+            </div>
+            <div class="card__body">
+              <div class="card__name">${item.itemName}</div>
+              <div class="card__desc">${item.description.substring(0, 88)}…</div>
+              <div class="card__footer">
+                <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
+                <button class="btn btn--primary btn--sm add-to-cart" data-id="${item.id}" type="button"${inCart ? ' data-in-cart' : ''}>
+                  ${inCart ? `In cart (${inCart})` : 'Add to cart'}
+                </button>
+              </div>
+            </div>
+          `;
+          itemsGrid.appendChild(card);
+        });
+      }
+
+      // ── Cart ───────────────────────────────────────────────────────────────
+      function getTotalCartCount() {
+        return Object.values(cart).reduce((s, n) => s + n, 0);
+      }
+
+      function updateCartUI() {
+        const total = getTotalCartCount();
+        cartBadge.textContent = total;
+        cartBadge.classList.toggle('has-items', total > 0);
+        if (statItems) statItems.textContent = total;
+      }
+
+      let toastTimer;
+      function showToast(msg) {
+        cartToast.textContent = msg;
+        cartToast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => cartToast.classList.remove('is-visible'), 2400);
+      }
+
+      itemsGrid.addEventListener('click', e => {
+        const btn = e.target.closest('.add-to-cart');
+        const card = e.target.closest('.card');
+
+        if (btn) {
+          e.stopPropagation();
+          const id = Number(btn.dataset.id);
+          cart[id] = (cart[id] || 0) + 1;
+          updateCartUI();
+          const item = ITEMS.find(i => i.id === id);
+          showToast(`Added "${item.itemName}" to cart`);
+          renderGrid();
+          return;
+        }
+
+        if (card) {
+          const id = Number(card.dataset.id);
+          openDetail(id);
+        }
+      });
+
+      // ── Detail modal ───────────────────────────────────────────────────────
+      const detailModal = document.getElementById('detailModal');
+      const detailTitle = document.getElementById('detailTitle');
+      const detailBody  = document.getElementById('detailBody');
+
+      function openDetail(id) {
+        const item = ITEMS.find(i => i.id === id);
+        if (!item) return;
+        detailTitle.textContent = item.itemName;
+        const inCart = cart[id] || 0;
+        detailBody.innerHTML = `
+          <div class="detail">
+            <div class="detail__img-wrap">
+              <img class="detail__img" src="${item.imageUrls[0] || '../images/placeholder.jpg'}" alt="${item.itemName}" />
+            </div>
+            <div class="detail__info">
+              <span class="card__cat-badge">${item.category}</span>
+              <h2 class="detail__name">${item.itemName}</h2>
+              <p class="detail__desc">${item.description}</p>
+              <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
+              <button class="btn btn--primary detail__cta" data-id="${item.id}" type="button">
+                ${inCart ? `In cart (${inCart}) — add more` : 'Add to cart'}
+              </button>
+            </div>
+          </div>
+        `;
+        detailBody.querySelector('.detail__cta').addEventListener('click', () => {
+          cart[id] = (cart[id] || 0) + 1;
+          updateCartUI();
+          showToast(`Added "${item.itemName}" to cart`);
+          renderGrid();
+          detailBody.querySelector('.detail__cta').textContent = `In cart (${cart[id]}) — add more`;
+        });
+        setModalOpen(detailModal, true);
+      }
+
+      // ── Categories ─────────────────────────────────────────────────────────
+      categoryList.addEventListener('click', e => {
+        const item = e.target.closest('.cat-item');
+        if (!item) return;
+        activeSearch = '';
+        searchInput.value = '';
+        activeCategory = item.dataset.category || 'All';
+        document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
+        item.classList.add('is-active');
+        renderGrid();
+      });
+
+      // ── Search ─────────────────────────────────────────────────────────────
+      let searchDebounce;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+          activeSearch = searchInput.value.trim();
+          if (activeSearch) {
+            document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
+          } else {
+            const allItem = document.querySelector('[data-category="All"]');
+            if (allItem) allItem.classList.add('is-active');
+          }
+          renderGrid();
+        }, 200);
+      });
+
+      document.getElementById('clearSearch')?.addEventListener('click', () => {
+        activeSearch = '';
+        activeCategory = 'All';
+        searchInput.value = '';
+        document.querySelector('[data-category="All"]')?.classList.add('is-active');
+        renderGrid();
+      });
+
+      // ── Sort ───────────────────────────────────────────────────────────────
+      sortSelect.addEventListener('change', () => {
+        activeSortOrder = sortSelect.value;
+        renderGrid();
+      });
+
+      // ── Modals ─────────────────────────────────────────────────────────────
+      const profileModal = document.getElementById('profileModal');
+      const chatModal    = document.getElementById('chatModal');
+
+      function setModalOpen(el, open) {
+        el.classList.toggle('is-open', open);
+        el.setAttribute('aria-hidden', String(!open));
+        document.body.classList.toggle('modal-open', open);
+      }
+
+      function closeAllModals() {
+        [profileModal, chatModal, detailModal].forEach(m => setModalOpen(m, false));
+      }
+
+      document.getElementById('profileBtn').addEventListener('click', () => setModalOpen(profileModal, true));
+      document.getElementById('chatBtn').addEventListener('click', () => setModalOpen(chatModal, true));
+      document.getElementById('cartBtn').addEventListener('click', () => setModalOpen(profileModal, true));
+
+      document.addEventListener('click', e => {
+        if (e.target.matches('[data-close]') || e.target.closest('[data-close]')) closeAllModals();
+      });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+
+      // ── Init ───────────────────────────────────────────────────────────────
+      initCounts();
+      renderGrid();
+      updateCartUI();
+    </script>
+  </body>
+</html>
