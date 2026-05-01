@@ -1,14 +1,46 @@
 # Setting Up Amazon Cognito for Summit Shred Supply
 
-## Step 1: Install Amplify CLI
+## Prerequisites (Windows)
 
-```bash
+1. **Node.js** - Download from https://nodejs.org (LTS version)
+2. **AWS Account** - Create one at https://aws.amazon.com if you don't have one
+3. **AWS Credentials** - Generate from AWS IAM console
+4. **PowerShell or Command Prompt**
+
+## Step 1: Verify Node.js Installation
+
+**Open PowerShell and check if Node.js is installed:**
+
+```powershell
+node --version
+npm --version
+```
+
+If these show version numbers, go to Step 2. If not, download Node.js from https://nodejs.org (then restart PowerShell).
+
+## Step 2: Install Amplify CLI
+
+```powershell
 npm install -g @aws-amplify/cli
 ```
 
-## Step 2: Initialize Amplify in Your Project
+**Verify installation:**
 
-```bash
+```powershell
+amplify --version
+```
+
+## Step 3: Initialize Amplify in Your Project
+
+**Navigate to your project folder:**
+
+```powershell
+cd c:\Users\brade\Documents\GitHub\Summit-Shred-Supply
+```
+
+**Initialize Amplify:**
+
+```powershell
 amplify init
 ```
 
@@ -23,9 +55,9 @@ Follow the prompts:
 - Build command: `echo "No build needed"`
 - Start command: `echo "No start needed"`
 
-## Step 3: Add Authentication with Cognito
+## Step 4: Add Authentication with Cognito
 
-```bash
+```powershell
 amplify add auth
 ```
 
@@ -34,20 +66,20 @@ Follow the prompts:
 - How do you want users to be able to sign in? → **Email** (or Email and username)
 - Do you want to configure advanced settings? → **No, I'm done**
 
-## Step 4: Deploy
+## Step 5: Deploy
 
-```bash
+```powershell
 amplify push
 ```
 
-## Step 5: Get Your Cognito Credentials
+## Step 6: Get Your Cognito Credentials
 
 After deployment, your Cognito credentials will be in `src/aws-exports.js`. Copy these values:
 - `aws_user_pools_id` (User Pool ID)
 - `aws_user_pools_web_client_id` (Client ID)
 - `aws_cognito_region` (Region)
 
-## Step 6: Update auth.js
+## Step 7: Update auth.js
 
 Open `auth.js` and replace:
 ```javascript
@@ -59,7 +91,7 @@ const poolData = {
 
 With your actual values from step 5.
 
-## Step 7: Update Your Main Page
+## Step 8: Update Your Main Page
 
 Add a logout button to your main page. Add this to `index.html` in the header:
 
@@ -93,7 +125,7 @@ Add this script to the bottom of `index.html` (before closing body):
 </script>
 ```
 
-## Step 8: Link to Login Page
+## Step 9: Link to Login Page
 
 Add a login link in your header. Update the header brand or add:
 
@@ -114,11 +146,15 @@ Add a login link in your header. Update the header brand or add:
 4. **Redeploy** to Amplify
 5. Test login/signup functionality
 
-## Troubleshooting
+## Troubleshooting (Windows)
 
 If you see errors about Cognito not being configured:
 1. Make sure you ran `amplify push` successfully
 2. Check that your User Pool ID and Client ID are correct in `auth.js`
-3. Verify your AWS credentials are configured: `aws configure`
+3. Verify your AWS credentials are configured:
+   ```powershell
+   aws configure
+   ```
+   Then enter your AWS Access Key ID and Secret Access Key when prompted
 
 For more info, see: https://docs.amplify.aws/javascript/build-a-backend/auth/
