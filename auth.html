@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Summit Shred Supply - Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/homepage.css" />
+    <style>
+      .auth-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: var(--bg);
+        padding: 20px;
+      }
+
+      .auth-card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        box-shadow: var(--shadow-card);
+      }
+
+      .auth-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        justify-content: center;
+      }
+
+      .auth-header svg {
+        width: 32px;
+        height: 32px;
+        color: var(--accent);
+      }
+
+      .auth-header h1 {
+        font-size: 20px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0;
+      }
+
+      .auth-tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .auth-tab {
+        flex: 1;
+        padding: 12px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color var(--transition);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+      }
+
+      .auth-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+
+      .auth-form {
+        display: none;
+      }
+
+      .auth-form.active {
+        display: block;
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 10px 12px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text);
+        font-size: 14px;
+        transition: border-color var(--transition), background var(--transition);
+        font-family: inherit;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: var(--surface-3);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+
+      .form-group input::placeholder {
+        color: var(--text-subtle);
+      }
+
+      .form-error {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 4px;
+        display: none;
+      }
+
+      .form-error.show {
+        display: block;
+      }
+
+      .auth-button {
+        width: 100%;
+        padding: 11px 16px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background var(--transition), box-shadow var(--transition);
+        margin-top: 8px;
+      }
+
+      .auth-button:hover {
+        background: var(--accent-hover);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+
+      .auth-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 24px 0;
+        color: var(--text-subtle);
+        font-size: 12px;
+      }
+
+      .auth-divider::before,
+      .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .auth-message {
+        padding: 12px;
+        border-radius: var(--radius-md);
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+      }
+
+      .auth-message.show {
+        display: block;
+      }
+
+      .auth-message.success {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+
+      .auth-message.error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+
+      .loading {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0; padding: 0;">
+    <div class="auth-page">
+      <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M16 3L30 27H2L16 3Z" fill="currentColor" opacity=".12"/>
+            <path d="M16 8L27 26H5L16 8Z" fill="currentColor" opacity=".28"/>
+            <path d="M16 14L22 25H10L16 14Z" fill="currentColor" opacity=".65"/>
+            <path d="M16 18L19 24H13L16 18Z" fill="currentColor"/>
+          </svg>
+          <h1>Summit Shred</h1>
+        </div>
+
+        <!-- Message -->
+        <div id="authMessage" class="auth-message"></div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Sign In</button>
+          <button class="auth-tab" data-tab="signup">Create Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form active">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" required />
+            <div class="form-error" id="loginEmailError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required />
+            <div class="form-error" id="loginPasswordError"></div>
+          </div>
+
+          <button type="submit" class="auth-button" id="loginBtn">Sign In</button>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form">
+          <div class="form-group">
+            <label for="signupEmail">Email</label>
+            <input type="email" id="signupEmail" placeholder="you@example.com" required />
+            <div class="form-error" id="signupEmailError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" placeholder="At least 8 characters" required />
+            <div class="form-error" id="signupPasswordError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupConfirmPassword">Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required />
+            <div class="form-error" id="signupConfirmError"></div>
+          </div>
+
+          <button type="submit" class="auth-button" id="signupBtn">Create Account</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Amplify Auth Library -->
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@latest/dist/amazon-cognito-identity.js"></script>
+    <script src="/auth.js"></script>
+  </body>
+</html>
