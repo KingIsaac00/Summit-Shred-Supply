@@ -649,7 +649,10 @@
             chatInitialized = true;
             initChat();
           }
-          chatInput.focus();
+          const pageX = window.scrollX;
+          const pageY = window.scrollY;
+          chatInput.focus({ preventScroll: true });
+          window.scrollTo(pageX, pageY);
           scrollChatToBottom();
         }
       }

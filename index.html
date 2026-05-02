@@ -12,22 +12,23 @@
   </head>
 
   <body>
-    <!-- ── Header ── -->
+
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
     <header class="header">
       <div class="header__brand">
-        <svg class="header__logo" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <path d="M14 2L26 24H2L14 2Z" fill="currentColor" opacity=".18"/>
-          <path d="M14 6L23 22H5L14 6Z" fill="currentColor" opacity=".35"/>
-          <path d="M14 11L19.5 21H8.5L14 11Z" fill="currentColor"/>
-          <circle cx="14" cy="8" r="2" fill="currentColor" opacity=".6"/>
+        <svg class="header__logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M16 3L30 27H2L16 3Z" fill="currentColor" opacity=".12"/>
+          <path d="M16 8L27 26H5L16 8Z" fill="currentColor" opacity=".28"/>
+          <path d="M16 14L22 25H10L16 14Z" fill="currentColor" opacity=".65"/>
+          <path d="M16 18L19 24H13L16 18Z" fill="currentColor"/>
         </svg>
         <span class="header__wordmark">Summit Shred Supply</span>
       </div>
 
       <div class="header__search">
         <svg class="header__search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
         <input
           class="header__search-input"
@@ -62,17 +63,19 @@
       </div>
     </header>
 
-    <!-- ── Main layout ── -->
+    <!-- ── Main layout ────────────────────────────────────────────────────── -->
     <div class="layout">
+
       <!-- Sidebar -->
       <aside class="sidebar" id="sidebar" aria-label="Product Categories">
-        <div class="sidebar__section-label">Browse</div>
-        <nav class="sidebar__nav">
+        <p class="sidebar__label">Categories</p>
+        <nav>
           <ul class="cat-list" id="categoryList">
             <li class="cat-item is-active" data-category="All">
               <span class="cat-label">All Items</span>
               <span class="cat-count" id="count-All"></span>
             </li>
+            <li class="cat-divider"></li>
             <li class="cat-item" data-category="Snowboards">
               <span class="cat-label">Snowboards</span>
               <span class="cat-count" id="count-Snowboards"></span>
@@ -85,6 +88,7 @@
               <span class="cat-label">Boots</span>
               <span class="cat-count" id="count-Boots"></span>
             </li>
+            <li class="cat-divider"></li>
             <li class="cat-item" data-category="Helmets">
               <span class="cat-label">Helmets</span>
               <span class="cat-count" id="count-Helmets"></span>
@@ -93,6 +97,7 @@
               <span class="cat-label">Goggles</span>
               <span class="cat-count" id="count-Goggles"></span>
             </li>
+            <li class="cat-divider"></li>
             <li class="cat-item" data-category="Jackets">
               <span class="cat-label">Jackets</span>
               <span class="cat-count" id="count-Jackets"></span>
@@ -113,6 +118,7 @@
               <span class="cat-label">Socks</span>
               <span class="cat-count" id="count-Socks"></span>
             </li>
+            <li class="cat-divider"></li>
             <li class="cat-item" data-category="Wax & Tuning">
               <span class="cat-label">Wax &amp; Tuning</span>
               <span class="cat-count" id="count-Wax &amp; Tuning"></span>
@@ -138,7 +144,7 @@
           </div>
           <div class="content__controls">
             <select class="sort-select" id="sortSelect" aria-label="Sort by">
-              <option value="default">Sort: Featured</option>
+              <option value="default">Featured</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
               <option value="name-asc">Name: A–Z</option>
@@ -146,39 +152,110 @@
           </div>
         </div>
 
-        <div class="grid" id="itemsGrid">
-          <!-- Populated by JS -->
-        </div>
+        <div class="grid" id="itemsGrid"></div>
 
         <div class="empty-state" id="emptyState" hidden>
           <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <circle cx="32" cy="28" r="16" stroke="currentColor" stroke-width="2" opacity=".3"/>
-            <path d="M44 40l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".3"/>
-            <path d="M26 28h12M32 22v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+            <circle cx="28" cy="28" r="16" stroke="currentColor" stroke-width="1.5" opacity=".3"/>
+            <path d="M40 40l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
+            <path d="M23 28h10M28 23v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
           </svg>
-          <p class="empty-state__text">No items found</p>
+          <p class="empty-state__title">No results found</p>
+          <p class="empty-state__sub">Try a different search or browse by category</p>
           <button class="btn btn--secondary" id="clearSearch" type="button">Clear search</button>
         </div>
       </main>
     </div>
 
-    <!-- ── FAB Chat Button ── -->
-    <button class="fab" id="chatBtn" type="button" aria-label="Open chat">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-      </svg>
-      <span>Chat</span>
-    </button>
-
-    <!-- ── Cart Toast ── -->
+    <!-- ── Cart Toast ──────────────────────────────────────────────────────── -->
     <div class="toast" id="cartToast" aria-live="polite"></div>
 
-    <!-- ── Profile Modal ── -->
+    <!-- ── Cart Drawer ────────────────────────────────────────────────────── -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-drawer" id="cartDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Shopping bag">
+      <div class="cart-drawer__head">
+        <div class="cart-drawer__title">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          My Bag
+          <span class="cart-drawer__count" id="cartDrawerCount">0 items</span>
+        </div>
+        <button class="close-btn" id="cartDrawerClose" type="button" aria-label="Close cart">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="cart-drawer__body" id="cartDrawerBody"></div>
+
+      <div class="cart-drawer__footer" id="cartDrawerFooter">
+        <div class="cart-total">
+          <span class="cart-total__label">Subtotal</span>
+          <span class="cart-total__val" id="cartSubtotal">$0.00</span>
+        </div>
+        <button class="btn btn--primary cart-checkout" type="button">Checkout</button>
+        <button class="btn btn--secondary cart-continue" type="button" id="cartContinue">Continue Shopping</button>
+      </div>
+    </div>
+
+    <!-- ── Chat Panel (floating widget) ───────────────────────────────────── -->
+    <div class="chat-panel" id="chatPanel" aria-hidden="true" aria-label="Summit Support Chat">
+      <div class="chat-panel__head">
+        <div class="chat-agent">
+          <div class="chat-agent__avatar">S</div>
+          <div class="chat-agent__info">
+            <div class="chat-agent__name">Carlos</div>
+            <div class="chat-agent__status">
+              <span class="status-dot"></span>Online &amp; ready to help
+            </div>
+          </div>
+        </div>
+        <button class="close-btn" id="chatClose" type="button" aria-label="Close chat">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="chat-panel__messages" id="chatMessages"></div>
+
+      <div class="chat-panel__quick-replies" id="quickRepliesContainer"></div>
+
+      <div class="chat-panel__footer">
+        <input
+          class="chat-input"
+          id="chatInput"
+          type="text"
+          placeholder="Ask about gear, sizing, prices…"
+          autocomplete="off"
+        />
+        <button class="chat-send-btn" id="chatSend" type="button" aria-label="Send">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M17 10L3 3l3 7-3 7 14-7z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── FAB ────────────────────────────────────────────────────────────── -->
+    <button class="fab" id="chatBtn" type="button" aria-label="Chat with Carlos">
+      <span class="fab__pulse" aria-hidden="true"></span>
+      <svg class="fab__icon fab__icon--chat" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+        <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <svg class="fab__icon fab__icon--close" viewBox="0 0 20 20" fill="none" aria-hidden="true" hidden>
+        <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="fab__label">Ask Carlos</span>
+    </button>
+
+    <!-- ── Profile Modal ───────────────────────────────────────────────────── -->
     <div class="modal" id="profileModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Profile">
       <div class="modal__backdrop" data-close></div>
       <div class="modal__sheet">
         <div class="modal__head">
-          <span class="modal__title">Profile</span>
+          <span class="modal__title">My Profile</span>
           <button class="close-btn" type="button" data-close aria-label="Close">
             <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
@@ -205,43 +282,7 @@
       </div>
     </div>
 
-    <!-- ── Chat Modal ── -->
-    <div class="modal" id="chatModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Chat with support">
-      <div class="modal__backdrop" data-close></div>
-      <div class="modal__sheet">
-        <div class="modal__head">
-          <div class="chat-head-info">
-            <div class="chat-avatar">SS</div>
-            <div>
-              <div class="modal__title">Summit Support</div>
-              <div class="chat-status">Online now</div>
-            </div>
-          </div>
-          <button class="close-btn" type="button" data-close aria-label="Close">
-            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <div class="modal__body">
-          <div class="chat" id="chatMessages">
-            <div class="chat__msg chat__msg--them">
-              <div class="chat__bubble">Hey! Need help finding the right gear?</div>
-            </div>
-            <div class="chat__msg chat__msg--me">
-              <div class="chat__bubble">Yeah — looking for an all-mountain board.</div>
-            </div>
-            <div class="chat__msg chat__msg--them">
-              <div class="chat__bubble">Check out the Summit Carver 155. Great stability and edge hold for all conditions.</div>
-            </div>
-          </div>
-          <div class="chat__footer">
-            <input class="chat__input" type="text" placeholder="Type a message…" disabled />
-            <button class="btn btn--primary btn--sm" type="button" disabled>Send</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Item Detail Modal ── -->
+    <!-- ── Item Detail Modal ───────────────────────────────────────────────── -->
     <div class="modal" id="detailModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Item detail">
       <div class="modal__backdrop" data-close></div>
       <div class="modal__sheet modal__sheet--wide">
@@ -251,20 +292,18 @@
             <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
-        <div class="modal__body modal__body--detail" id="detailBody">
-          <!-- populated by JS -->
-        </div>
+        <div class="modal__body modal__body--detail" id="detailBody"></div>
       </div>
     </div>
 
     <script>
-      // ── State ──────────────────────────────────────────────────────────────
+      // ── State ───────────────────────────────────────────────────────────────
       let activeCategory = 'All';
-      let activeSearch = '';
+      let activeSearch   = '';
       let activeSortOrder = 'default';
       const cart = {};
 
-      // ── DOM refs ───────────────────────────────────────────────────────────
+      // ── DOM refs ────────────────────────────────────────────────────────────
       const itemsGrid    = document.getElementById('itemsGrid');
       const contentTitle = document.getElementById('contentTitle');
       const contentCount = document.getElementById('contentCount');
@@ -276,43 +315,37 @@
       const statItems    = document.getElementById('statItems');
       const cartToast    = document.getElementById('cartToast');
 
-      // ── Category counts ────────────────────────────────────────────────────
+      // ── Category counts ─────────────────────────────────────────────────────
       function initCounts() {
         const allEl = document.getElementById('count-All');
         if (allEl) allEl.textContent = ITEMS.length;
-
         const cats = [...new Set(ITEMS.map(i => i.category))];
         cats.forEach(cat => {
-          const id = 'count-' + cat;
-          const el = document.getElementById(id);
+          const el = document.getElementById('count-' + cat);
           if (el) el.textContent = ITEMS.filter(i => i.category === cat).length;
         });
       }
 
-      // ── Filter + sort ──────────────────────────────────────────────────────
+      // ── Filter + sort ────────────────────────────────────────────────────────
       function getFilteredItems() {
         let list = activeSearch
           ? searchItems(activeSearch)
           : getItemsByCategory(activeCategory);
-
         if (activeSortOrder === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
         if (activeSortOrder === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
         if (activeSortOrder === 'name-asc')   list = [...list].sort((a, b) => a.itemName.localeCompare(b.itemName));
         return list;
       }
 
-      // ── Render grid ────────────────────────────────────────────────────────
+      // ── Render grid ──────────────────────────────────────────────────────────
       function renderGrid() {
         const items = getFilteredItems();
         itemsGrid.innerHTML = '';
         emptyState.hidden = items.length > 0;
-
         contentCount.textContent = items.length + (items.length === 1 ? ' item' : ' items');
-        if (activeSearch) {
-          contentTitle.textContent = `Results for "${activeSearch}"`;
-        } else {
-          contentTitle.textContent = activeCategory === 'All' ? 'All Items' : activeCategory;
-        }
+        contentTitle.textContent = activeSearch
+          ? `Results for "${activeSearch}"`
+          : (activeCategory === 'All' ? 'All Items' : activeCategory);
 
         items.forEach(item => {
           const card = document.createElement('article');
@@ -321,15 +354,15 @@
 
           const imageUrl = (item.imageUrls && item.imageUrls[0]) || 'images/placeholder.jpg';
           const inCart = cart[item.id] || 0;
-
           card.innerHTML = `
             <div class="card__img-wrap">
               <img class="card__img" src="${imageUrl}" alt="${item.itemName}" loading="lazy" />
               <span class="card__cat-badge">${item.category}</span>
+              <div class="card__overlay"><span class="card__quick-view">Quick View</span></div>
             </div>
             <div class="card__body">
               <div class="card__name">${item.itemName}</div>
-              <div class="card__desc">${item.description.substring(0, 88)}…</div>
+              <div class="card__desc">${item.description.substring(0, 90)}…</div>
               <div class="card__footer">
                 <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
                 <button class="btn btn--primary btn--sm add-to-cart" data-id="${item.id}" type="button"${inCart ? ' data-in-cart' : ''}>
@@ -342,7 +375,7 @@
         });
       }
 
-      // ── Cart ───────────────────────────────────────────────────────────────
+      // ── Cart ─────────────────────────────────────────────────────────────────
       function getTotalCartCount() {
         return Object.values(cart).reduce((s, n) => s + n, 0);
       }
@@ -352,6 +385,10 @@
         cartBadge.textContent = total;
         cartBadge.classList.toggle('has-items', total > 0);
         if (statItems) statItems.textContent = total;
+        // live-update drawer count if it's open
+        if (document.getElementById('cartDrawer').classList.contains('is-open')) {
+          renderCartPanel();
+        }
       }
 
       let toastTimer;
@@ -359,13 +396,12 @@
         cartToast.textContent = msg;
         cartToast.classList.add('is-visible');
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => cartToast.classList.remove('is-visible'), 2400);
+        toastTimer = setTimeout(() => cartToast.classList.remove('is-visible'), 2600);
       }
 
       itemsGrid.addEventListener('click', e => {
-        const btn = e.target.closest('.add-to-cart');
+        const btn  = e.target.closest('.add-to-cart');
         const card = e.target.closest('.card');
-
         if (btn) {
           e.stopPropagation();
           const id = Number(btn.dataset.id);
@@ -376,14 +412,10 @@
           renderGrid();
           return;
         }
-
-        if (card) {
-          const id = Number(card.dataset.id);
-          openDetail(id);
-        }
+        if (card) openDetail(Number(card.dataset.id));
       });
 
-      // ── Detail modal ───────────────────────────────────────────────────────
+      // ── Detail modal ──────────────────────────────────────────────────────────
       const detailModal = document.getElementById('detailModal');
       const detailTitle = document.getElementById('detailTitle');
       const detailBody  = document.getElementById('detailBody');
@@ -399,7 +431,6 @@
               <img class="detail__img" src="${item.imageUrls[0] || 'images/placeholder.jpg'}" alt="${item.itemName}" />
             </div>
             <div class="detail__info">
-              <span class="card__cat-badge">${item.category}</span>
               <h2 class="detail__name">${item.itemName}</h2>
               <p class="detail__desc">${item.description}</p>
               <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
@@ -419,7 +450,7 @@
         setModalOpen(detailModal, true);
       }
 
-      // ── Categories ─────────────────────────────────────────────────────────
+      // ── Categories ────────────────────────────────────────────────────────────
       categoryList.addEventListener('click', e => {
         const item = e.target.closest('.cat-item');
         if (!item) return;
@@ -431,7 +462,7 @@
         renderGrid();
       });
 
-      // ── Search ─────────────────────────────────────────────────────────────
+      // ── Search ───────────────────────────────────────────────────────────────
       let searchDebounce;
       searchInput.addEventListener('input', () => {
         clearTimeout(searchDebounce);
@@ -440,8 +471,7 @@
           if (activeSearch) {
             document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
           } else {
-            const allItem = document.querySelector('[data-category="All"]');
-            if (allItem) allItem.classList.add('is-active');
+            document.querySelector('[data-category="All"]')?.classList.add('is-active');
           }
           renderGrid();
         }, 200);
@@ -455,36 +485,512 @@
         renderGrid();
       });
 
-      // ── Sort ───────────────────────────────────────────────────────────────
+      // ── Sort ─────────────────────────────────────────────────────────────────
       sortSelect.addEventListener('change', () => {
         activeSortOrder = sortSelect.value;
         renderGrid();
       });
 
-      // ── Modals ─────────────────────────────────────────────────────────────
+      // ── Modals (profile + detail) ─────────────────────────────────────────────
       const profileModal = document.getElementById('profileModal');
-      const chatModal    = document.getElementById('chatModal');
+
+      function syncBodyScroll() {
+        const anyOpen =
+          profileModal.classList.contains('is-open') ||
+          detailModal.classList.contains('is-open') ||
+          document.getElementById('cartDrawer').classList.contains('is-open');
+        document.body.classList.toggle('modal-open', anyOpen);
+      }
 
       function setModalOpen(el, open) {
         el.classList.toggle('is-open', open);
         el.setAttribute('aria-hidden', String(!open));
-        document.body.classList.toggle('modal-open', open);
+        syncBodyScroll();
       }
 
       function closeAllModals() {
-        [profileModal, chatModal, detailModal].forEach(m => setModalOpen(m, false));
+        [profileModal, detailModal].forEach(m => {
+          m.classList.remove('is-open');
+          m.setAttribute('aria-hidden', 'true');
+        });
+        syncBodyScroll();
       }
 
       document.getElementById('profileBtn').addEventListener('click', () => setModalOpen(profileModal, true));
-      document.getElementById('chatBtn').addEventListener('click', () => setModalOpen(chatModal, true));
-      document.getElementById('cartBtn').addEventListener('click', () => setModalOpen(profileModal, true));
 
       document.addEventListener('click', e => {
         if (e.target.matches('[data-close]') || e.target.closest('[data-close]')) closeAllModals();
       });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          closeAllModals();
+          closeCartDrawer();
+          if (chatOpen) toggleChat();
+        }
+      });
 
-      // ── Init ───────────────────────────────────────────────────────────────
+      // ── Cart Drawer ───────────────────────────────────────────────────────────
+      const cartDrawer  = document.getElementById('cartDrawer');
+      const cartOverlay = document.getElementById('cartOverlay');
+
+      function openCartDrawer() {
+        cartDrawer.classList.add('is-open');
+        cartDrawer.setAttribute('aria-hidden', 'false');
+        cartOverlay.classList.add('is-open');
+        renderCartPanel();
+        syncBodyScroll();
+      }
+
+      function closeCartDrawer() {
+        cartDrawer.classList.remove('is-open');
+        cartDrawer.setAttribute('aria-hidden', 'true');
+        cartOverlay.classList.remove('is-open');
+        syncBodyScroll();
+      }
+
+      function renderCartPanel() {
+        const body       = document.getElementById('cartDrawerBody');
+        const subtotalEl = document.getElementById('cartSubtotal');
+        const countEl    = document.getElementById('cartDrawerCount');
+        const footer     = document.getElementById('cartDrawerFooter');
+
+        const entries = Object.entries(cart).filter(([, qty]) => qty > 0);
+        const totalQty = entries.reduce((s, [, qty]) => s + qty, 0);
+
+        countEl.textContent = totalQty === 0
+          ? 'Empty'
+          : `${totalQty} item${totalQty !== 1 ? 's' : ''}`;
+
+        if (entries.length === 0) {
+          body.innerHTML = `
+            <div class="cart-empty">
+              <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                <path d="M20 8L12 20v32a4 4 0 004 4h32a4 4 0 004-4V20l-8-12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" opacity=".25"/>
+                <line x1="12" y1="20" x2="52" y2="20" stroke="currentColor" stroke-width="2" opacity=".25"/>
+                <path d="M40 28a8 8 0 01-16 0" stroke="currentColor" stroke-width="2" opacity=".25"/>
+              </svg>
+              <p class="cart-empty__title">Your bag is empty</p>
+              <p class="cart-empty__sub">Add some gear to get started</p>
+            </div>
+          `;
+          subtotalEl.textContent = '$0.00';
+          footer.hidden = true;
+          return;
+        }
+
+        footer.hidden = false;
+        let subtotal = 0;
+        body.innerHTML = '';
+
+        entries.forEach(([idStr, qty]) => {
+          const id   = Number(idStr);
+          const item = ITEMS.find(i => i.id === id);
+          if (!item) return;
+          const lineTotal = item.price * qty;
+          subtotal += lineTotal;
+          const imageUrl = (item.imageUrls && item.imageUrls[0]) || '../images/placeholder.jpg';
+
+          const el = document.createElement('div');
+          el.className = 'cart-item';
+          el.innerHTML = `
+            <img class="cart-item__img" src="${imageUrl}" alt="${item.itemName}" />
+            <div class="cart-item__info">
+              <div class="cart-item__name">${item.itemName}</div>
+              <div class="cart-item__cat">${item.category}</div>
+              <div class="cart-item__price-row">
+                <span class="cart-item__unit">$${(item.price / 100).toFixed(2)}</span>
+                <span class="cart-item__qty-badge">× ${qty}</span>
+                <span class="cart-item__line">$${(lineTotal / 100).toFixed(2)}</span>
+              </div>
+            </div>
+            <button class="cart-item__remove" data-remove-id="${id}" type="button" aria-label="Remove ${item.itemName}">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          `;
+          body.appendChild(el);
+        });
+
+        subtotalEl.textContent = '$' + (subtotal / 100).toFixed(2);
+      }
+
+      document.getElementById('cartDrawerBody').addEventListener('click', e => {
+        const btn = e.target.closest('[data-remove-id]');
+        if (!btn) return;
+        const id = Number(btn.dataset.removeId);
+        delete cart[id];
+        updateCartUI();
+        renderCartPanel();
+        renderGrid();
+      });
+
+      document.getElementById('cartBtn').addEventListener('click', openCartDrawer);
+      document.getElementById('cartDrawerClose').addEventListener('click', closeCartDrawer);
+      document.getElementById('cartContinue').addEventListener('click', closeCartDrawer);
+      cartOverlay.addEventListener('click', closeCartDrawer);
+
+      // ── Chat Panel ────────────────────────────────────────────────────────────
+      const chatPanel     = document.getElementById('chatPanel');
+      const chatMessages  = document.getElementById('chatMessages');
+      const qrContainer   = document.getElementById('quickRepliesContainer');
+      const chatInput     = document.getElementById('chatInput');
+      const chatSend      = document.getElementById('chatSend');
+      const fabIconChat   = document.querySelector('.fab__icon--chat');
+      const fabIconClose  = document.querySelector('.fab__icon--close');
+      const fabLabel      = document.querySelector('.fab__label');
+      const fabPulse      = document.querySelector('.fab__pulse');
+      let chatOpen = false;
+      let chatInitialized = false;
+
+      function toggleChat() {
+        chatOpen = !chatOpen;
+        chatPanel.classList.toggle('is-open', chatOpen);
+        chatPanel.setAttribute('aria-hidden', String(!chatOpen));
+        fabIconChat.hidden = chatOpen;
+        fabIconClose.hidden = !chatOpen;
+        fabLabel.textContent = chatOpen ? 'Close' : 'Ask Carlos';
+        document.getElementById('chatBtn').classList.toggle('is-chat-open', chatOpen);
+        if (chatOpen) {
+          fabPulse.style.display = 'none';
+          if (!chatInitialized) {
+            chatInitialized = true;
+            initChat();
+          }
+          const pageX = window.scrollX;
+          const pageY = window.scrollY;
+          chatInput.focus({ preventScroll: true });
+          window.scrollTo(pageX, pageY);
+          scrollChatToBottom();
+        }
+      }
+
+      document.getElementById('chatBtn').addEventListener('click', toggleChat);
+      document.getElementById('chatClose').addEventListener('click', toggleChat);
+
+      function scrollChatToBottom() {
+        setTimeout(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }, 50);
+      }
+
+      // ── Bot logic ─────────────────────────────────────────────────────────────
+      function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
+      function byCat(cat) { return ITEMS.filter(i => i.category === cat); }
+
+      const DEFAULT_QR = ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks'];
+
+      function getBotResponse(input) {
+        const m = input.toLowerCase();
+
+        if (/^(hi|hey|hello|yo|sup|howdy|what'?s up)/.test(m)) {
+          return {
+            text: "Hey! I'm Carlos, your Summit Shred guide. I can help you find the right board, build a complete kit, or point you to the best gear for your budget and skill level. What are you after?",
+            qr: ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks']
+          };
+        }
+
+        if (/snowboard|board|shred|all.?mountain|freestyle|pow(der)?|park|halfpipe|twin|directional/.test(m)) {
+          const b = byCat('Snowboards');
+          return {
+            text: `We carry ${b.length} boards:\n\n<strong>${b[0].itemName}</strong> — ${fmt(b[0].price)}\nBest for all-mountain and hardpack. Directional twin with great edge hold.\n\n<strong>${b[1].itemName}</strong> — ${fmt(b[1].price)}\nSoft flex designed for park and freestyle. Super butter-able.`,
+            qr: ['All-mountain riding', 'Park & freestyle', 'What bindings pair with these?', 'View all boards'],
+            action: null
+          };
+        }
+
+        if (/binding|bindings|highback|highback|mount|strap/.test(m)) {
+          const b = byCat('Bindings')[0];
+          return {
+            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} is our go-to — tool-free adjustment, cushioned EVA footbed, and compatible with all major boot standards. Hard to beat at that price.`,
+            qr: ['Add bindings to cart', 'What boots pair well?', 'View all boards']
+          };
+        }
+
+        if (/boot|boots|footwear|lace|boa|liner/.test(m)) {
+          const b = byCat('Boots')[0];
+          return {
+            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} is the most popular in our shop — BOA closure for micro-adjustments, heat-moldable liner, and a Vibram outsole. Medium-stiff flex suits most riders from beginner to intermediate.`,
+            qr: ['Tell me about bindings', 'View all boots', 'Build a full kit']
+          };
+        }
+
+        if (/helmet|head|mips|vent|protect/.test(m)) {
+          const h = byCat('Helmets')[0];
+          return {
+            text: `Safety first! The <strong>${h.itemName}</strong> at ${fmt(h.price)} has MIPS rotational protection, 12 adjustable vents, and a goggle clip system. Works great with our goggles.`,
+            qr: ['Tell me about goggles', 'Build a full kit', 'View all helmets']
+          };
+        }
+
+        if (/goggle|goggles|lens|fog|uv|vision|anti-fog/.test(m)) {
+          const g = byCat('Goggles')[0];
+          return {
+            text: `The <strong>${g.itemName}</strong> at ${fmt(g.price)} — dual anti-fog lenses, 100% UV protection, and an OTG design for glasses wearers. Pairs nicely with the Apex MIPS Helmet.`,
+            qr: ['Tell me about helmets', 'View goggles', 'Build a full kit']
+          };
+        }
+
+        if (/jacket|coat|shell|waterproof|outerwear/.test(m)) {
+          const j = byCat('Jackets')[0];
+          return {
+            text: `The <strong>${j.itemName}</strong> at ${fmt(j.price)} is built for serious days — 20K waterproofing, taped seams, underarm vents, and a powder skirt. Ready for anything the mountain throws at you.`,
+            qr: ['Tell me about pants', 'View jackets', 'Build a full kit'],
+            action: { type: 'filter', category: 'Jackets' }
+          };
+        }
+
+        if (/pant|pants|bib|outerwear bottom/.test(m)) {
+          const p = byCat('Pants')[0];
+          return {
+            text: `The <strong>${p.itemName}</strong> at ${fmt(p.price)} — bib-style with 15K waterproofing, articulated knees, boot gaiters, and reinforced cuffs. A perfect match with the Powder Pro Jacket.`,
+            qr: ['Tell me about jackets', 'View pants', 'Build a full kit']
+          };
+        }
+
+        if (/glove|gloves|mitt|hand/.test(m)) {
+          const g = byCat('Gloves')[0];
+          return {
+            text: `The <strong>${g.itemName}</strong> at ${fmt(g.price)} — waterproof shell, synthetic insulation, silicone grip palm. Warm and functional without breaking the bank.`,
+            qr: ['View gloves', 'What about base layers?', 'Build a full kit']
+          };
+        }
+
+        if (/base.?layer|merino|thermal|baselayer/.test(m)) {
+          const b = byCat('Base Layers')[0];
+          return {
+            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} — 100% merino wool, moisture-wicking, and naturally odor-resistant. One of the best investments you can make for comfort on the mountain.`,
+            qr: ['Tell me about socks', 'Build a full kit', 'Budget-friendly picks']
+          };
+        }
+
+        if (/sock|socks/.test(m)) {
+          const s = byCat('Socks')[0];
+          return {
+            text: `The <strong>${s.itemName}</strong> at ${fmt(s.price)} — over-the-calf, targeted cushioning zones, arch support, merino/nylon blend. You'd be surprised how much good socks transform your ride.`,
+            qr: ['Add to cart', 'Tell me about base layers', 'Build a full kit']
+          };
+        }
+
+        if (/wax|tune|tuning|edge|maintenance|service/.test(m)) {
+          const items = byCat('Wax & Tuning');
+          return {
+            text: `We've got ${items.length} tuning options:\n\n<strong>${items[0].itemName}</strong> — ${fmt(items[0].price)} (all-temp wax + tools)\n<strong>${items[1].itemName}</strong> — ${fmt(items[1].price)} (compact pocket tool)\n\nKeep that base flying!`,
+            qr: ['View tuning gear', 'Build a full kit']
+          };
+        }
+
+        if (/bag|pack|backpack|carry|storage/.test(m)) {
+          const b = byCat('Bags')[0];
+          return {
+            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} — ventilated compartments, wet/dry separation, shoulder strap. Perfect for hauling boots and gear to the mountain.`,
+            qr: ['View bags', 'Build a full kit']
+          };
+        }
+
+        if (/beginner|newbie|new to|first time|start|learning|never rode/.test(m)) {
+          return {
+            text: `Welcome to snowboarding! Here's a solid beginner setup:\n\n<strong>Alpine Freestyle 148</strong> — $479 (forgiving flex)\n<strong>Peak Lock Bindings</strong> — $229\n<strong>Ridge Step Boots</strong> — $189\n<strong>Apex MIPS Helmet</strong> — $149\n\nThat's ~$1,046 for a complete, quality setup. Want to swap any piece?`,
+            qr: ['What about goggles?', 'Need something cheaper', 'Looks great, view all', 'Build a full kit']
+          };
+        }
+
+        if (/budget|cheap|afford|under \$|low.?cost|save|deal/.test(m)) {
+          const sorted = [...ITEMS].sort((a, b) => a.price - b.price).slice(0, 3);
+          return {
+            text: `Here are our most affordable picks:\n\n<strong>${sorted[0].itemName}</strong> — ${fmt(sorted[0].price)}\n<strong>${sorted[1].itemName}</strong> — ${fmt(sorted[1].price)}\n<strong>${sorted[2].itemName}</strong> — ${fmt(sorted[2].price)}\n\nWant me to sort all products by price?`,
+            qr: ['Sort by price', 'Best gear for beginners', 'View all products'],
+            action: null
+          };
+        }
+
+        if (/full.?kit|complete|setup|everything|package|bundle/.test(m)) {
+          return {
+            text: `A mountain-ready kit covers:\n\n<strong>Hardware</strong> — Board + Bindings + Boots\n<strong>Protection</strong> — Helmet + Goggles\n<strong>Outerwear</strong> — Jacket + Pants + Gloves\n<strong>Layers</strong> — Base Layers + Socks\n\nStart with hardware and work outward. Which piece should we tackle first?`,
+            qr: ['Start with a snowboard', 'Show me helmets', 'View Jackets', 'Budget-friendly picks']
+          };
+        }
+
+        if (/price|cost|how much|expensive|range/.test(m)) {
+          const prices = ITEMS.map(i => i.price);
+          return {
+            text: `Our gear ranges from ${fmt(Math.min(...prices))} all the way to ${fmt(Math.max(...prices))}. Boards and jackets sit at the top; accessories like socks and tuning tools are very affordable. What's your rough budget?`,
+            qr: ['Under $100', 'Under $300', 'Full kit $800+', 'Budget-friendly picks']
+          };
+        }
+
+        if (/sort.?by.?price|low.?to.?high|cheapest/.test(m)) {
+          return {
+            text: `Done! I've sorted all products from lowest to highest price. Check the main view.`,
+            qr: DEFAULT_QR,
+            action: { type: 'sort', value: 'price-asc' }
+          };
+        }
+
+        if (/view.?all|show.?all|all.?product|browse|catalog/.test(m)) {
+          return {
+            text: `We have ${ITEMS.length} products across ${[...new Set(ITEMS.map(i => i.category))].length} categories. Use the sidebar to filter by category, or ask me anything specific!`,
+            qr: DEFAULT_QR,
+            action: { type: 'filter', category: 'All' }
+          };
+        }
+
+        if (/all.?mountain|am riding/.test(m)) {
+          const b = byCat('Snowboards')[0];
+          return {
+            text: `For all-mountain, the <strong>${b.itemName}</strong> at ${fmt(b.price)} is the one. Directional twin shape, poplar core, sintered base — handles hardpack and soft snow equally well.`,
+            qr: ['Add to cart', 'Tell me about bindings', 'View all boards']
+          };
+        }
+
+        if (/park|freestyle|twin|jib/.test(m)) {
+          const b = byCat('Snowboards')[1];
+          return {
+            text: `For park and freestyle, the <strong>${b.itemName}</strong> at ${fmt(b.price)} is your ride — true twin shape, soft flex, lightweight layup. Butters beautifully and pops off kickers.`,
+            qr: ['Add to cart', 'Tell me about bindings', 'View all boards']
+          };
+        }
+
+        // Fallback
+        return {
+          text: `I want to make sure I give you the best recommendation! Try asking about a specific category (snowboards, jackets, boots...), your skill level, or your budget and I'll point you in the right direction.`,
+          qr: DEFAULT_QR
+        };
+      }
+
+      function applyBotAction(action) {
+        if (!action) return;
+        if (action.type === 'filter') {
+          activeSearch = '';
+          searchInput.value = '';
+          activeCategory = action.category;
+          document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
+          document.querySelector(`[data-category="${action.category}"]`)?.classList.add('is-active');
+          renderGrid();
+        }
+        if (action.type === 'sort') {
+          activeSortOrder = action.value;
+          sortSelect.value = action.value;
+          renderGrid();
+        }
+      }
+
+      // ── Chat UI helpers ──────────────────────────────────────────────────────
+      function addMessage(role, html) {
+        const wrap = document.createElement('div');
+        wrap.className = `chat-msg chat-msg--${role}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        if (role === 'bot') {
+          bubble.innerHTML = html.replace(/\n/g, '<br>');
+        } else {
+          bubble.textContent = html;
+        }
+        wrap.appendChild(bubble);
+        chatMessages.appendChild(wrap);
+        scrollChatToBottom();
+      }
+
+      function showTypingIndicator() {
+        const wrap = document.createElement('div');
+        wrap.className = 'chat-msg chat-msg--bot';
+        wrap.id = 'typingIndicator';
+        wrap.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        chatMessages.appendChild(wrap);
+        scrollChatToBottom();
+        return wrap;
+      }
+
+      function setQuickReplies(replies) {
+        qrContainer.innerHTML = '';
+        if (!replies || !replies.length) return;
+        replies.forEach(text => {
+          const btn = document.createElement('button');
+          btn.className = 'quick-reply';
+          btn.textContent = text;
+          btn.type = 'button';
+          btn.addEventListener('click', () => handleQuickReply(text));
+          qrContainer.appendChild(btn);
+        });
+      }
+
+      function simulateBotResponse(response) {
+        setQuickReplies([]);
+        const typingEl = showTypingIndicator();
+        const delay = 700 + Math.min(response.text.length * 2, 900);
+        setTimeout(() => {
+          typingEl.remove();
+          addMessage('bot', response.text);
+          if (response.action) applyBotAction(response.action);
+          setQuickReplies(response.qr || DEFAULT_QR);
+        }, delay);
+      }
+
+      function handleQuickReply(text) {
+        addMessage('user', text);
+        setQuickReplies([]);
+
+        // Special cases
+        const lower = text.toLowerCase();
+        if (lower.includes('sort by price')) {
+          applyBotAction({ type: 'sort', value: 'price-asc' });
+          setTimeout(() => {
+            addMessage('bot', 'Done! I\'ve sorted products from lowest to highest price. Check the main view.');
+            setQuickReplies(DEFAULT_QR);
+          }, 600);
+          return;
+        }
+        if (lower.startsWith('view all') || lower.startsWith('view jackets') ||
+            lower.startsWith('view goggles') || lower.startsWith('view gloves') ||
+            lower.startsWith('view pants') || lower.startsWith('view bags') ||
+            lower.startsWith('view tuning') || lower.startsWith('view all boots') ||
+            lower.startsWith('view all helmets') || lower.startsWith('view all boards') ||
+            lower === 'looks great, view all' || lower === 'view all products') {
+          const catMatch = lower.match(/view (all )?(\w[\w\s&]*?)(\s|$)/);
+          const catMap = {
+            'boards': 'Snowboards', 'snowboards': 'Snowboards', 'bindings': 'Bindings',
+            'boots': 'Boots', 'helmets': 'Helmets', 'goggles': 'Goggles',
+            'jackets': 'Jackets', 'pants': 'Pants', 'gloves': 'Gloves',
+            'bags': 'Bags', 'tuning': 'Wax & Tuning', 'all products': 'All',
+            'all': 'All'
+          };
+          let cat = 'All';
+          for (const [key, val] of Object.entries(catMap)) {
+            if (lower.includes(key)) { cat = val; break; }
+          }
+          applyBotAction({ type: 'filter', category: cat });
+          const name = cat === 'All' ? 'all products' : cat;
+          setTimeout(() => {
+            addMessage('bot', `Done! Showing ${name} in the main view.`);
+            setQuickReplies(DEFAULT_QR);
+          }, 500);
+          return;
+        }
+
+        const response = getBotResponse(text);
+        simulateBotResponse(response);
+      }
+
+      function handleUserSend() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        chatInput.value = '';
+        addMessage('user', text);
+        setQuickReplies([]);
+        const response = getBotResponse(text);
+        simulateBotResponse(response);
+      }
+
+      chatSend.addEventListener('click', handleUserSend);
+      chatInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleUserSend();
+      });
+
+      function initChat() {
+        chatMessages.innerHTML = '';
+        setTimeout(() => {
+          addMessage('bot', "Hi! I'm <strong>Carlos</strong>, your Summit Shred guide. I can help you find the right gear, build a complete kit, or answer questions about any product. What are you looking for?");
+          setQuickReplies(DEFAULT_QR);
+        }, 300);
+      }
+
+      // ── Init ─────────────────────────────────────────────────────────────────
       initCounts();
       renderGrid();
       updateCartUI();
@@ -494,26 +1000,28 @@
     <script type="module">
       import { Amplify } from 'https://cdn.jsdelivr.net/npm/aws-amplify@6/+esm';
       import { signOut, getCurrentUser } from 'https://cdn.jsdelivr.net/npm/aws-amplify@6/auth/+esm';
-      
-      // Get config - will be generated after amplify push
+
       const getConfig = async () => {
-        try {
-          const response = await fetch('./amplifyconfiguration.json');
-          return await response.json();
-        } catch {
-          console.warn('amplifyconfiguration.json not found. Please run: amplify push');
-          return null;
+        const configPaths = ['./amplify_outputs.json', './amplifyconfiguration.json'];
+        for (const path of configPaths) {
+          try {
+            const response = await fetch(path);
+            if (response.ok) return await response.json();
+          } catch {
+            // Try the next known Amplify config filename.
+          }
         }
+
+        console.warn('Amplify configuration not found. Expected amplify_outputs.json or amplifyconfiguration.json.');
+        return null;
       };
 
-      // Initialize Amplify
       getConfig().then(config => {
         if (config) {
           Amplify.configure(config);
         }
       });
 
-      // Logout button handler
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
@@ -526,7 +1034,6 @@
         });
       }
 
-      // Protect page - redirect to login if not authenticated
       window.addEventListener('load', async () => {
         try {
           await getCurrentUser();
@@ -537,3 +1044,5 @@
         }
       });
     </script>
+  </body>
+</html>
