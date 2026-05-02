@@ -133,6 +133,41 @@ Use the password policy shown in the generated `amplify_outputs.json`. The curre
 
 Run `npm ci` during the build. This repo includes `@aws-amplify/backend-cli`, which provides `npx ampx`.
 
+### Deploy fails with `BootstrapDetectionError` or `ssm:GetParameter`
+
+If the build reaches `npx ampx pipeline-deploy` and fails with an error like:
+
+```text
+Unable to detect CDK bootstrap stack due to permission issues
+is not authorized to perform: ssm:GetParameter
+arn:aws:ssm:REGION:ACCOUNT_ID:parameter/cdk-bootstrap/hnb659fds/version
+```
+
+the repo is fine; the Amplify Hosting build role needs permission to read the CDK bootstrap version from SSM.
+
+In IAM, find the role shown in the error. In this project's latest failure it was:
+
+```text
+AemiliaControlPlaneLambda-CodeBuildRole-WZ7YQ9FM4OVR
+```
+
+Add this inline policy, replacing the region/account if your error shows different values:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ssm:GetParameter",
+      "Resource": "arn:aws:ssm:us-east-2:264748200621:parameter/cdk-bootstrap/*"
+    }
+  ]
+}
+```
+
+Redeploy after saving the policy. If another permission error appears after this, grant the next missing action to the same build role.
+
 ## References
 
 - Amplify Gen 2 outputs: https://docs.amplify.aws/react-native/reference/amplify_outputs/
