@@ -11,7 +11,7 @@
     <script src="/items.js"></script>
   </head>
 
-  <body>
+  <body class="auth-locked">
 
     <!-- ── Header ─────────────────────────────────────────────────────────── -->
     <header class="header">
@@ -54,7 +54,7 @@
             <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </button>
-        <button class="icon-btn" id="logoutBtn" type="button" aria-label="Logout">
+        <button class="icon-btn" id="logoutBtn" type="button" aria-label="Logout" hidden>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M16 17l4-4m0 0l-4-4m4 4H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -167,6 +167,14 @@
       </main>
     </div>
 
+    <div class="auth-lock" id="authLock">
+      <div class="auth-lock__panel">
+        <div class="auth-lock__title">Sign in to shop Summit Shred</div>
+        <div class="auth-lock__sub">Create an account or log in to browse gear, use Carlos, and manage your bag.</div>
+        <button class="btn btn--primary auth-lock__btn" id="authLockLogin" type="button">Log In</button>
+      </div>
+    </div>
+
     <!-- ── Cart Toast ──────────────────────────────────────────────────────── -->
     <div class="toast" id="cartToast" aria-live="polite"></div>
 
@@ -261,20 +269,20 @@
           </button>
         </div>
         <div class="modal__body">
-          <div class="profile-avatar">SR</div>
-          <div class="profile-name">SummitRider99</div>
-          <div class="profile-since">Member since 2026</div>
+          <div class="profile-avatar" id="profileAvatar">--</div>
+          <div class="profile-name" id="profileName">Signed out</div>
+          <div class="profile-since" id="profileSince">Member since --</div>
           <div class="profile-stats">
             <div class="stat">
               <div class="stat__val" id="statItems">0</div>
               <div class="stat__lbl">In Cart</div>
             </div>
             <div class="stat">
-              <div class="stat__val">14</div>
+              <div class="stat__val" id="statWishlist">0</div>
               <div class="stat__lbl">Wish List</div>
             </div>
             <div class="stat">
-              <div class="stat__val">3</div>
+              <div class="stat__val" id="statOrders">0</div>
               <div class="stat__lbl">Orders</div>
             </div>
           </div>
@@ -302,6 +310,15 @@
       let activeSearch   = '';
       let activeSortOrder = 'default';
       const cart = {};
+      const profileState = {
+        signedIn: false,
+        userKey: 'guest',
+        displayName: 'Signed out',
+        email: '',
+        memberSince: null,
+        wishlistCount: 0,
+        ordersCount: 0
+      };
 
       // ── DOM refs ────────────────────────────────────────────────────────────
       const itemsGrid    = document.getElementById('itemsGrid');
@@ -314,6 +331,118 @@
       const cartBadge    = document.getElementById('cartBadge');
       const statItems    = document.getElementById('statItems');
       const cartToast    = document.getElementById('cartToast');
+      const authLock     = document.getElementById('authLock');
+      const authLockLogin = document.getElementById('authLockLogin');
+      const profileAvatar = document.getElementById('profileAvatar');
+      const profileName  = document.getElementById('profileName');
+      const profileSince = document.getElementById('profileSince');
+      const statWishlist = document.getElementById('statWishlist');
+      const statOrders   = document.getElementById('statOrders');
+
+      function storageKey(name) {
+        return `summit:${profileState.userKey}:${name}`;
+      }
+
+      function setCart(nextCart) {
+        Object.keys(cart).forEach(id => delete cart[id]);
+        Object.entries(nextCart || {}).forEach(([id, qty]) => {
+          const count = Number(qty);
+          if (Number.isFinite(count) && count > 0) cart[id] = count;
+        });
+      }
+
+      function loadUserStats() {
+        try {
+          setCart(JSON.parse(localStorage.getItem(storageKey('cart')) || '{}'));
+        } catch {
+          setCart({});
+        }
+        profileState.wishlistCount = Number(localStorage.getItem(storageKey('wishlistCount')) || 0);
+        profileState.ordersCount = Number(localStorage.getItem(storageKey('ordersCount')) || 0);
+      }
+
+      function saveCart() {
+        if (profileState.signedIn) localStorage.setItem(storageKey('cart'), JSON.stringify(cart));
+      }
+
+      function initialsFromName(name) {
+        return (name || 'SS')
+          .split(/[\s@._-]+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(part => part[0].toUpperCase())
+          .join('') || 'SS';
+      }
+
+      function formatMemberSince(value) {
+        if (!value) return 'Member since --';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Member since --';
+        return `Member since ${date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`;
+      }
+
+      function updateProfileUI() {
+        if (profileAvatar) profileAvatar.textContent = initialsFromName(profileState.displayName || profileState.email);
+        if (profileName) profileName.textContent = profileState.displayName || profileState.email || 'Signed out';
+        if (profileSince) profileSince.textContent = formatMemberSince(profileState.memberSince);
+        if (statItems) statItems.textContent = getTotalCartCount();
+        if (statWishlist) statWishlist.textContent = profileState.wishlistCount;
+        if (statOrders) statOrders.textContent = profileState.ordersCount;
+      }
+
+      function setAuthLocked(locked) {
+        document.body.classList.toggle('auth-locked', locked);
+        if (authLock) authLock.hidden = !locked;
+        [searchInput, sortSelect].forEach(el => { if (el) el.disabled = locked; });
+        ['cartBtn', 'profileBtn', 'chatBtn'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.disabled = locked;
+        });
+        const logoutBtnEl = document.getElementById('logoutBtn');
+        if (logoutBtnEl) logoutBtnEl.hidden = locked;
+      }
+
+      function applySignedOutState() {
+        profileState.signedIn = false;
+        profileState.userKey = 'guest';
+        profileState.displayName = 'Signed out';
+        profileState.email = '';
+        profileState.memberSince = null;
+        profileState.wishlistCount = 0;
+        profileState.ordersCount = 0;
+        setCart({});
+        updateCartUI();
+        closeAllModals();
+        closeCartDrawer();
+        if (chatOpen) toggleChat();
+        setAuthLocked(true);
+        renderGrid();
+      }
+
+      function applySignedInState(profile) {
+        const userKey = profile.userKey || profile.email || profile.username || 'user';
+        profileState.signedIn = true;
+        profileState.userKey = userKey;
+        profileState.email = profile.email || '';
+        profileState.displayName = profile.displayName || profile.email || profile.username || 'Summit Rider';
+        const memberKey = storageKey('memberSince');
+        const storedMemberSince = localStorage.getItem(memberKey);
+        profileState.memberSince = storedMemberSince || profile.createdAt || new Date().toISOString();
+        localStorage.setItem(memberKey, profileState.memberSince);
+        loadUserStats();
+        updateCartUI();
+        setAuthLocked(false);
+        renderGrid();
+      }
+
+      authLockLogin?.addEventListener('click', () => {
+        window.location.href = '/auth.html';
+      });
+
+      window.summitHomeAuth = {
+        applySignedInState,
+        applySignedOutState
+      };
 
       // ── Category counts ─────────────────────────────────────────────────────
       function initCounts() {
@@ -385,6 +514,8 @@
         cartBadge.textContent = total;
         cartBadge.classList.toggle('has-items', total > 0);
         if (statItems) statItems.textContent = total;
+        updateProfileUI();
+        saveCart();
         // live-update drawer count if it's open
         if (document.getElementById('cartDrawer').classList.contains('is-open')) {
           renderCartPanel();
@@ -998,8 +1129,8 @@
 
     <!-- Amplify Gen 2 Auth Protection & Logout -->
     <script type="module">
-      import { Amplify } from 'https://cdn.jsdelivr.net/npm/aws-amplify@6/+esm';
-      import { signOut, getCurrentUser } from 'https://cdn.jsdelivr.net/npm/aws-amplify@6/auth/+esm';
+      import { Amplify } from 'https://esm.sh/aws-amplify@6.16.4?bundle';
+      import { fetchUserAttributes, getCurrentUser, signOut } from 'https://esm.sh/aws-amplify@6.16.4/auth?bundle';
 
       const getConfig = async () => {
         const configPaths = ['./amplify_outputs.json', './amplifyconfiguration.json'];
@@ -1016,33 +1147,56 @@
         return null;
       };
 
-      getConfig().then(config => {
-        if (config) {
-          Amplify.configure(config);
+      function getDisplayName(user, attributes) {
+        return attributes.name ||
+          attributes.preferred_username ||
+          attributes.nickname ||
+          attributes.email ||
+          user.signInDetails?.loginId ||
+          user.username ||
+          'Summit Rider';
+      }
+
+      async function refreshHomeAuthState() {
+        const config = await getConfig();
+        if (!config) {
+          window.summitHomeAuth?.applySignedOutState();
+          return;
         }
-      });
+
+        Amplify.configure(config);
+
+        try {
+          const user = await getCurrentUser();
+          const attributes = await fetchUserAttributes().catch(() => ({}));
+          const email = attributes.email || user.signInDetails?.loginId || '';
+          window.summitHomeAuth?.applySignedInState({
+            userKey: attributes.sub || user.userId || email || user.username,
+            username: user.username,
+            email,
+            displayName: getDisplayName(user, attributes)
+          });
+        } catch {
+          window.summitHomeAuth?.applySignedOutState();
+        }
+      }
 
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
           try {
             await signOut();
-            window.location.href = '/auth.html';
+            localStorage.removeItem('userEmail');
+            window.summitHomeAuth?.applySignedOutState();
+            window.location.href = '/index.html';
           } catch (error) {
             console.error('Logout error:', error);
+            window.summitHomeAuth?.applySignedOutState();
           }
         });
       }
 
-      window.addEventListener('load', async () => {
-        try {
-          await getCurrentUser();
-        } catch (error) {
-          if (!window.location.pathname.includes('auth')) {
-            window.location.href = '/auth.html';
-          }
-        }
-      });
+      window.addEventListener('load', refreshHomeAuthState);
     </script>
   </body>
 </html>
