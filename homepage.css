@@ -918,37 +918,42 @@ body.auth-locked .layout {
 }
 
 .order-complete-box {
-  margin: 10px 0 4px;
-  padding: 10px;
+  align-self: flex-end;
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin: 6px 0 0 auto;
+  padding: 7px;
   border: 1px solid rgba(96,165,250,.28);
-  border-radius: var(--r-sm);
-  background: rgba(59,130,246,.1);
+  border-radius: var(--r-pill);
+  background: rgba(15,23,42,.92);
+  box-shadow: 0 8px 22px rgba(0,0,0,.26);
+  backdrop-filter: blur(12px);
+}
+
+.order-complete-box__row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .order-complete-box__title {
-  color: var(--text);
-  font-size: 13px;
+  color: #bfdbfe;
+  font-size: 11.5px;
   font-weight: 800;
-}
-
-.order-complete-box__sub {
-  color: var(--text-2);
-  font-size: 12px;
-  line-height: 1.45;
-  margin: 3px 0 8px;
 }
 
 .order-complete-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  padding: 5px 11px;
+  min-height: 25px;
+  padding: 4px 10px;
   border: 1px solid rgba(96,165,250,.42);
   border-radius: var(--r-pill);
   background: rgba(59,130,246,.18);
   color: #bfdbfe;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
   cursor: pointer;
   transition: background var(--t) var(--ease), border-color var(--t) var(--ease), color var(--t) var(--ease), transform 90ms;
@@ -965,6 +970,48 @@ body.auth-locked .layout {
   cursor: default;
   transform: none;
   opacity: .72;
+}
+
+.order-info-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(148,163,184,.32);
+  border-radius: 50%;
+  background: rgba(148,163,184,.12);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: help;
+}
+
+.order-info-tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  width: 220px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--s0);
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: var(--sh-card);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity var(--t) var(--ease), transform var(--t) var(--ease);
+}
+
+.order-info-btn:hover .order-info-tooltip,
+.order-info-btn:focus-visible .order-info-tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes chip-in {
@@ -1171,6 +1218,27 @@ body.auth-locked .layout {
   flex-direction: column;
   gap: 12px;
   padding: 22px;
+}
+
+.order-detail__img {
+  width: 100%;
+  max-height: 240px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  background: var(--s2);
+}
+
+.order-detail__summary h2 {
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.order-detail__summary p {
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
 .order-detail__row {

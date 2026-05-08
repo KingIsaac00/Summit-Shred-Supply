@@ -225,7 +225,17 @@ async function listConversations() {
   const Conversation = requireModel('Conversation');
   const { data, errors } = await Conversation.list();
   if (errors?.length) throw new Error(errors[0].message || 'Could not load conversations.');
-  return (data || []).sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
+  return (data || [])
+    .filter(conversation => !conversation.completedAt)
+    .sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
+}
+
+async function getConversation(id) {
+  await ensureReady();
+  const Conversation = requireModel('Conversation');
+  const { data, errors } = await Conversation.get({ id });
+  if (errors?.length) throw new Error(errors[0].message || 'Could not load conversation.');
+  return data;
 }
 
 async function listMessages(conversationId) {
@@ -308,6 +318,8 @@ async function completeOrder(conversation) {
         conversationId: conversation.id,
         listingId: conversation.listingId,
         listingTitle: conversation.listingTitle,
+        listingDescription: listing?.data?.description,
+        listingImageUrl: listing?.data?.imageUrls?.find(Boolean),
         buyerSub: conversation.buyerSub,
         buyerName: conversation.buyerName,
         sellerSub: conversation.sellerSub,
@@ -340,6 +352,7 @@ window.summitMarketplace = {
   completeOrder,
   createListing,
   deleteListing,
+  getConversation,
   getProfile,
   listConversations,
   listListings,

@@ -65,6 +65,8 @@ const schema = a.schema({
       conversationId: a.id(),
       listingId: a.id().required(),
       listingTitle: a.string().required(),
+      listingDescription: a.string(),
+      listingImageUrl: a.string(),
       buyerSub: a.string().required(),
       buyerName: a.string(),
       sellerSub: a.string().required(),

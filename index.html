@@ -670,8 +670,14 @@
         const order = findProfileOrder(id);
         if (!order) return;
         detailTitle.textContent = 'Previous Order';
+        const imageUrl = order.listingImageUrl || 'images/placeholder.jpg';
         detailBody.innerHTML = `
           <div class="order-detail">
+            <img class="order-detail__img" src="${imageUrl}" alt="${order.listingTitle || 'Completed order'}" />
+            <div class="order-detail__summary">
+              <h2>${order.listingTitle || 'Completed order'}</h2>
+              <p>${order.listingDescription || 'No description was recorded for this order.'}</p>
+            </div>
             <div class="order-detail__row">
               <span>Listing</span>
               <strong>${order.listingTitle || 'Completed order'}</strong>
@@ -975,6 +981,7 @@
         delete listingSubmit.dataset.originalText;
         delete listingDelete.dataset.originalText;
         listingDelete.hidden = true;
+        listingDelete.style.display = 'none';
         listingStatus.textContent = '';
         listingForm.reset();
       }
@@ -990,6 +997,7 @@
         editingListing = item;
         listingModalTitle.textContent = 'Edit Listing';
         listingSubmit.textContent = 'Save Changes';
+        listingDelete.style.display = '';
         listingDelete.hidden = false;
         listingStatus.textContent = '';
         document.getElementById('listingTitle').value = item.itemName || '';
@@ -1407,17 +1415,14 @@
       async function openPreviousOrderChat(conversationId) {
         if (!window.summitMarketplace) return;
         if (!chatOpen) toggleChat();
-        await loadInbox();
-        const conversation = inboxConversations.find(convo =>
-          String(convo.id) === String(conversationId) ||
-          String(convo.listingId) === String(conversationId)
-        );
+        const conversation = await window.summitMarketplace.getConversation(conversationId).catch(() => null);
         if (!conversation) {
           renderInboxEmpty('Previous chat not found');
           return;
         }
+        inboxConversations = [];
         selectedInboxConversation = conversation;
-        renderConversationList();
+        qrContainer.innerHTML = '<button class="quick-reply inbox-thread is-active" type="button">Previous order chat</button>';
         await renderInboxMessages(conversation);
       }
 
@@ -1466,14 +1471,29 @@
         const otherCompleted = isBuyer ? conversation.sellerCompletedAt : conversation.buyerCompletedAt;
         const block = document.createElement('div');
         block.className = 'order-complete-box';
+        const explanation = userCompleted
+          ? 'You already confirmed. The listing clears after the other user confirms too.'
+          : otherCompleted
+            ? 'The other user already confirmed. Click Complete Order when the sale is fully finished.'
+            : 'Both users must click Complete Order before this listing is removed and saved under Previous Orders.';
 
         if (conversation.completedAt) {
-          block.innerHTML = '<div class="order-complete-box__title">Order completed</div><div class="order-complete-box__sub">This listing has been cleared from active listings.</div>';
+          block.innerHTML = `
+            <div class="order-complete-box__row">
+              <span class="order-complete-box__title">Completed</span>
+              <button class="order-info-btn" type="button" aria-label="Order completion information">i
+                <span class="order-info-tooltip">This listing has been cleared from active listings and saved under Previous Orders.</span>
+              </button>
+            </div>
+          `;
         } else {
           block.innerHTML = `
-            <div class="order-complete-box__title">Finish this order</div>
-            <div class="order-complete-box__sub">${userCompleted ? 'Waiting for the other user to confirm.' : otherCompleted ? 'The other user has confirmed completion.' : 'Both users must confirm before the listing is cleared.'}</div>
-            <button class="order-complete-btn" data-complete-order type="button" ${userCompleted ? 'disabled' : ''}>${userCompleted ? 'Confirmed' : 'Complete Order'}</button>
+            <div class="order-complete-box__row">
+              <button class="order-complete-btn" data-complete-order type="button" ${userCompleted ? 'disabled' : ''}>${userCompleted ? 'Confirmed' : 'Complete Order'}</button>
+              <button class="order-info-btn" type="button" aria-label="Order completion information">i
+                <span class="order-info-tooltip">${explanation}</span>
+              </button>
+            </div>
           `;
         }
 
