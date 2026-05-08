@@ -105,7 +105,32 @@ async function listListings() {
     filter: { status: { eq: 'ACTIVE' } },
   });
   if (errors?.length) throw new Error(errors[0].message || 'Could not load listings.');
-  return data || [];
+  const completedListingIds = new Set();
+  if (client?.models?.Order) {
+    const { data: orders } = await client.models.Order.list().catch(() => ({ data: [] }));
+    (orders || []).forEach(order => {
+      if (order.listingId) completedListingIds.add(order.listingId);
+    });
+  }
+  return (data || []).filter(listing => !completedListingIds.has(listing.id));
+}
+
+async function listOwnListings() {
+  await ensureReady();
+  const profile = await getProfile();
+  const Listing = requireModel('Listing');
+  const { data, errors } = await Listing.list({
+    filter: { sellerSub: { eq: profile.sub } },
+  });
+  if (errors?.length) throw new Error(errors[0].message || 'Could not load your listings.');
+  const completedListingIds = new Set();
+  if (client?.models?.Order) {
+    const { data: orders } = await client.models.Order.list().catch(() => ({ data: [] }));
+    (orders || []).forEach(order => {
+      if (order.listingId) completedListingIds.add(order.listingId);
+    });
+  }
+  return (data || []).filter(listing => listing.status !== 'HIDDEN' && !completedListingIds.has(listing.id));
 }
 
 async function createListing(input) {
@@ -127,6 +152,32 @@ async function createListing(input) {
   });
   if (errors?.length) throw new Error(errors[0].message || 'Could not create listing.');
   return data;
+}
+
+async function updateListing(input) {
+  await ensureReady();
+  const Listing = requireModel('Listing');
+  const { data, errors } = await Listing.update({
+    id: input.id,
+    title: input.title,
+    description: input.description,
+    price: input.price,
+    category: input.category,
+    condition: input.condition,
+    imageUrls: input.imageUrls || [],
+    location: input.location || '',
+    editedAt: new Date().toISOString(),
+  });
+  if (errors?.length) throw new Error(errors[0].message || 'Could not update listing.');
+  return data;
+}
+
+async function deleteListing(id) {
+  await ensureReady();
+  const Listing = requireModel('Listing');
+  const { errors } = await Listing.delete({ id });
+  if (errors?.length) throw new Error(errors[0].message || 'Could not delete listing.');
+  return true;
 }
 
 async function startConversation(listing, body) {
@@ -219,14 +270,84 @@ async function sendMessage(conversation, body) {
   return data;
 }
 
+async function completeOrder(conversation) {
+  await ensureReady();
+  const profile = await getProfile();
+  const Conversation = requireModel('Conversation');
+  const Listing = requireModel('Listing');
+  const now = new Date().toISOString();
+  const isBuyer = profile.sub === conversation.buyerSub;
+  const isSeller = profile.sub === conversation.sellerSub;
+  if (!isBuyer && !isSeller) throw new Error('Only conversation participants can complete this order.');
+
+  const next = {
+    id: conversation.id,
+    buyerCompletedAt: conversation.buyerCompletedAt,
+    sellerCompletedAt: conversation.sellerCompletedAt,
+  };
+
+  if (isBuyer && !next.buyerCompletedAt) next.buyerCompletedAt = now;
+  if (isSeller && !next.sellerCompletedAt) next.sellerCompletedAt = now;
+  const finished = Boolean(next.buyerCompletedAt && next.sellerCompletedAt);
+  if (finished && !conversation.completedAt) next.completedAt = now;
+
+  const { data, errors } = await Conversation.update(next);
+  if (errors?.length) throw new Error(errors[0].message || 'Could not complete order.');
+
+  if (finished && !conversation.completedAt) {
+    await Listing.update({
+      id: conversation.listingId,
+      status: 'SOLD',
+      soldAt: now,
+      buyerSub: conversation.buyerSub,
+    }).catch(() => {});
+
+    if (client?.models?.Order) {
+      const listing = await Listing.get({ id: conversation.listingId }).catch(() => ({ data: null }));
+      await client.models.Order.create({
+        listingId: conversation.listingId,
+        listingTitle: conversation.listingTitle,
+        buyerSub: conversation.buyerSub,
+        buyerName: conversation.buyerName,
+        sellerSub: conversation.sellerSub,
+        sellerName: conversation.sellerName,
+        participantIds: conversation.participantIds || [],
+        price: listing?.data?.price,
+        completedAt: now,
+      }).catch(() => {});
+    }
+  }
+
+  return data;
+}
+
+async function listOrders() {
+  await ensureReady();
+  const profile = await getProfile();
+  if (client?.models?.Order) {
+    const { data, errors } = await client.models.Order.list();
+    if (errors?.length) throw new Error(errors[0].message || 'Could not load orders.');
+    return (data || [])
+      .filter(order => (order.participantIds || []).includes(profile.sub))
+      .sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
+  }
+  const conversations = await listConversations();
+  return conversations.filter(conversation => conversation.completedAt);
+}
+
 window.summitMarketplace = {
+  completeOrder,
   createListing,
+  deleteListing,
   getProfile,
   listConversations,
   listListings,
+  listOrders,
+  listOwnListings,
   listMessages,
   sendMessage,
   startConversation,
+  updateListing,
 };
 
 window.dispatchEvent(new Event('summitMarketplaceReady'));

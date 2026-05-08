@@ -17,6 +17,9 @@ const schema = a.schema({
       sellerEmail: a.email(),
       location: a.string(),
       status: a.ref('ListingStatus').required(),
+      editedAt: a.datetime(),
+      soldAt: a.datetime(),
+      buyerSub: a.string(),
     })
     .authorization((allow) => [
       allow.owner(),
@@ -34,6 +37,9 @@ const schema = a.schema({
       participantIds: a.string().array().required(),
       lastMessagePreview: a.string(),
       lastMessageAt: a.datetime(),
+      buyerCompletedAt: a.datetime(),
+      sellerCompletedAt: a.datetime(),
+      completedAt: a.datetime(),
     })
     .authorization((allow) => [
       allow.ownersDefinedIn('participantIds').identityClaim('sub'),
@@ -52,6 +58,23 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.ownersDefinedIn('participantIds').identityClaim('sub'),
+    ]),
+
+  Order: a
+    .model({
+      listingId: a.id().required(),
+      listingTitle: a.string().required(),
+      buyerSub: a.string().required(),
+      buyerName: a.string(),
+      sellerSub: a.string().required(),
+      sellerName: a.string(),
+      participantIds: a.string().array().required(),
+      price: a.integer(),
+      completedAt: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.ownersDefinedIn('participantIds').identityClaim('sub'),
+      allow.authenticated().to(['read']),
     ]),
 });
 

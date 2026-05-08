@@ -41,14 +41,6 @@
 
       <div class="header__actions">
         <button class="btn btn--primary btn--sm header-sell-btn" id="sellBtn" type="button">Sell Gear</button>
-        <button class="icon-btn" id="cartBtn" type="button" aria-label="Cart" hidden>
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          <span class="cart-badge" id="cartBadge">0</span>
-        </button>
         <button class="icon-btn" id="profileBtn" type="button" aria-label="Profile">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
@@ -274,19 +266,20 @@
           <div class="profile-name" id="profileName">Signed out</div>
           <div class="profile-since" id="profileSince">Member since --</div>
           <div class="profile-stats">
-            <div class="stat">
+            <button class="stat" type="button" data-profile-view="listings">
               <div class="stat__val" id="statItems">0</div>
               <div class="stat__lbl">Listings</div>
-            </div>
-            <div class="stat">
+            </button>
+            <button class="stat" type="button" data-profile-view="wishlist">
               <div class="stat__val" id="statWishlist" title="0 wish list items">0</div>
               <div class="stat__lbl">Wish List</div>
-            </div>
-            <div class="stat">
+            </button>
+            <button class="stat" type="button" data-profile-view="orders">
               <div class="stat__val" id="statOrders">0</div>
               <div class="stat__lbl">Orders</div>
-            </div>
+            </button>
           </div>
+          <div class="profile-panel" id="profilePanel"></div>
         </div>
       </div>
     </div>
@@ -309,7 +302,7 @@
       <div class="modal__backdrop" data-close></div>
       <div class="modal__sheet modal__sheet--wide">
         <div class="modal__head">
-          <span class="modal__title">Sell Gear</span>
+          <span class="modal__title" id="listingModalTitle">Sell Gear</span>
           <button class="close-btn" type="button" data-close aria-label="Close create listing">
             <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
@@ -366,6 +359,7 @@
             <textarea id="listingDescription" rows="5" maxlength="1200" required></textarea>
           </label>
           <div class="form-actions">
+            <button class="btn btn--danger" id="listingDelete" type="button" hidden>Delete Listing</button>
             <span class="form-status" id="listingStatus"></span>
             <button class="btn btn--secondary" type="button" data-close>Cancel</button>
             <button class="btn btn--primary" id="listingSubmit" type="submit">Create Listing</button>
@@ -406,6 +400,9 @@
       let selectedMessageListing = null;
       let selectedInboxConversation = null;
       let inboxConversations = [];
+      let profileOrders = [];
+      let activeProfileView = 'listings';
+      let editingListing = null;
       const cart = {};
       const profileState = {
         signedIn: false,
@@ -441,6 +438,10 @@
       const listingModal = document.getElementById('listingModal');
       const listingForm  = document.getElementById('listingForm');
       const listingStatus = document.getElementById('listingStatus');
+      const listingModalTitle = document.getElementById('listingModalTitle');
+      const listingDelete = document.getElementById('listingDelete');
+      const listingSubmit = document.getElementById('listingSubmit');
+      const profilePanel = document.getElementById('profilePanel');
       const messageModal = document.getElementById('messageModal');
       const messageForm  = document.getElementById('messageForm');
       const messageStatus = document.getElementById('messageStatus');
@@ -465,6 +466,21 @@
 
       function findItemById(id) {
         return getCatalogItems().find(item => String(item.id) === String(id));
+      }
+
+      function isOwnListing(item) {
+        return Boolean(item?.sellerSub && profileState.userKey && item.sellerSub === profileState.userKey);
+      }
+
+      function formatEditedAt(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Listing edited';
+        return `Listing edited ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      }
+
+      function renderEditedNote(item) {
+        return item.editedAt ? `<div class="listing-edited">${formatEditedAt(item.editedAt)}</div>` : '';
       }
 
       function getItemsByCategoryView(category) {
@@ -492,6 +508,7 @@
           initCounts();
           updateProfileUI();
           renderGrid();
+          refreshProfileOrders();
         } catch (error) {
           console.warn('Marketplace listings unavailable:', error);
         }
@@ -523,7 +540,7 @@
           profileState.wishlist = [];
         }
         profileState.wishlistCount = profileState.wishlist.length;
-        profileState.ordersCount = Number(localStorage.getItem(storageKey('ordersCount')) || 0);
+        profileState.ordersCount = profileOrders.length;
       }
 
       function saveCart() {
@@ -581,6 +598,70 @@
         }
         if (statOrders) statOrders.textContent = profileState.ordersCount;
         if (profileBtn) profileBtn.title = `Profile - ${profileState.wishlistCount} wish list item${profileState.wishlistCount === 1 ? '' : 's'}`;
+        if (profilePanel) renderProfilePanel(activeProfileView);
+      }
+
+      function renderProfileItem(item, actionLabel, actionAttr) {
+        const imageUrl = item.imageUrls?.[0] || 'images/placeholder.jpg';
+        return `
+          <div class="profile-item">
+            <img class="profile-item__img" src="${imageUrl}" alt="${item.itemName}" />
+            <div class="profile-item__body">
+              <div class="profile-item__title">${item.itemName}</div>
+              <div class="profile-item__meta">$${(item.price / 100).toFixed(2)}${item.location ? ` - ${item.location}` : ''}</div>
+              ${renderEditedNote(item)}
+            </div>
+            <button class="btn btn--secondary btn--sm" ${actionAttr}="${item.id}" type="button">${actionLabel}</button>
+          </div>
+        `;
+      }
+
+      function renderProfilePanel(view = 'listings') {
+        if (!profilePanel) return;
+        activeProfileView = view;
+        document.querySelectorAll('[data-profile-view]').forEach(button => {
+          button.classList.toggle('is-active', button.dataset.profileView === view);
+        });
+
+        if (view === 'listings') {
+          const items = marketplaceListings.filter(isOwnListing);
+          profilePanel.innerHTML = items.length
+            ? items.map(item => renderProfileItem(item, 'Edit', 'data-profile-edit')).join('')
+            : '<div class="profile-empty">Your listings will show here.</div>';
+          return;
+        }
+
+        if (view === 'wishlist') {
+          const items = marketplaceListings.filter(item => isWishlisted(item.id));
+          profilePanel.innerHTML = items.length
+            ? items.map(item => renderProfileItem(item, 'View', 'data-profile-view-item')).join('')
+            : '<div class="profile-empty">Your saved listings will show here.</div>';
+          return;
+        }
+
+        const orders = profileOrders;
+        profilePanel.innerHTML = orders.length
+          ? orders.map(order => `
+              <div class="profile-item">
+                <div class="profile-item__body">
+                  <div class="profile-item__title">${order.listingTitle || 'Completed order'}</div>
+                  <div class="profile-item__meta">Completed ${formatEditedAt(order.completedAt).replace('Listing edited ', '')}</div>
+                </div>
+              </div>
+            `).join('')
+          : '<div class="profile-empty">Completed orders will show here.</div>';
+      }
+
+      async function refreshProfileOrders() {
+        if (!window.summitMarketplace || !profileState.signedIn) return;
+        try {
+          profileOrders = await window.summitMarketplace.listOrders();
+          profileState.ordersCount = profileOrders.length;
+          if (statOrders) statOrders.textContent = profileState.ordersCount;
+          renderProfilePanel(activeProfileView);
+        } catch (error) {
+          console.warn('Orders unavailable:', error);
+        }
       }
 
       function setAuthLocked(locked) {
@@ -604,6 +685,7 @@
         profileState.wishlist = [];
         profileState.wishlistCount = 0;
         profileState.ordersCount = 0;
+        profileOrders = [];
         setCart({});
         updateCartUI();
         closeAllModals();
@@ -628,6 +710,7 @@
         setAuthLocked(false);
         renderGrid();
         refreshMarketplaceListings();
+        refreshProfileOrders();
       }
 
       authLockLogin?.addEventListener('click', () => {
@@ -679,22 +762,31 @@
 
           const imageUrl = (item.imageUrls && item.imageUrls[0]) || 'images/placeholder.jpg';
           const wished = isWishlisted(item.id);
-          const actionButton = `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`;
+          const ownListing = isOwnListing(item);
+          const imageAction = ownListing
+            ? `<button class="wishlist-btn listing-menu-btn wishlist-btn--card" data-edit-listing-id="${item.id}" type="button" aria-label="Edit listing" title="Edit listing">
+                <span aria-hidden="true">...</span>
+              </button>`
+            : `<button class="wishlist-btn wishlist-btn--card${wished ? ' is-active' : ''}" data-wishlist-id="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"/>
+                </svg>
+              </button>`;
+          const actionButton = ownListing
+            ? `<button class="btn btn--secondary btn--sm" data-edit-listing-id="${item.id}" type="button">Edit Listing</button>`
+            : `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`;
           card.innerHTML = `
             <div class="card__img-wrap">
               <img class="card__img" src="${imageUrl}" alt="${item.itemName}" loading="lazy" />
               <span class="card__cat-badge">${item.category}</span>
-              <button class="wishlist-btn wishlist-btn--card${wished ? ' is-active' : ''}" data-wishlist-id="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"/>
-                </svg>
-              </button>
+              ${imageAction}
               <div class="card__overlay"><span class="card__quick-view">Quick View</span></div>
             </div>
             <div class="card__body">
               <div class="card__name">${item.itemName}</div>
               <div class="card__desc">${item.description.substring(0, 90)}...</div>
               <div class="card__seller">Listed by ${item.sellerName || 'Summit seller'}</div>
+              ${renderEditedNote(item)}
               <div class="card__footer">
                 <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
                 ${actionButton}
@@ -712,13 +804,14 @@
 
       function updateCartUI() {
         const total = getTotalCartCount();
-        cartBadge.textContent = total;
-        cartBadge.classList.toggle('has-items', total > 0);
-        if (statItems) statItems.textContent = total;
+        if (cartBadge) {
+          cartBadge.textContent = total;
+          cartBadge.classList.toggle('has-items', total > 0);
+        }
         updateProfileUI();
         saveCart();
         // live-update drawer count if it's open
-        if (document.getElementById('cartDrawer').classList.contains('is-open')) {
+        if (document.getElementById('cartDrawer')?.classList.contains('is-open')) {
           renderCartPanel();
         }
       }
@@ -735,7 +828,13 @@
         const btn  = e.target.closest('.add-to-cart');
         const messageBtn = e.target.closest('.message-seller');
         const wishBtn = e.target.closest('[data-wishlist-id]');
+        const editBtn = e.target.closest('[data-edit-listing-id]');
         const card = e.target.closest('.card');
+        if (editBtn) {
+          e.stopPropagation();
+          openEditListing(editBtn.dataset.editListingId);
+          return;
+        }
         if (wishBtn) {
           e.stopPropagation();
           toggleWishlist(wishBtn.dataset.wishlistId);
@@ -763,28 +862,40 @@
         if (!item) return;
         detailTitle.textContent = item.itemName;
         const wished = isWishlisted(id);
-        const detailAction = `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`;
+        const ownListing = isOwnListing(item);
+        const detailTopAction = ownListing
+          ? `<button class="wishlist-btn listing-menu-btn wishlist-btn--detail" data-detail-edit="${item.id}" type="button" aria-label="Edit listing" title="Edit listing"><span aria-hidden="true">...</span></button>`
+          : `<button class="wishlist-btn wishlist-btn--detail${wished ? ' is-active' : ''}" data-detail-wishlist="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"/>
+              </svg>
+            </button>`;
+        const detailAction = ownListing
+          ? `<button class="btn btn--secondary detail__message" data-detail-edit="${item.id}" type="button">Edit Listing</button>`
+          : `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`;
         detailBody.innerHTML = `
           <div class="detail">
             <div class="detail__img-wrap">
               <img class="detail__img" src="${item.imageUrls[0] || 'images/placeholder.jpg'}" alt="${item.itemName}" />
-              <button class="wishlist-btn wishlist-btn--detail${wished ? ' is-active' : ''}" data-detail-wishlist="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"/>
-                </svg>
-              </button>
+              ${detailTopAction}
             </div>
             <div class="detail__info">
               <h2 class="detail__name">${item.itemName}</h2>
               <p class="detail__desc">${item.description}</p>
               <p class="detail__seller">Listed by ${item.sellerName || 'Summit seller'}${item.location ? ` in ${item.location}` : ''}</p>
+              ${renderEditedNote(item)}
               <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
               ${detailAction}
             </div>
           </div>
         `;
         detailBody.querySelector('[data-message-detail]')?.addEventListener('click', () => openMessageModal(item.id));
-        detailBody.querySelector('[data-detail-wishlist]').addEventListener('click', e => {
+        detailBody.querySelector('[data-detail-edit]')?.addEventListener('click', e => {
+          e.stopPropagation();
+          setModalOpen(detailModal, false);
+          openEditListing(item.id);
+        });
+        detailBody.querySelector('[data-detail-wishlist]')?.addEventListener('click', e => {
           e.stopPropagation();
           toggleWishlist(id);
           const active = isWishlisted(id);
@@ -807,9 +918,57 @@
         }
       }
 
+      function resetListingFormMode() {
+        editingListing = null;
+        listingModalTitle.textContent = 'Sell Gear';
+        listingSubmit.textContent = 'Create Listing';
+        delete listingSubmit.dataset.originalText;
+        delete listingDelete.dataset.originalText;
+        listingDelete.hidden = true;
+        listingStatus.textContent = '';
+        listingForm.reset();
+      }
+
+      function openCreateListing() {
+        resetListingFormMode();
+        setModalOpen(listingModal, true);
+      }
+
+      function openEditListing(id) {
+        const item = findItemById(id);
+        if (!item || !isOwnListing(item)) return;
+        editingListing = item;
+        listingModalTitle.textContent = 'Edit Listing';
+        listingSubmit.textContent = 'Save Changes';
+        listingDelete.hidden = false;
+        listingStatus.textContent = '';
+        document.getElementById('listingTitle').value = item.itemName || '';
+        document.getElementById('listingPrice').value = item.price ? (item.price / 100).toFixed(2) : '';
+        document.getElementById('listingCategory').value = item.category || 'Accessories';
+        document.getElementById('listingCondition').value = item.condition || 'LIKE_NEW';
+        document.getElementById('listingLocation').value = item.location || '';
+        document.getElementById('listingImageUrl').value = item.imageUrls?.[0] || '';
+        document.getElementById('listingDescription').value = item.description || '';
+        setModalOpen(listingModal, true);
+      }
+
+      function listingFormPayload() {
+        const priceDollars = Number(document.getElementById('listingPrice').value);
+        const imageUrl = document.getElementById('listingImageUrl').value.trim();
+        return {
+          title: document.getElementById('listingTitle').value.trim(),
+          description: document.getElementById('listingDescription').value.trim(),
+          price: Math.round(priceDollars * 100),
+          category: document.getElementById('listingCategory').value,
+          condition: document.getElementById('listingCondition').value,
+          location: document.getElementById('listingLocation').value.trim(),
+          imageUrls: imageUrl ? [imageUrl] : [],
+        };
+      }
+
       function openMessageModal(id) {
         const item = findItemById(id);
-        if (!item?.isMarketplaceListing) return;
+        if (!item?.isMarketplaceListing || isOwnListing(item)) return;
         selectedMessageListing = item;
         messageTitle.textContent = `Message ${item.sellerName || 'Seller'}`;
         document.getElementById('messageBody').value = `Hi, is "${item.itemName}" still available?`;
@@ -825,31 +984,55 @@
         }
 
         const submitBtn = document.getElementById('listingSubmit');
-        setFormBusy(submitBtn, true, 'Creating...');
+        setFormBusy(submitBtn, true, editingListing ? 'Saving...' : 'Creating...');
         listingStatus.textContent = '';
 
         try {
-          const priceDollars = Number(document.getElementById('listingPrice').value);
-          const imageUrl = document.getElementById('listingImageUrl').value.trim();
-          const created = await window.summitMarketplace.createListing({
-            title: document.getElementById('listingTitle').value.trim(),
-            description: document.getElementById('listingDescription').value.trim(),
-            price: Math.round(priceDollars * 100),
-            category: document.getElementById('listingCategory').value,
-            condition: document.getElementById('listingCondition').value,
-            location: document.getElementById('listingLocation').value.trim(),
-            imageUrls: imageUrl ? [imageUrl] : [],
-          });
-
-          marketplaceListings = [normalizeRemoteListing(created), ...marketplaceListings];
+          const payload = listingFormPayload();
+          if (editingListing) {
+            const updated = await window.summitMarketplace.updateListing({
+              id: editingListing.id,
+              ...payload,
+            });
+            marketplaceListings = marketplaceListings.map(item =>
+              item.id === updated.id ? normalizeRemoteListing(updated) : item
+            );
+          } else {
+            const created = await window.summitMarketplace.createListing(payload);
+            marketplaceListings = [normalizeRemoteListing(created), ...marketplaceListings];
+          }
           initCounts();
+          updateProfileUI();
           renderGrid();
           closeAllModals();
-          showToast('Listing created');
+          showToast(editingListing ? 'Listing updated' : 'Listing created');
+          resetListingFormMode();
         } catch (error) {
-          listingStatus.textContent = error.message || 'Could not create listing.';
+          listingStatus.textContent = error.message || 'Could not save listing.';
         } finally {
           setFormBusy(submitBtn, false);
+        }
+      });
+
+      listingDelete?.addEventListener('click', async () => {
+        if (!editingListing || !window.summitMarketplace) return;
+        listingStatus.textContent = '';
+        setFormBusy(listingDelete, true, 'Deleting...');
+        try {
+          await window.summitMarketplace.deleteListing(editingListing.id);
+          marketplaceListings = marketplaceListings.filter(item => item.id !== editingListing.id);
+          profileState.wishlist = profileState.wishlist.filter(id => id !== String(editingListing.id));
+          saveWishlist();
+          initCounts();
+          updateProfileUI();
+          renderGrid();
+          closeAllModals();
+          showToast('Listing deleted');
+          resetListingFormMode();
+        } catch (error) {
+          listingStatus.textContent = error.message || 'Could not delete listing.';
+        } finally {
+          setFormBusy(listingDelete, false);
         }
       });
 
@@ -931,7 +1114,7 @@
           detailModal.classList.contains('is-open') ||
           listingModal.classList.contains('is-open') ||
           messageModal.classList.contains('is-open') ||
-          document.getElementById('cartDrawer').classList.contains('is-open');
+          document.getElementById('cartDrawer')?.classList.contains('is-open');
         document.body.classList.toggle('modal-open', anyOpen);
       }
 
@@ -949,12 +1132,30 @@
         syncBodyScroll();
       }
 
-      document.getElementById('profileBtn').addEventListener('click', () => setModalOpen(profileModal, true));
-      sellBtn?.addEventListener('click', () => {
-        listingStatus.textContent = '';
-        listingForm.reset();
-        setModalOpen(listingModal, true);
+      document.getElementById('profileBtn').addEventListener('click', () => {
+        renderProfilePanel(activeProfileView);
+        refreshProfileOrders();
+        setModalOpen(profileModal, true);
       });
+      document.querySelectorAll('[data-profile-view]').forEach(button => {
+        button.addEventListener('click', async () => {
+          renderProfilePanel(button.dataset.profileView);
+          if (button.dataset.profileView === 'orders') await refreshProfileOrders();
+        });
+      });
+      profilePanel?.addEventListener('click', event => {
+        const editBtn = event.target.closest('[data-profile-edit]');
+        const viewBtn = event.target.closest('[data-profile-view-item]');
+        if (editBtn) {
+          closeAllModals();
+          openEditListing(editBtn.dataset.profileEdit);
+        }
+        if (viewBtn) {
+          closeAllModals();
+          openDetail(viewBtn.dataset.profileViewItem);
+        }
+      });
+      sellBtn?.addEventListener('click', openCreateListing);
 
       document.addEventListener('click', e => {
         if (e.target.matches('[data-close]') || e.target.closest('[data-close]')) closeAllModals();
@@ -1051,7 +1252,7 @@
         subtotalEl.textContent = '$' + (subtotal / 100).toFixed(2);
       }
 
-      document.getElementById('cartDrawerBody').addEventListener('click', e => {
+      document.getElementById('cartDrawerBody')?.addEventListener('click', e => {
         const btn = e.target.closest('[data-remove-id]');
         if (!btn) return;
         const id = Number(btn.dataset.removeId);
@@ -1061,10 +1262,10 @@
         renderGrid();
       });
 
-      document.getElementById('cartBtn').addEventListener('click', openCartDrawer);
-      document.getElementById('cartDrawerClose').addEventListener('click', closeCartDrawer);
-      document.getElementById('cartContinue').addEventListener('click', closeCartDrawer);
-      cartOverlay.addEventListener('click', closeCartDrawer);
+      document.getElementById('cartBtn')?.addEventListener('click', openCartDrawer);
+      document.getElementById('cartDrawerClose')?.addEventListener('click', closeCartDrawer);
+      document.getElementById('cartContinue')?.addEventListener('click', closeCartDrawer);
+      cartOverlay?.addEventListener('click', closeCartDrawer);
 
       // ── Chat Panel ────────────────────────────────────────────────────────────
       const chatPanel     = document.getElementById('chatPanel');
@@ -1175,10 +1376,31 @@
           messages.forEach(message => {
             addMessage(message.senderSub === profile.sub ? 'user' : 'bot', message.body);
           });
+          renderOrderCompletion(conversation, profile);
           scrollChatToBottom();
         } catch (error) {
           renderInboxEmpty(error.message || 'Could not load messages');
         }
+      }
+
+      function renderOrderCompletion(conversation, profile) {
+        const isBuyer = profile.sub === conversation.buyerSub;
+        const userCompleted = isBuyer ? conversation.buyerCompletedAt : conversation.sellerCompletedAt;
+        const otherCompleted = isBuyer ? conversation.sellerCompletedAt : conversation.buyerCompletedAt;
+        const block = document.createElement('div');
+        block.className = 'order-complete-box';
+
+        if (conversation.completedAt) {
+          block.innerHTML = '<div class="order-complete-box__title">Order completed</div><div class="order-complete-box__sub">This listing has been cleared from active listings.</div>';
+        } else {
+          block.innerHTML = `
+            <div class="order-complete-box__title">Finish this order</div>
+            <div class="order-complete-box__sub">${userCompleted ? 'Waiting for the other user to confirm.' : otherCompleted ? 'The other user has confirmed completion.' : 'Both users must confirm before the listing is cleared.'}</div>
+            <button class="btn btn--primary btn--sm" data-complete-order type="button" ${userCompleted ? 'disabled' : ''}>${userCompleted ? 'Confirmed' : 'Order Completed'}</button>
+          `;
+        }
+
+        chatMessages.appendChild(block);
       }
 
       function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
@@ -1492,6 +1714,23 @@
           chatSend.disabled = false;
         }
       }
+
+      chatMessages.addEventListener('click', async event => {
+        const completeBtn = event.target.closest('[data-complete-order]');
+        if (!completeBtn || !selectedInboxConversation || !window.summitMarketplace) return;
+        setFormBusy(completeBtn, true, 'Confirming...');
+        try {
+          selectedInboxConversation = await window.summitMarketplace.completeOrder(selectedInboxConversation);
+          await refreshMarketplaceListings();
+          await refreshProfileOrders();
+          await loadInbox();
+          showToast(selectedInboxConversation.completedAt ? 'Order completed' : 'Completion confirmed');
+        } catch (error) {
+          addMessage('bot', error.message || 'Could not complete order.');
+        } finally {
+          setFormBusy(completeBtn, false);
+        }
+      });
 
       chatSend.addEventListener('click', handleUserSend);
       chatInput.addEventListener('keydown', e => {
