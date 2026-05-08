@@ -20,6 +20,7 @@ frontend:
       - auth.html
       - auth.js
       - auth-config.js
+      - marketplace.js
       - homepage.css
       - items.js
       - amplify_outputs.json
