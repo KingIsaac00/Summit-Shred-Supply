@@ -137,7 +137,7 @@
           </div>
           <div class="content__controls">
             <select class="sort-select" id="sortSelect" aria-label="Sort by">
-              <option value="default">Featured</option>
+              <option value="default">Newest</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
               <option value="name-asc">Name: A–Z</option>
@@ -205,17 +205,11 @@
     <div class="chat-panel" id="chatPanel" aria-hidden="true" aria-label="Messages inbox">
       <div class="chat-panel__head">
         <div class="chat-agent">
-          <div class="chat-agent__avatar">S</div>
           <div class="chat-agent__info">
             <div class="chat-agent__name">Messages</div>
-            <div class="chat-agent__status">
-              <span class="status-dot"></span>Inbox
-            </div>
+            <div class="chat-agent__status">Inbox</div>
           </div>
         </div>
-        <button class="close-btn" id="chatClose" type="button" aria-label="Close chat">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
       </div>
 
       <div class="chat-panel__messages" id="chatMessages"></div>
@@ -483,6 +477,10 @@
         return item.editedAt ? `<div class="listing-edited">${formatEditedAt(item.editedAt)}</div>` : '';
       }
 
+      function sellerLabel(item) {
+        return isOwnListing(item) ? 'you' : (item.sellerName || 'Summit seller');
+      }
+
       function getItemsByCategoryView(category) {
         const items = getCatalogItems();
         if (!category || category === 'All') return items;
@@ -651,7 +649,7 @@
                 </div>
                 <div class="profile-item__actions">
                   <button class="btn btn--secondary btn--sm" data-order-details="${order.id || order.conversationId}" type="button">Details</button>
-                  <button class="btn btn--primary btn--sm" data-order-chat="${order.conversationId || order.id}" type="button">View Chat</button>
+                  <button class="btn btn--primary btn--sm" data-order-chat="${order.conversationId || order.id}" data-order-name="${order.listingTitle || 'order'}" type="button">View Chat</button>
                 </div>
               </div>
             `).join('')
@@ -698,12 +696,12 @@
               <span>Seller</span>
               <strong>${order.sellerName || 'Seller'}</strong>
             </div>
-            <button class="btn btn--primary" data-order-chat="${order.conversationId || order.id}" type="button">View Previous Chat</button>
+            <button class="btn btn--primary" data-order-chat="${order.conversationId || order.id}" data-order-name="${order.listingTitle || 'order'}" type="button">View Previous Chat</button>
           </div>
         `;
         detailBody.querySelector('[data-order-chat]')?.addEventListener('click', event => {
           closeAllModals();
-          openPreviousOrderChat(event.currentTarget.dataset.orderChat);
+          openPreviousOrderChat(event.currentTarget.dataset.orderChat, event.currentTarget.dataset.orderName);
         });
         setModalOpen(detailModal, true);
       }
@@ -829,7 +827,7 @@
                 </svg>
               </button>`;
           const actionButton = ownListing
-            ? `<button class="btn btn--secondary btn--sm" data-edit-listing-id="${item.id}" type="button">Edit Listing</button>`
+            ? ''
             : `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`;
           card.innerHTML = `
             <div class="card__img-wrap">
@@ -841,7 +839,7 @@
             <div class="card__body">
               <div class="card__name">${item.itemName}</div>
               <div class="card__desc">${item.description.substring(0, 90)}...</div>
-              <div class="card__seller">Listed by ${item.sellerName || 'Summit seller'}</div>
+              <div class="card__seller">Listed by ${sellerLabel(item)}</div>
               ${renderEditedNote(item)}
               <div class="card__footer">
                 <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
@@ -927,7 +925,7 @@
               </svg>
             </button>`;
         const detailAction = ownListing
-          ? `<button class="btn btn--secondary detail__message" data-detail-edit="${item.id}" type="button">Edit Listing</button>`
+          ? ''
           : `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`;
         detailBody.innerHTML = `
           <div class="detail">
@@ -938,7 +936,7 @@
             <div class="detail__info">
               <h2 class="detail__name">${item.itemName}</h2>
               <p class="detail__desc">${item.description}</p>
-              <p class="detail__seller">Listed by ${item.sellerName || 'Summit seller'}${item.location ? ` in ${item.location}` : ''}</p>
+              <p class="detail__seller">Listed by ${sellerLabel(item)}${item.location ? ` in ${item.location}` : ''}</p>
               ${renderEditedNote(item)}
               <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
               ${detailAction}
@@ -1220,7 +1218,7 @@
         }
         if (orderChatBtn) {
           closeAllModals();
-          openPreviousOrderChat(orderChatBtn.dataset.orderChat);
+          openPreviousOrderChat(orderChatBtn.dataset.orderChat, orderChatBtn.dataset.orderName);
         }
       });
       sellBtn?.addEventListener('click', openCreateListing);
@@ -1348,16 +1346,17 @@
       let chatOpen = false;
       let chatInitialized = false;
 
-      function toggleChat() {
+      function toggleChat(loadConversations = true) {
         chatOpen = !chatOpen;
         chatPanel.classList.toggle('is-open', chatOpen);
         chatPanel.setAttribute('aria-hidden', String(!chatOpen));
-        fabIconChat.hidden = chatOpen;
-        fabIconClose.hidden = !chatOpen;
+        fabIconChat.hidden = false;
+        if (fabIconClose) fabIconClose.hidden = true;
         fabLabel.textContent = chatOpen ? 'Close' : 'Inbox';
         document.getElementById('chatBtn').classList.toggle('is-chat-open', chatOpen);
         if (chatOpen) {
           fabPulse.style.display = 'none';
+          if (!loadConversations) return;
           if (!chatInitialized) {
             chatInitialized = true;
             loadInbox();
@@ -1369,7 +1368,6 @@
       }
 
       document.getElementById('chatBtn').addEventListener('click', toggleChat);
-      document.getElementById('chatClose').addEventListener('click', toggleChat);
 
       function scrollChatToBottom() {
         setTimeout(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }, 50);
@@ -1412,9 +1410,9 @@
         }
       }
 
-      async function openPreviousOrderChat(conversationId) {
+      async function openPreviousOrderChat(conversationId, orderName = '') {
         if (!window.summitMarketplace) return;
-        if (!chatOpen) toggleChat();
+        if (!chatOpen) toggleChat(false);
         const conversation = await window.summitMarketplace.getConversation(conversationId).catch(() => null);
         if (!conversation) {
           renderInboxEmpty('Previous chat not found');
@@ -1422,7 +1420,8 @@
         }
         inboxConversations = [];
         selectedInboxConversation = conversation;
-        qrContainer.innerHTML = '<button class="quick-reply inbox-thread is-active" type="button">Previous order chat</button>';
+        const title = orderName || conversation.listingTitle || 'order';
+        qrContainer.innerHTML = `<button class="quick-reply inbox-thread is-active" type="button">Previous order chat: ${title}</button>`;
         await renderInboxMessages(conversation);
       }
 
@@ -1443,6 +1442,10 @@
       }
 
       async function renderInboxMessages(conversation) {
+        if (!conversation) {
+          renderInboxEmpty('No messages yet');
+          return;
+        }
         chatInput.disabled = false;
         chatSend.disabled = false;
         chatInput.placeholder = `Reply about ${conversation.listingTitle}`;
@@ -1458,6 +1461,12 @@
           messages.forEach(message => {
             addMessage(message.senderSub === profile.sub ? 'user' : 'bot', message.body);
           });
+          if (conversation.completedAt) {
+            addMessage('bot', 'Congrats, order is completed!');
+            chatInput.disabled = true;
+            chatSend.disabled = true;
+            chatInput.placeholder = 'Previous order chat';
+          }
           renderOrderCompletion(conversation, profile);
           scrollChatToBottom();
         } catch (error) {
@@ -1480,7 +1489,7 @@
         if (conversation.completedAt) {
           block.innerHTML = `
             <div class="order-complete-box__row">
-              <span class="order-complete-box__title">Completed</span>
+              <span class="order-complete-box__title">Congrats, order is completed!</span>
               <button class="order-info-btn" type="button" aria-label="Order completion information">i
                 <span class="order-info-tooltip">This listing has been cleared from active listings and saved under Previous Orders.</span>
               </button>
@@ -1817,11 +1826,35 @@
         if (!completeBtn || !selectedInboxConversation || !window.summitMarketplace) return;
         setFormBusy(completeBtn, true, 'Confirming...');
         try {
-          selectedInboxConversation = await window.summitMarketplace.completeOrder(selectedInboxConversation);
+          const profile = await window.summitMarketplace.getProfile();
+          const isBuyer = profile.sub === selectedInboxConversation.buyerSub;
+          const otherCompleted = isBuyer
+            ? selectedInboxConversation.sellerCompletedAt
+            : selectedInboxConversation.buyerCompletedAt;
+          const shouldFinishOrder = Boolean(otherCompleted);
+          const updatedConversation = await window.summitMarketplace.completeOrder(selectedInboxConversation);
+          selectedInboxConversation = updatedConversation || {
+            ...selectedInboxConversation,
+            buyerCompletedAt: isBuyer ? (selectedInboxConversation.buyerCompletedAt || new Date().toISOString()) : selectedInboxConversation.buyerCompletedAt,
+            sellerCompletedAt: !isBuyer ? (selectedInboxConversation.sellerCompletedAt || new Date().toISOString()) : selectedInboxConversation.sellerCompletedAt,
+            completedAt: shouldFinishOrder ? (selectedInboxConversation.completedAt || new Date().toISOString()) : selectedInboxConversation.completedAt,
+          };
           await refreshMarketplaceListings();
           await refreshProfileOrders();
-          await loadInbox();
-          showToast(selectedInboxConversation.completedAt ? 'Order completed' : 'Completion confirmed');
+          if (selectedInboxConversation.completedAt) {
+            inboxConversations = inboxConversations.filter(conversation => conversation.id !== selectedInboxConversation.id);
+            qrContainer.innerHTML = '';
+            chatMessages.innerHTML = '';
+            addMessage('bot', 'Congrats, order is completed!');
+            renderOrderCompletion(selectedInboxConversation, profile);
+            chatInput.disabled = true;
+            chatSend.disabled = true;
+            chatInput.placeholder = 'Order completed';
+            showToast('Congrats, order is completed!');
+          } else {
+            await renderInboxMessages(selectedInboxConversation);
+            showToast('Completion confirmed');
+          }
         } catch (error) {
           addMessage('bot', error.message || 'Could not complete order.');
         } finally {
