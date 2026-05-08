@@ -1,7 +1,7 @@
 // Amplify Gen 2 Authentication Handler
 // This file is loaded directly in the browser, so it uses CDN ESM imports.
 
-import { Amplify } from 'https://esm.sh/aws-amplify@6.16.4?bundle';
+import { Amplify } from 'https://esm.sh/aws-amplify@6.16.4';
 import {
   confirmSignUp,
   getCurrentUser,
@@ -9,7 +9,7 @@ import {
   signIn,
   signOut,
   signUp,
-} from 'https://esm.sh/aws-amplify@6.16.4/auth?bundle';
+} from 'https://esm.sh/aws-amplify@6.16.4/auth';
 
 const CONFIG_PATHS = ['/amplify_outputs.json', '/amplifyconfiguration.json'];
 
