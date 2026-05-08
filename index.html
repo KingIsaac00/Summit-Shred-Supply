@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/homepage.css" />
-    <script src="/items.js"></script>
     <script type="module" src="/marketplace.js"></script>
   </head>
 
@@ -42,7 +41,7 @@
 
       <div class="header__actions">
         <button class="btn btn--primary btn--sm header-sell-btn" id="sellBtn" type="button">Sell Gear</button>
-        <button class="icon-btn" id="cartBtn" type="button" aria-label="Cart">
+        <button class="icon-btn" id="cartBtn" type="button" aria-label="Cart" hidden>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
             <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"/>
@@ -162,8 +161,8 @@
             <path d="M40 40l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
             <path d="M23 28h10M28 23v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
           </svg>
-          <p class="empty-state__title">No results found</p>
-          <p class="empty-state__sub">Try a different search or browse by category</p>
+          <p class="empty-state__title">No listings yet</p>
+          <p class="empty-state__sub">Create the first listing or try a different category</p>
           <button class="btn btn--secondary" id="clearSearch" type="button">Clear search</button>
         </div>
       </main>
@@ -172,7 +171,7 @@
     <div class="auth-lock" id="authLock">
       <div class="auth-lock__panel">
         <div class="auth-lock__title">Sign in to shop Summit Shred</div>
-        <div class="auth-lock__sub">Create an account or log in to browse gear, use Carlos, and manage your bag.</div>
+        <div class="auth-lock__sub">Create an account or log in to browse gear, sell listings, and message other riders.</div>
         <button class="btn btn--primary auth-lock__btn" id="authLockLogin" type="button">Log In</button>
       </div>
     </div>
@@ -181,8 +180,8 @@
     <div class="toast" id="cartToast" aria-live="polite"></div>
 
     <!-- ── Cart Drawer ────────────────────────────────────────────────────── -->
-    <div class="cart-overlay" id="cartOverlay"></div>
-    <div class="cart-drawer" id="cartDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Shopping bag">
+    <div class="cart-overlay" id="cartOverlay" hidden></div>
+    <div class="cart-drawer" id="cartDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Shopping bag" hidden>
       <div class="cart-drawer__head">
         <div class="cart-drawer__title">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -211,14 +210,14 @@
     </div>
 
     <!-- ── Chat Panel (floating widget) ───────────────────────────────────── -->
-    <div class="chat-panel" id="chatPanel" aria-hidden="true" aria-label="Summit Support Chat">
+    <div class="chat-panel" id="chatPanel" aria-hidden="true" aria-label="Messages inbox">
       <div class="chat-panel__head">
         <div class="chat-agent">
           <div class="chat-agent__avatar">S</div>
           <div class="chat-agent__info">
-            <div class="chat-agent__name">Carlos</div>
+            <div class="chat-agent__name">Messages</div>
             <div class="chat-agent__status">
-              <span class="status-dot"></span>Online &amp; ready to help
+              <span class="status-dot"></span>Inbox
             </div>
           </div>
         </div>
@@ -236,7 +235,7 @@
           class="chat-input"
           id="chatInput"
           type="text"
-          placeholder="Ask about gear, sizing, prices…"
+          placeholder="Select a conversation to reply"
           autocomplete="off"
         />
         <button class="chat-send-btn" id="chatSend" type="button" aria-label="Send">
@@ -248,7 +247,7 @@
     </div>
 
     <!-- ── FAB ────────────────────────────────────────────────────────────── -->
-    <button class="fab" id="chatBtn" type="button" aria-label="Chat with Carlos">
+    <button class="fab" id="chatBtn" type="button" aria-label="Open messages inbox">
       <span class="fab__pulse" aria-hidden="true"></span>
       <svg class="fab__icon fab__icon--chat" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
@@ -257,7 +256,7 @@
       <svg class="fab__icon fab__icon--close" viewBox="0 0 20 20" fill="none" aria-hidden="true" hidden>
         <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      <span class="fab__label">Ask Carlos</span>
+      <span class="fab__label">Inbox</span>
     </button>
 
     <!-- ── Profile Modal ───────────────────────────────────────────────────── -->
@@ -277,7 +276,7 @@
           <div class="profile-stats">
             <div class="stat">
               <div class="stat__val" id="statItems">0</div>
-              <div class="stat__lbl">In Cart</div>
+              <div class="stat__lbl">Listings</div>
             </div>
             <div class="stat">
               <div class="stat__val" id="statWishlist" title="0 wish list items">0</div>
@@ -405,6 +404,8 @@
       let activeSortOrder = 'default';
       let marketplaceListings = [];
       let selectedMessageListing = null;
+      let selectedInboxConversation = null;
+      let inboxConversations = [];
       const cart = {};
       const profileState = {
         signedIn: false,
@@ -459,7 +460,7 @@
       }
 
       function getCatalogItems() {
-        return [...marketplaceListings, ...ITEMS];
+        return marketplaceListings;
       }
 
       function findItemById(id) {
@@ -489,6 +490,7 @@
           const listings = await window.summitMarketplace.listListings();
           marketplaceListings = listings.map(normalizeRemoteListing);
           initCounts();
+          updateProfileUI();
           renderGrid();
         } catch (error) {
           console.warn('Marketplace listings unavailable:', error);
@@ -572,7 +574,7 @@
         if (profileAvatar) profileAvatar.textContent = initialsFromName(profileState.displayName || profileState.email);
         if (profileName) profileName.textContent = profileState.displayName || profileState.email || 'Signed out';
         if (profileSince) profileSince.textContent = formatMemberSince(profileState.memberSince);
-        if (statItems) statItems.textContent = getTotalCartCount();
+        if (statItems) statItems.textContent = marketplaceListings.filter(item => item.sellerSub === profileState.userKey).length;
         if (statWishlist) {
           statWishlist.textContent = profileState.wishlistCount;
           statWishlist.title = `${profileState.wishlistCount} wish list item${profileState.wishlistCount === 1 ? '' : 's'}`;
@@ -676,11 +678,8 @@
           card.setAttribute('data-id', item.id);
 
           const imageUrl = (item.imageUrls && item.imageUrls[0]) || 'images/placeholder.jpg';
-          const inCart = cart[item.id] || 0;
           const wished = isWishlisted(item.id);
-          const actionButton = item.isMarketplaceListing
-            ? `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`
-            : `<button class="btn btn--primary btn--sm add-to-cart" data-id="${item.id}" type="button"${inCart ? ' data-in-cart' : ''}>${inCart ? `In cart (${inCart})` : 'Add to cart'}</button>`;
+          const actionButton = `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`;
           card.innerHTML = `
             <div class="card__img-wrap">
               <img class="card__img" src="${imageUrl}" alt="${item.itemName}" loading="lazy" />
@@ -695,7 +694,7 @@
             <div class="card__body">
               <div class="card__name">${item.itemName}</div>
               <div class="card__desc">${item.description.substring(0, 90)}...</div>
-              ${item.isMarketplaceListing ? `<div class="card__seller">Listed by ${item.sellerName || 'Summit seller'}</div>` : ''}
+              <div class="card__seller">Listed by ${item.sellerName || 'Summit seller'}</div>
               <div class="card__footer">
                 <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
                 ${actionButton}
@@ -749,12 +748,6 @@
         }
         if (btn) {
           e.stopPropagation();
-          const id = String(btn.dataset.id);
-          cart[id] = (cart[id] || 0) + 1;
-          updateCartUI();
-          const item = findItemById(id);
-          showToast(`Added "${item.itemName}" to cart`);
-          renderGrid();
           return;
         }
         if (card) openDetail(card.dataset.id);
@@ -769,11 +762,8 @@
         const item = findItemById(id);
         if (!item) return;
         detailTitle.textContent = item.itemName;
-        const inCart = cart[id] || 0;
         const wished = isWishlisted(id);
-        const detailAction = item.isMarketplaceListing
-          ? `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`
-          : `<button class="btn btn--primary detail__cta" data-id="${item.id}" type="button">${inCart ? `In cart (${inCart}) - add more` : 'Add to cart'}</button>`;
+        const detailAction = `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`;
         detailBody.innerHTML = `
           <div class="detail">
             <div class="detail__img-wrap">
@@ -787,19 +777,12 @@
             <div class="detail__info">
               <h2 class="detail__name">${item.itemName}</h2>
               <p class="detail__desc">${item.description}</p>
-              ${item.isMarketplaceListing ? `<p class="detail__seller">Listed by ${item.sellerName || 'Summit seller'}${item.location ? ` in ${item.location}` : ''}</p>` : ''}
+              <p class="detail__seller">Listed by ${item.sellerName || 'Summit seller'}${item.location ? ` in ${item.location}` : ''}</p>
               <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
               ${detailAction}
             </div>
           </div>
         `;
-        detailBody.querySelector('.detail__cta')?.addEventListener('click', () => {
-          cart[id] = (cart[id] || 0) + 1;
-          updateCartUI();
-          showToast(`Added "${item.itemName}" to cart`);
-          renderGrid();
-          detailBody.querySelector('.detail__cta').textContent = `In cart (${cart[id]}) - add more`;
-        });
         detailBody.querySelector('[data-message-detail]')?.addEventListener('click', () => openMessageModal(item.id));
         detailBody.querySelector('[data-detail-wishlist]').addEventListener('click', e => {
           e.stopPropagation();
@@ -888,6 +871,7 @@
           await window.summitMarketplace.startConversation(selectedMessageListing, body);
           closeAllModals();
           showToast('Message sent');
+          if (chatOpen) loadInbox();
         } catch (error) {
           messageStatus.textContent = error.message || 'Could not send message.';
         } finally {
@@ -1101,18 +1085,16 @@
         chatPanel.setAttribute('aria-hidden', String(!chatOpen));
         fabIconChat.hidden = chatOpen;
         fabIconClose.hidden = !chatOpen;
-        fabLabel.textContent = chatOpen ? 'Close' : 'Ask Carlos';
+        fabLabel.textContent = chatOpen ? 'Close' : 'Inbox';
         document.getElementById('chatBtn').classList.toggle('is-chat-open', chatOpen);
         if (chatOpen) {
           fabPulse.style.display = 'none';
           if (!chatInitialized) {
             chatInitialized = true;
-            initChat();
+            loadInbox();
+          } else {
+            loadInbox();
           }
-          const pageX = window.scrollX;
-          const pageY = window.scrollY;
-          chatInput.focus({ preventScroll: true });
-          window.scrollTo(pageX, pageY);
           scrollChatToBottom();
         }
       }
@@ -1125,6 +1107,80 @@
       }
 
       // ── Bot logic ─────────────────────────────────────────────────────────────
+      function renderInboxEmpty(message) {
+        chatMessages.innerHTML = `
+          <div class="inbox-empty">
+            <div class="inbox-empty__title">${message}</div>
+            <div class="inbox-empty__sub">Messages from listing conversations will show here.</div>
+          </div>
+        `;
+        qrContainer.innerHTML = '';
+        chatInput.disabled = true;
+        chatSend.disabled = true;
+      }
+
+      async function loadInbox() {
+        if (!window.summitMarketplace) {
+          renderInboxEmpty('Inbox is loading');
+          return;
+        }
+
+        try {
+          inboxConversations = await window.summitMarketplace.listConversations();
+          if (!inboxConversations.length) {
+            selectedInboxConversation = null;
+            renderInboxEmpty('No messages yet');
+            return;
+          }
+
+          selectedInboxConversation = selectedInboxConversation
+            ? inboxConversations.find(convo => convo.id === selectedInboxConversation.id) || inboxConversations[0]
+            : inboxConversations[0];
+          renderConversationList();
+          await renderInboxMessages(selectedInboxConversation);
+        } catch (error) {
+          renderInboxEmpty(error.message || 'Could not load inbox');
+        }
+      }
+
+      function renderConversationList() {
+        qrContainer.innerHTML = '';
+        inboxConversations.forEach(conversation => {
+          const button = document.createElement('button');
+          button.className = `quick-reply inbox-thread${selectedInboxConversation?.id === conversation.id ? ' is-active' : ''}`;
+          button.type = 'button';
+          button.textContent = conversation.listingTitle || 'Listing conversation';
+          button.addEventListener('click', async () => {
+            selectedInboxConversation = conversation;
+            renderConversationList();
+            await renderInboxMessages(conversation);
+          });
+          qrContainer.appendChild(button);
+        });
+      }
+
+      async function renderInboxMessages(conversation) {
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+        chatInput.placeholder = `Reply about ${conversation.listingTitle}`;
+        chatMessages.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+
+        try {
+          const [profile, messages] = await Promise.all([
+            window.summitMarketplace.getProfile(),
+            window.summitMarketplace.listMessages(conversation.id),
+          ]);
+
+          chatMessages.innerHTML = '';
+          messages.forEach(message => {
+            addMessage(message.senderSub === profile.sub ? 'user' : 'bot', message.body);
+          });
+          scrollChatToBottom();
+        } catch (error) {
+          renderInboxEmpty(error.message || 'Could not load messages');
+        }
+      }
+
       function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
       function byCat(cat) { return getCatalogItems().filter(i => i.category === cat); }
 
@@ -1421,14 +1477,20 @@
         simulateBotResponse(response);
       }
 
-      function handleUserSend() {
+      async function handleUserSend() {
         const text = chatInput.value.trim();
-        if (!text) return;
+        if (!text || !selectedInboxConversation || !window.summitMarketplace) return;
         chatInput.value = '';
         addMessage('user', text);
-        setQuickReplies([]);
-        const response = getBotResponse(text);
-        simulateBotResponse(response);
+        chatSend.disabled = true;
+        try {
+          await window.summitMarketplace.sendMessage(selectedInboxConversation, text);
+          await loadInbox();
+        } catch (error) {
+          addMessage('bot', error.message || 'Could not send message.');
+        } finally {
+          chatSend.disabled = false;
+        }
       }
 
       chatSend.addEventListener('click', handleUserSend);
@@ -1437,11 +1499,7 @@
       });
 
       function initChat() {
-        chatMessages.innerHTML = '';
-        setTimeout(() => {
-          addMessage('bot', "Hi! I'm <strong>Carlos</strong>, your Summit Shred guide. I can help you find the right gear, build a complete kit, or answer questions about any product. What are you looking for?");
-          setQuickReplies(DEFAULT_QR);
-        }, 300);
+        loadInbox();
       }
 
       // ── Init ─────────────────────────────────────────────────────────────────

@@ -169,10 +169,63 @@ async function startConversation(listing, body) {
   return conversation;
 }
 
+async function listConversations() {
+  await ensureReady();
+  const Conversation = requireModel('Conversation');
+  const { data, errors } = await Conversation.list();
+  if (errors?.length) throw new Error(errors[0].message || 'Could not load conversations.');
+  return (data || []).sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
+}
+
+async function listMessages(conversationId) {
+  await ensureReady();
+  const Message = requireModel('Message');
+  const { data, errors } = await Message.list({
+    filter: { conversationId: { eq: conversationId } },
+  });
+  if (errors?.length) throw new Error(errors[0].message || 'Could not load messages.');
+  return (data || []).sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+}
+
+async function sendMessage(conversation, body) {
+  await ensureReady();
+  const profile = await getProfile();
+  const participantIds = conversation.participantIds || [];
+  const recipientSub = participantIds.find(id => id !== profile.sub);
+  if (!recipientSub) throw new Error('Could not find the other participant.');
+
+  const Message = requireModel('Message');
+  const Conversation = requireModel('Conversation');
+  const now = new Date().toISOString();
+  const preview = body.slice(0, 140);
+
+  const { data, errors } = await Message.create({
+    conversationId: conversation.id,
+    listingId: conversation.listingId,
+    senderSub: profile.sub,
+    senderName: profile.displayName,
+    recipientSub,
+    body,
+    participantIds,
+  });
+  if (errors?.length) throw new Error(errors[0].message || 'Could not send message.');
+
+  await Conversation.update({
+    id: conversation.id,
+    lastMessagePreview: preview,
+    lastMessageAt: now,
+  }).catch(() => {});
+
+  return data;
+}
+
 window.summitMarketplace = {
   createListing,
   getProfile,
+  listConversations,
   listListings,
+  listMessages,
+  sendMessage,
   startConversation,
 };
 

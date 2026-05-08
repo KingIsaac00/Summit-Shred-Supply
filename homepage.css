@@ -866,6 +866,33 @@ body.auth-locked .layout {
 }
 .quick-reply:active { transform: translateY(0); }
 
+.inbox-thread.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.inbox-empty {
+  height: 100%;
+  min-height: 220px;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.inbox-empty__title {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.inbox-empty__sub {
+  max-width: 260px;
+  font-size: 13px;
+}
+
 @keyframes chip-in {
   from { opacity: 0; transform: scale(.85); }
   to   { opacity: 1; transform: scale(1); }
