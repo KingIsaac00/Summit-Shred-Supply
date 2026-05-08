@@ -1194,8 +1194,14 @@
 
     <!-- Amplify Gen 2 Auth Protection & Logout -->
     <script type="module">
-      import { Amplify } from 'https://esm.sh/aws-amplify@6.16.4';
-      import { fetchUserAttributes, getCurrentUser, signOut } from 'https://esm.sh/aws-amplify@6.16.4/auth';
+      import { Amplify } from 'https://esm.sh/@aws-amplify/core@6.16.2';
+      import {
+        cognitoCredentialsProvider,
+        cognitoUserPoolsTokenProvider,
+        fetchUserAttributes,
+        getCurrentUser,
+        signOut,
+      } from 'https://esm.sh/@aws-amplify/auth@6.19.1/cognito?deps=@aws-amplify/core@6.16.2';
 
       const getConfig = async () => {
         const configPaths = ['./amplify_outputs.json', './amplifyconfiguration.json'];
@@ -1271,6 +1277,16 @@
           'Summit Rider';
       }
 
+      function configureAmplifyAuth(config) {
+        cognitoUserPoolsTokenProvider.setAuthConfig(config.Auth);
+        Amplify.configure(config, {
+          Auth: {
+            tokenProvider: cognitoUserPoolsTokenProvider,
+            credentialsProvider: cognitoCredentialsProvider,
+          },
+        });
+      }
+
       async function refreshHomeAuthState() {
         const config = await getConfig();
         if (!config) {
@@ -1278,7 +1294,7 @@
           return;
         }
 
-        Amplify.configure(config);
+        configureAmplifyAuth(config);
 
         try {
           const user = await getCurrentUser();

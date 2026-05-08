@@ -1,15 +1,17 @@
 // Amplify Gen 2 Authentication Handler
 // This file is loaded directly in the browser, so it uses CDN ESM imports.
 
-import { Amplify } from 'https://esm.sh/aws-amplify@6.16.4';
+import { Amplify } from 'https://esm.sh/@aws-amplify/core@6.16.2';
 import {
   confirmSignUp,
+  cognitoCredentialsProvider,
+  cognitoUserPoolsTokenProvider,
   getCurrentUser,
   resendSignUpCode,
   signIn,
   signOut,
   signUp,
-} from 'https://esm.sh/aws-amplify@6.16.4/auth';
+} from 'https://esm.sh/@aws-amplify/auth@6.19.1/cognito?deps=@aws-amplify/core@6.16.2';
 
 const CONFIG_PATHS = ['/amplify_outputs.json', '/amplifyconfiguration.json'];
 
@@ -186,7 +188,7 @@ async function configureAuth() {
   setButtonsDisabled(true);
   try {
     const config = await loadAmplifyConfig();
-    Amplify.configure(config);
+    configureAmplifyAuth(config);
     authReady = true;
     setButtonsDisabled(false);
     await redirectIfSignedIn();
@@ -194,6 +196,16 @@ async function configureAuth() {
     setButtonsDisabled(false);
     showMessage(getFriendlyError(error), 'error');
   }
+}
+
+function configureAmplifyAuth(config) {
+  cognitoUserPoolsTokenProvider.setAuthConfig(config.Auth);
+  Amplify.configure(config, {
+    Auth: {
+      tokenProvider: cognitoUserPoolsTokenProvider,
+      credentialsProvider: cognitoCredentialsProvider,
+    },
+  });
 }
 
 document.querySelectorAll('.auth-tab').forEach(tab => {
