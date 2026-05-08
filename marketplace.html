@@ -255,9 +255,6 @@
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
         <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <svg class="fab__icon fab__icon--close" viewBox="0 0 20 20" fill="none" aria-hidden="true" hidden>
-        <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
       <span class="fab__label">Inbox</span>
     </button>
 
@@ -357,11 +354,7 @@
             </label>
             <label class="field">
               <span>Location</span>
-              <input id="listingLocation" type="text" maxlength="80" placeholder="Denver, CO" />
-            </label>
-            <label class="field">
-              <span>Image URL</span>
-              <input id="listingImageUrl" type="url" placeholder="https://..." />
+              <input id="listingLocation" type="text" maxlength="80" placeholder="Denver, CO" required />
             </label>
           </div>
           <div class="form-grid">
@@ -1081,6 +1074,7 @@
         detailTitle.textContent = item.itemName;
         const wished = isWishlisted(id);
         const ownListing = isOwnListing(item);
+        const images = item.imageUrls?.filter(Boolean)?.length ? item.imageUrls.filter(Boolean) : ['images/placeholder.jpg'];
         const detailTopAction = ownListing
           ? `<button class="wishlist-btn listing-menu-btn wishlist-btn--detail" data-detail-edit="${item.id}" type="button" aria-label="Edit listing" title="Edit listing"><span aria-hidden="true">...</span></button>`
           : `<button class="wishlist-btn wishlist-btn--detail${wished ? ' is-active' : ''}" data-detail-wishlist="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
@@ -1092,9 +1086,14 @@
           ? ''
           : `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`;
         detailBody.innerHTML = `
-          <div class="detail">
-            <div class="detail__img-wrap">
-              <img class="detail__img" src="${item.imageUrls[0] || 'images/placeholder.jpg'}" alt="${item.itemName}" />
+            <div class="detail">
+              <div class="detail__img-wrap">
+              <img class="detail__img" data-detail-image src="${images[0]}" alt="${item.itemName}" />
+              ${images.length > 1 ? `
+                <button class="detail__arrow detail__arrow--prev" data-detail-prev type="button" aria-label="Previous image">‹</button>
+                <button class="detail__arrow detail__arrow--next" data-detail-next type="button" aria-label="Next image">›</button>
+                <div class="detail__image-count" data-detail-count>1 / ${images.length}</div>
+              ` : ''}
               ${detailTopAction}
             </div>
             <div class="detail__info">
@@ -1108,6 +1107,22 @@
           </div>
         `;
         detailBody.querySelector('[data-message-detail]')?.addEventListener('click', () => openMessageModal(item.id));
+        let detailImageIndex = 0;
+        const setDetailImage = index => {
+          detailImageIndex = (index + images.length) % images.length;
+          const img = detailBody.querySelector('[data-detail-image]');
+          const count = detailBody.querySelector('[data-detail-count]');
+          if (img) img.src = images[detailImageIndex];
+          if (count) count.textContent = `${detailImageIndex + 1} / ${images.length}`;
+        };
+        detailBody.querySelector('[data-detail-prev]')?.addEventListener('click', event => {
+          event.stopPropagation();
+          setDetailImage(detailImageIndex - 1);
+        });
+        detailBody.querySelector('[data-detail-next]')?.addEventListener('click', event => {
+          event.stopPropagation();
+          setDetailImage(detailImageIndex + 1);
+        });
         detailBody.querySelector('[data-detail-edit]')?.addEventListener('click', e => {
           e.stopPropagation();
           setModalOpen(detailModal, false);
@@ -1212,7 +1227,6 @@
         document.getElementById('listingCategory').value = item.category || 'Accessories';
         document.getElementById('listingCondition').value = item.condition || 'LIKE_NEW';
         document.getElementById('listingLocation').value = item.location || '';
-        document.getElementById('listingImageUrl').value = item.imageUrls?.[0] || '';
         document.getElementById('listingDescription').value = item.description || '';
         uploadedListingImages = item.imageUrls?.filter(Boolean) || [];
         renderListingImagePreview();
@@ -1221,11 +1235,10 @@
 
       async function listingFormPayload() {
         const priceDollars = Number(document.getElementById('listingPrice').value);
-        const imageUrl = document.getElementById('listingImageUrl').value.trim();
         const location = document.getElementById('listingLocation').value.trim();
+        if (!location) throw new Error('Location is required.');
         const coords = await geocodeLocation(location).catch(() => null);
         const images = [...uploadedListingImages];
-        if (imageUrl && !images.includes(imageUrl)) images.unshift(imageUrl);
         return {
           title: document.getElementById('listingTitle').value.trim(),
           description: document.getElementById('listingDescription').value.trim(),
@@ -1639,7 +1652,6 @@
       const chatInput     = document.getElementById('chatInput');
       const chatSend      = document.getElementById('chatSend');
       const fabIconChat   = document.querySelector('.fab__icon--chat');
-      const fabIconClose  = document.querySelector('.fab__icon--close');
       const fabLabel      = document.querySelector('.fab__label');
       const fabPulse      = document.querySelector('.fab__pulse');
       let chatOpen = false;
@@ -1650,7 +1662,6 @@
         chatPanel.classList.toggle('is-open', chatOpen);
         chatPanel.setAttribute('aria-hidden', String(!chatOpen));
         fabIconChat.hidden = false;
-        if (fabIconClose) fabIconClose.hidden = true;
         fabLabel.textContent = chatOpen ? 'Close' : 'Inbox';
         document.getElementById('chatBtn').classList.toggle('is-chat-open', chatOpen);
         if (chatOpen) {
