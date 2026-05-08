@@ -143,6 +143,12 @@ ul { list-style: none; }
 
 .header__actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
+.header-sell-btn {
+  height: 38px;
+  padding-inline: 14px;
+  white-space: nowrap;
+}
+
 /* ── Icon button ────────────────────────────────────────────────────────────── */
 .icon-btn {
   position: relative;
@@ -1178,6 +1184,76 @@ body.auth-locked .layout {
 .cart-item__remove svg { width: 13px; height: 13px; }
 .cart-item__remove:hover { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.4); color: #fca5a5; }
 
+.card__seller {
+  margin-top: 6px;
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.detail__seller {
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.listing-form,
+.message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--s2);
+  color: var(--text);
+  font-size: 14px;
+  padding: 11px 12px;
+  outline: none;
+}
+
+.field textarea { resize: vertical; min-height: 120px; }
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-status {
+  flex: 1;
+  min-width: 0;
+  color: #fca5a5;
+  font-size: 12px;
+}
+
 /* Footer */
 .cart-drawer__footer {
   padding: 16px 20px;
@@ -1257,4 +1333,7 @@ body.auth-locked .layout {
   .fab__label { display: none; }
   .content__toolbar { flex-direction: column; align-items: flex-start; }
   .chat-panel { width: calc(100vw - 24px); right: 12px; bottom: 84px; }
+  .header-sell-btn { padding-inline: 10px; font-size: 12px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-actions { align-items: stretch; flex-direction: column; }
 }

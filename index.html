@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/homepage.css" />
     <script src="/items.js"></script>
+    <script type="module" src="/marketplace.js"></script>
   </head>
 
   <body class="auth-locked">
@@ -40,6 +41,7 @@
       </div>
 
       <div class="header__actions">
+        <button class="btn btn--primary btn--sm header-sell-btn" id="sellBtn" type="button">Sell Gear</button>
         <button class="icon-btn" id="cartBtn" type="button" aria-label="Cart">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -304,11 +306,105 @@
       </div>
     </div>
 
+    <div class="modal" id="listingModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Create listing">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__sheet modal__sheet--wide">
+        <div class="modal__head">
+          <span class="modal__title">Sell Gear</span>
+          <button class="close-btn" type="button" data-close aria-label="Close create listing">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <form class="modal__body listing-form" id="listingForm">
+          <div class="form-grid">
+            <label class="field">
+              <span>Title</span>
+              <input id="listingTitle" type="text" maxlength="80" required />
+            </label>
+            <label class="field">
+              <span>Price</span>
+              <input id="listingPrice" type="number" min="1" step="0.01" required />
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <select id="listingCategory" required>
+                <option value="Snowboards">Snowboards</option>
+                <option value="Bindings">Bindings</option>
+                <option value="Boots">Boots</option>
+                <option value="Helmets">Helmets</option>
+                <option value="Goggles">Goggles</option>
+                <option value="Jackets">Jackets</option>
+                <option value="Pants">Pants</option>
+                <option value="Gloves">Gloves</option>
+                <option value="Base Layers">Base Layers</option>
+                <option value="Socks">Socks</option>
+                <option value="Wax & Tuning">Wax &amp; Tuning</option>
+                <option value="Bags">Bags</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Condition</span>
+              <select id="listingCondition" required>
+                <option value="LIKE_NEW">Like new</option>
+                <option value="NEW">New</option>
+                <option value="GOOD">Good</option>
+                <option value="FAIR">Fair</option>
+                <option value="POOR">Poor</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Location</span>
+              <input id="listingLocation" type="text" maxlength="80" placeholder="Denver, CO" />
+            </label>
+            <label class="field">
+              <span>Image URL</span>
+              <input id="listingImageUrl" type="url" placeholder="https://..." />
+            </label>
+          </div>
+          <label class="field">
+            <span>Description</span>
+            <textarea id="listingDescription" rows="5" maxlength="1200" required></textarea>
+          </label>
+          <div class="form-actions">
+            <span class="form-status" id="listingStatus"></span>
+            <button class="btn btn--secondary" type="button" data-close>Cancel</button>
+            <button class="btn btn--primary" id="listingSubmit" type="submit">Create Listing</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="messageModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Message seller">
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__sheet">
+        <div class="modal__head">
+          <span class="modal__title" id="messageTitle">Message Seller</span>
+          <button class="close-btn" type="button" data-close aria-label="Close message seller">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <form class="modal__body message-form" id="messageForm">
+          <label class="field">
+            <span>Message</span>
+            <textarea id="messageBody" rows="6" maxlength="1000" required></textarea>
+          </label>
+          <div class="form-actions">
+            <span class="form-status" id="messageStatus"></span>
+            <button class="btn btn--secondary" type="button" data-close>Cancel</button>
+            <button class="btn btn--primary" id="messageSubmit" type="submit">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       // ── State ───────────────────────────────────────────────────────────────
       let activeCategory = 'All';
       let activeSearch   = '';
       let activeSortOrder = 'default';
+      let marketplaceListings = [];
+      let selectedMessageListing = null;
       const cart = {};
       const profileState = {
         signedIn: false,
@@ -340,6 +436,64 @@
       const statWishlist = document.getElementById('statWishlist');
       const statOrders   = document.getElementById('statOrders');
       const profileBtn   = document.getElementById('profileBtn');
+      const sellBtn      = document.getElementById('sellBtn');
+      const listingModal = document.getElementById('listingModal');
+      const listingForm  = document.getElementById('listingForm');
+      const listingStatus = document.getElementById('listingStatus');
+      const messageModal = document.getElementById('messageModal');
+      const messageForm  = document.getElementById('messageForm');
+      const messageStatus = document.getElementById('messageStatus');
+      const messageTitle = document.getElementById('messageTitle');
+
+      function normalizeRemoteListing(listing) {
+        return {
+          ...listing,
+          id: listing.id,
+          itemName: listing.title,
+          price: listing.price,
+          description: listing.description || '',
+          category: listing.category || 'Accessories',
+          imageUrls: listing.imageUrls?.filter(Boolean)?.length ? listing.imageUrls.filter(Boolean) : ['/images/placeholder.jpg'],
+          isMarketplaceListing: true
+        };
+      }
+
+      function getCatalogItems() {
+        return [...marketplaceListings, ...ITEMS];
+      }
+
+      function findItemById(id) {
+        return getCatalogItems().find(item => String(item.id) === String(id));
+      }
+
+      function getItemsByCategoryView(category) {
+        const items = getCatalogItems();
+        if (!category || category === 'All') return items;
+        return items.filter(item => item.category === category);
+      }
+
+      function searchItemsView(query) {
+        const q = query.toLowerCase().trim();
+        if (!q) return getCatalogItems();
+        return getCatalogItems().filter(
+          item =>
+            item.itemName.toLowerCase().includes(q) ||
+            item.category.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q)
+        );
+      }
+
+      async function refreshMarketplaceListings() {
+        if (!window.summitMarketplace || !profileState.signedIn) return;
+        try {
+          const listings = await window.summitMarketplace.listListings();
+          marketplaceListings = listings.map(normalizeRemoteListing);
+          initCounts();
+          renderGrid();
+        } catch (error) {
+          console.warn('Marketplace listings unavailable:', error);
+        }
+      }
 
       function storageKey(name) {
         return `summit:${profileState.userKey}:${name}`;
@@ -361,8 +515,8 @@
         }
         try {
           profileState.wishlist = JSON.parse(localStorage.getItem(storageKey('wishlist')) || '[]')
-            .map(Number)
-            .filter(id => Number.isFinite(id));
+            .map(String)
+            .filter(Boolean);
         } catch {
           profileState.wishlist = [];
         }
@@ -380,12 +534,12 @@
       }
 
       function isWishlisted(id) {
-        return profileState.wishlist.includes(Number(id));
+        return profileState.wishlist.includes(String(id));
       }
 
       function toggleWishlist(id) {
-        const itemId = Number(id);
-        if (!Number.isFinite(itemId)) return;
+        const itemId = String(id);
+        if (!itemId) return;
         if (isWishlisted(itemId)) {
           profileState.wishlist = profileState.wishlist.filter(savedId => savedId !== itemId);
         } else {
@@ -394,7 +548,7 @@
         saveWishlist();
         updateProfileUI();
         renderGrid();
-        const item = ITEMS.find(entry => entry.id === itemId);
+        const item = findItemById(itemId);
         if (item) showToast(`${isWishlisted(itemId) ? 'Added' : 'Removed'} "${item.itemName}" ${isWishlisted(itemId) ? 'to' : 'from'} wish list`);
       }
 
@@ -431,7 +585,7 @@
         document.body.classList.toggle('auth-locked', locked);
         if (authLock) authLock.hidden = !locked;
         [searchInput, sortSelect].forEach(el => { if (el) el.disabled = locked; });
-        ['cartBtn', 'profileBtn', 'chatBtn'].forEach(id => {
+        ['cartBtn', 'profileBtn', 'chatBtn', 'sellBtn'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.disabled = locked;
         });
@@ -471,6 +625,7 @@
         updateCartUI();
         setAuthLocked(false);
         renderGrid();
+        refreshMarketplaceListings();
       }
 
       authLockLogin?.addEventListener('click', () => {
@@ -485,19 +640,20 @@
       // ── Category counts ─────────────────────────────────────────────────────
       function initCounts() {
         const allEl = document.getElementById('count-All');
-        if (allEl) allEl.textContent = ITEMS.length;
-        const cats = [...new Set(ITEMS.map(i => i.category))];
+        const items = getCatalogItems();
+        if (allEl) allEl.textContent = items.length;
+        const cats = [...new Set(items.map(i => i.category))];
         cats.forEach(cat => {
           const el = document.getElementById('count-' + cat);
-          if (el) el.textContent = ITEMS.filter(i => i.category === cat).length;
+          if (el) el.textContent = items.filter(i => i.category === cat).length;
         });
       }
 
       // ── Filter + sort ────────────────────────────────────────────────────────
       function getFilteredItems() {
         let list = activeSearch
-          ? searchItems(activeSearch)
-          : getItemsByCategory(activeCategory);
+          ? searchItemsView(activeSearch)
+          : getItemsByCategoryView(activeCategory);
         if (activeSortOrder === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
         if (activeSortOrder === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
         if (activeSortOrder === 'name-asc')   list = [...list].sort((a, b) => a.itemName.localeCompare(b.itemName));
@@ -522,6 +678,9 @@
           const imageUrl = (item.imageUrls && item.imageUrls[0]) || 'images/placeholder.jpg';
           const inCart = cart[item.id] || 0;
           const wished = isWishlisted(item.id);
+          const actionButton = item.isMarketplaceListing
+            ? `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`
+            : `<button class="btn btn--primary btn--sm add-to-cart" data-id="${item.id}" type="button"${inCart ? ' data-in-cart' : ''}>${inCart ? `In cart (${inCart})` : 'Add to cart'}</button>`;
           card.innerHTML = `
             <div class="card__img-wrap">
               <img class="card__img" src="${imageUrl}" alt="${item.itemName}" loading="lazy" />
@@ -535,12 +694,11 @@
             </div>
             <div class="card__body">
               <div class="card__name">${item.itemName}</div>
-              <div class="card__desc">${item.description.substring(0, 90)}…</div>
+              <div class="card__desc">${item.description.substring(0, 90)}...</div>
+              ${item.isMarketplaceListing ? `<div class="card__seller">Listed by ${item.sellerName || 'Summit seller'}</div>` : ''}
               <div class="card__footer">
                 <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
-                <button class="btn btn--primary btn--sm add-to-cart" data-id="${item.id}" type="button"${inCart ? ' data-in-cart' : ''}>
-                  ${inCart ? `In cart (${inCart})` : 'Add to cart'}
-                </button>
+                ${actionButton}
               </div>
             </div>
           `;
@@ -576,6 +734,7 @@
 
       itemsGrid.addEventListener('click', e => {
         const btn  = e.target.closest('.add-to-cart');
+        const messageBtn = e.target.closest('.message-seller');
         const wishBtn = e.target.closest('[data-wishlist-id]');
         const card = e.target.closest('.card');
         if (wishBtn) {
@@ -583,17 +742,22 @@
           toggleWishlist(wishBtn.dataset.wishlistId);
           return;
         }
+        if (messageBtn) {
+          e.stopPropagation();
+          openMessageModal(messageBtn.dataset.id);
+          return;
+        }
         if (btn) {
           e.stopPropagation();
-          const id = Number(btn.dataset.id);
+          const id = String(btn.dataset.id);
           cart[id] = (cart[id] || 0) + 1;
           updateCartUI();
-          const item = ITEMS.find(i => i.id === id);
+          const item = findItemById(id);
           showToast(`Added "${item.itemName}" to cart`);
           renderGrid();
           return;
         }
-        if (card) openDetail(Number(card.dataset.id));
+        if (card) openDetail(card.dataset.id);
       });
 
       // ── Detail modal ──────────────────────────────────────────────────────────
@@ -602,11 +766,14 @@
       const detailBody  = document.getElementById('detailBody');
 
       function openDetail(id) {
-        const item = ITEMS.find(i => i.id === id);
+        const item = findItemById(id);
         if (!item) return;
         detailTitle.textContent = item.itemName;
         const inCart = cart[id] || 0;
         const wished = isWishlisted(id);
+        const detailAction = item.isMarketplaceListing
+          ? `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`
+          : `<button class="btn btn--primary detail__cta" data-id="${item.id}" type="button">${inCart ? `In cart (${inCart}) - add more` : 'Add to cart'}</button>`;
         detailBody.innerHTML = `
           <div class="detail">
             <div class="detail__img-wrap">
@@ -620,20 +787,20 @@
             <div class="detail__info">
               <h2 class="detail__name">${item.itemName}</h2>
               <p class="detail__desc">${item.description}</p>
+              ${item.isMarketplaceListing ? `<p class="detail__seller">Listed by ${item.sellerName || 'Summit seller'}${item.location ? ` in ${item.location}` : ''}</p>` : ''}
               <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
-              <button class="btn btn--primary detail__cta" data-id="${item.id}" type="button">
-                ${inCart ? `In cart (${inCart}) — add more` : 'Add to cart'}
-              </button>
+              ${detailAction}
             </div>
           </div>
         `;
-        detailBody.querySelector('.detail__cta').addEventListener('click', () => {
+        detailBody.querySelector('.detail__cta')?.addEventListener('click', () => {
           cart[id] = (cart[id] || 0) + 1;
           updateCartUI();
           showToast(`Added "${item.itemName}" to cart`);
           renderGrid();
-          detailBody.querySelector('.detail__cta').textContent = `In cart (${cart[id]}) — add more`;
+          detailBody.querySelector('.detail__cta').textContent = `In cart (${cart[id]}) - add more`;
         });
+        detailBody.querySelector('[data-message-detail]')?.addEventListener('click', () => openMessageModal(item.id));
         detailBody.querySelector('[data-detail-wishlist]').addEventListener('click', e => {
           e.stopPropagation();
           toggleWishlist(id);
@@ -645,6 +812,90 @@
         });
         setModalOpen(detailModal, true);
       }
+
+      function setFormBusy(button, busy, label) {
+        if (!button) return;
+        button.disabled = busy;
+        if (busy) {
+          button.dataset.originalText = button.textContent;
+          button.textContent = label;
+        } else {
+          button.textContent = button.dataset.originalText || button.textContent;
+        }
+      }
+
+      function openMessageModal(id) {
+        const item = findItemById(id);
+        if (!item?.isMarketplaceListing) return;
+        selectedMessageListing = item;
+        messageTitle.textContent = `Message ${item.sellerName || 'Seller'}`;
+        document.getElementById('messageBody').value = `Hi, is "${item.itemName}" still available?`;
+        messageStatus.textContent = '';
+        setModalOpen(messageModal, true);
+      }
+
+      listingForm?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!window.summitMarketplace) {
+          listingStatus.textContent = 'Marketplace is still loading. Try again in a moment.';
+          return;
+        }
+
+        const submitBtn = document.getElementById('listingSubmit');
+        setFormBusy(submitBtn, true, 'Creating...');
+        listingStatus.textContent = '';
+
+        try {
+          const priceDollars = Number(document.getElementById('listingPrice').value);
+          const imageUrl = document.getElementById('listingImageUrl').value.trim();
+          const created = await window.summitMarketplace.createListing({
+            title: document.getElementById('listingTitle').value.trim(),
+            description: document.getElementById('listingDescription').value.trim(),
+            price: Math.round(priceDollars * 100),
+            category: document.getElementById('listingCategory').value,
+            condition: document.getElementById('listingCondition').value,
+            location: document.getElementById('listingLocation').value.trim(),
+            imageUrls: imageUrl ? [imageUrl] : [],
+          });
+
+          marketplaceListings = [normalizeRemoteListing(created), ...marketplaceListings];
+          initCounts();
+          renderGrid();
+          closeAllModals();
+          showToast('Listing created');
+        } catch (error) {
+          listingStatus.textContent = error.message || 'Could not create listing.';
+        } finally {
+          setFormBusy(submitBtn, false);
+        }
+      });
+
+      messageForm?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!window.summitMarketplace || !selectedMessageListing) {
+          messageStatus.textContent = 'Messaging is still loading. Try again in a moment.';
+          return;
+        }
+
+        const body = document.getElementById('messageBody').value.trim();
+        if (!body) return;
+
+        const submitBtn = document.getElementById('messageSubmit');
+        setFormBusy(submitBtn, true, 'Sending...');
+        messageStatus.textContent = '';
+
+        try {
+          await window.summitMarketplace.startConversation(selectedMessageListing, body);
+          closeAllModals();
+          showToast('Message sent');
+        } catch (error) {
+          messageStatus.textContent = error.message || 'Could not send message.';
+        } finally {
+          setFormBusy(submitBtn, false);
+        }
+      });
+
+      window.addEventListener('summitMarketplaceReady', refreshMarketplaceListings);
 
       // ── Categories ────────────────────────────────────────────────────────────
       categoryList.addEventListener('click', e => {
@@ -694,6 +945,8 @@
         const anyOpen =
           profileModal.classList.contains('is-open') ||
           detailModal.classList.contains('is-open') ||
+          listingModal.classList.contains('is-open') ||
+          messageModal.classList.contains('is-open') ||
           document.getElementById('cartDrawer').classList.contains('is-open');
         document.body.classList.toggle('modal-open', anyOpen);
       }
@@ -705,7 +958,7 @@
       }
 
       function closeAllModals() {
-        [profileModal, detailModal].forEach(m => {
+        [profileModal, detailModal, listingModal, messageModal].forEach(m => {
           m.classList.remove('is-open');
           m.setAttribute('aria-hidden', 'true');
         });
@@ -713,6 +966,11 @@
       }
 
       document.getElementById('profileBtn').addEventListener('click', () => setModalOpen(profileModal, true));
+      sellBtn?.addEventListener('click', () => {
+        listingStatus.textContent = '';
+        listingForm.reset();
+        setModalOpen(listingModal, true);
+      });
 
       document.addEventListener('click', e => {
         if (e.target.matches('[data-close]') || e.target.closest('[data-close]')) closeAllModals();
@@ -780,7 +1038,7 @@
 
         entries.forEach(([idStr, qty]) => {
           const id   = Number(idStr);
-          const item = ITEMS.find(i => i.id === id);
+          const item = findItemById(id);
           if (!item) return;
           const lineTotal = item.price * qty;
           subtotal += lineTotal;
@@ -868,7 +1126,7 @@
 
       // ── Bot logic ─────────────────────────────────────────────────────────────
       function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
-      function byCat(cat) { return ITEMS.filter(i => i.category === cat); }
+      function byCat(cat) { return getCatalogItems().filter(i => i.category === cat); }
 
       const DEFAULT_QR = ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks'];
 
@@ -988,7 +1246,7 @@
         }
 
         if (/budget|cheap|afford|under \$|low.?cost|save|deal/.test(m)) {
-          const sorted = [...ITEMS].sort((a, b) => a.price - b.price).slice(0, 3);
+          const sorted = [...getCatalogItems()].sort((a, b) => a.price - b.price).slice(0, 3);
           return {
             text: `Here are our most affordable picks:\n\n<strong>${sorted[0].itemName}</strong> — ${fmt(sorted[0].price)}\n<strong>${sorted[1].itemName}</strong> — ${fmt(sorted[1].price)}\n<strong>${sorted[2].itemName}</strong> — ${fmt(sorted[2].price)}\n\nWant me to sort all products by price?`,
             qr: ['Sort by price', 'Best gear for beginners', 'View all products'],
@@ -1004,7 +1262,7 @@
         }
 
         if (/price|cost|how much|expensive|range/.test(m)) {
-          const prices = ITEMS.map(i => i.price);
+          const prices = getCatalogItems().map(i => i.price);
           return {
             text: `Our gear ranges from ${fmt(Math.min(...prices))} all the way to ${fmt(Math.max(...prices))}. Boards and jackets sit at the top; accessories like socks and tuning tools are very affordable. What's your rough budget?`,
             qr: ['Under $100', 'Under $300', 'Full kit $800+', 'Budget-friendly picks']
@@ -1021,7 +1279,7 @@
 
         if (/view.?all|show.?all|all.?product|browse|catalog/.test(m)) {
           return {
-            text: `We have ${ITEMS.length} products across ${[...new Set(ITEMS.map(i => i.category))].length} categories. Use the sidebar to filter by category, or ask me anything specific!`,
+            text: `We have ${getCatalogItems().length} products across ${[...new Set(getCatalogItems().map(i => i.category))].length} categories. Use the sidebar to filter by category, or ask me anything specific!`,
             qr: DEFAULT_QR,
             action: { type: 'filter', category: 'All' }
           };
