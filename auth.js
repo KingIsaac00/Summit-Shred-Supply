@@ -30,13 +30,78 @@ async function loadAmplifyConfig() {
   for (const path of CONFIG_PATHS) {
     try {
       const response = await fetch(path, { cache: 'no-store' });
-      if (response.ok) return await response.json();
+      if (response.ok) return normalizeAmplifyConfig(await response.json());
     } catch {
       // Try the next known Amplify config filename.
     }
   }
 
   throw new Error('Missing Amplify config. Run `npx ampx sandbox` locally or deploy/generate outputs in Amplify.');
+}
+
+function normalizeAmplifyConfig(config) {
+  if (config.Auth?.Cognito?.userPoolId && config.Auth?.Cognito?.userPoolClientId) {
+    return config;
+  }
+
+  if (config.auth) {
+    const auth = config.auth;
+    return {
+      ...config,
+      Auth: {
+        Cognito: {
+          userPoolId: auth.user_pool_id,
+          userPoolClientId: auth.user_pool_client_id,
+          identityPoolId: auth.identity_pool_id,
+          allowGuestAccess: auth.unauthenticated_identities_enabled,
+          groups: auth.groups,
+          loginWith: {
+            email: auth.username_attributes?.includes('email') ?? true,
+            phone: auth.username_attributes?.includes('phone_number') ?? false,
+            username: auth.username_attributes?.includes('username') ?? false,
+          },
+          mfa: auth.mfa_configuration ? {
+            status: auth.mfa_configuration === 'OPTIONAL' ? 'optional' : auth.mfa_configuration === 'REQUIRED' ? 'on' : 'off',
+            smsEnabled: auth.mfa_methods?.includes('SMS') ?? false,
+            totpEnabled: auth.mfa_methods?.includes('TOTP') ?? false,
+          } : undefined,
+          passwordFormat: auth.password_policy ? {
+            minLength: auth.password_policy.min_length ?? 8,
+            requireLowercase: auth.password_policy.require_lowercase ?? false,
+            requireNumbers: auth.password_policy.require_numbers ?? false,
+            requireSpecialCharacters: auth.password_policy.require_symbols ?? false,
+            requireUppercase: auth.password_policy.require_uppercase ?? false,
+          } : undefined,
+          signUpVerificationMethod: 'code',
+          userAttributes: auth.standard_required_attributes?.reduce((attributes, name) => {
+            attributes[name] = { required: true };
+            return attributes;
+          }, {}),
+        },
+      },
+    };
+  }
+
+  if (config.aws_user_pools_id && config.aws_user_pools_web_client_id) {
+    return {
+      ...config,
+      Auth: {
+        Cognito: {
+          userPoolId: config.aws_user_pools_id,
+          userPoolClientId: config.aws_user_pools_web_client_id,
+          identityPoolId: config.aws_cognito_identity_pool_id,
+          loginWith: {
+            email: config.aws_cognito_username_attributes?.includes('EMAIL') ?? true,
+            phone: config.aws_cognito_username_attributes?.includes('PHONE_NUMBER') ?? false,
+            username: !(config.aws_cognito_username_attributes?.includes('EMAIL') || config.aws_cognito_username_attributes?.includes('PHONE_NUMBER')),
+          },
+          signUpVerificationMethod: config.aws_cognito_sign_up_verification_method || 'code',
+        },
+      },
+    };
+  }
+
+  return config;
 }
 
 function setButtonsDisabled(disabled) {
