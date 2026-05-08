@@ -178,7 +178,7 @@ function getFriendlyError(error) {
 async function redirectIfSignedIn() {
   try {
     await getCurrentUser();
-    window.location.href = '/index.html';
+    window.location.href = '/marketplace.html';
   } catch {
     // No active session, stay on auth page.
   }
@@ -246,7 +246,7 @@ loginForm.addEventListener('submit', async e => {
     if (result.isSignedIn) {
       localStorage.setItem('userEmail', email);
       showMessage('Login successful. Redirecting...', 'success');
-      window.location.href = '/index.html';
+      window.location.href = '/marketplace.html';
       return;
     }
 
@@ -267,7 +267,7 @@ loginForm.addEventListener('submit', async e => {
     }
     const message = getFriendlyError(error);
     showMessage(message, message.includes('already signed in') ? 'success' : 'error');
-    if (message.includes('already signed in')) window.location.href = '/index.html';
+    if (message.includes('already signed in')) window.location.href = '/marketplace.html';
   } finally {
     setButtonLoading(loginBtn, false);
   }

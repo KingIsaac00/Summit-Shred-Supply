@@ -6,2012 +6,274 @@
     <title>Summit Shred Supply</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/homepage.css" />
-    <script type="module" src="/marketplace.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07101f;
+        --ice: #dbeafe;
+        --text: #f8fafc;
+        --muted: #9fb0ca;
+        --blue: #3b82f6;
+        --cyan: #22d3ee;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      .landing {
+        position: relative;
+        min-height: 210vh;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 20% 12%, rgba(34,211,238,.2), transparent 28%),
+          radial-gradient(circle at 80% 20%, rgba(59,130,246,.22), transparent 30%),
+          linear-gradient(180deg, #061020 0%, #0a1931 48%, #dbeafe 100%);
+      }
+
+      .snow-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 4;
+        opacity: 0;
+        transition: opacity 700ms ease;
+      }
+
+      body.snow-active .snow-layer { opacity: 1; }
+
+      .flake {
+        position: absolute;
+        top: -12px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.9);
+        animation: fall linear infinite;
+      }
+
+      @keyframes fall {
+        to { transform: translate3d(var(--drift), 110vh, 0); }
+      }
+
+      .nav {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px clamp(18px, 4vw, 56px);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 900;
+        letter-spacing: -.02em;
+      }
+
+      .brand svg { width: 32px; height: 32px; color: var(--cyan); }
+
+      .nav__link {
+        color: var(--ice);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 10px 14px;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 999px;
+        background: rgba(15,23,42,.46);
+        backdrop-filter: blur(14px);
+      }
+
+      .hero {
+        position: sticky;
+        top: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 120px 22px 90px;
+      }
+
+      .hero__copy {
+        width: min(980px, 100%);
+        text-align: center;
+        transform: translateY(calc(var(--scroll, 0) * -80px));
+      }
+
+      .eyebrow {
+        color: var(--cyan);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 14px 0 18px;
+        font-size: clamp(48px, 10vw, 118px);
+        line-height: .88;
+        letter-spacing: -.07em;
+      }
+
+      .hero p {
+        width: min(680px, 100%);
+        margin: 0 auto;
+        color: var(--muted);
+        font-size: clamp(17px, 2vw, 22px);
+        line-height: 1.6;
+      }
+
+      .mountain-scene {
+        position: absolute;
+        inset: auto -5vw 0;
+        height: 44vh;
+        z-index: 1;
+      }
+
+      .peak {
+        position: absolute;
+        bottom: 0;
+        width: 60vw;
+        height: 42vh;
+        background: linear-gradient(135deg, #f8fafc 0 38%, #93c5fd 38% 58%, #1d4ed8 58%);
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+        filter: drop-shadow(0 -30px 60px rgba(37,99,235,.22));
+      }
+
+      .peak--left { left: -8vw; transform: scale(.9); opacity: .8; }
+      .peak--mid { left: 21vw; height: 50vh; width: 70vw; }
+      .peak--right { right: -12vw; transform: scale(.82); opacity: .78; }
+
+      .slope-panel {
+        position: relative;
+        z-index: 3;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 90px 22px;
+      }
+
+      .slope-panel__inner {
+        width: min(760px, 100%);
+        text-align: center;
+      }
+
+      .slope-panel h2 {
+        margin: 0 0 14px;
+        font-size: clamp(34px, 6vw, 72px);
+        line-height: .96;
+        letter-spacing: -.05em;
+      }
+
+      .slope-panel p {
+        margin: 0 auto 28px;
+        color: #315173;
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .slope-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 54px;
+        padding: 0 26px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--blue), var(--cyan));
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 900;
+        box-shadow: 0 20px 46px rgba(37,99,235,.35);
+        opacity: 0;
+        transform: translateY(18px) scale(.96);
+        transition: opacity 520ms ease, transform 520ms cubic-bezier(.2,.9,.2,1);
+      }
+
+      body.snow-active .slope-cta {
+        opacity: 1;
+        transform: none;
+      }
+
+      @media (max-width: 680px) {
+        .nav { padding: 16px; }
+        .nav__link { display: none; }
+        .mountain-scene { height: 34vh; }
+      }
+    </style>
   </head>
-
-  <body class="auth-locked">
-
-    <!-- ── Header ─────────────────────────────────────────────────────────── -->
-    <header class="header">
-      <div class="header__brand">
-        <svg class="header__logo" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <path d="M16 3L30 27H2L16 3Z" fill="currentColor" opacity=".12"/>
-          <path d="M16 8L27 26H5L16 8Z" fill="currentColor" opacity=".28"/>
-          <path d="M16 14L22 25H10L16 14Z" fill="currentColor" opacity=".65"/>
-          <path d="M16 18L19 24H13L16 18Z" fill="currentColor"/>
-        </svg>
-        <span class="header__wordmark">Summit Shred Supply</span>
-      </div>
-
-      <div class="header__search">
-        <svg class="header__search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <input
-          class="header__search-input"
-          id="searchInput"
-          type="search"
-          placeholder="Search gear, brands, categories…"
-          autocomplete="off"
-        />
-      </div>
-
-      <div class="header__actions">
-        <button class="btn btn--primary btn--sm header-sell-btn" id="sellBtn" type="button">Sell Gear</button>
-        <button class="icon-btn" id="profileBtn" type="button" aria-label="Profile">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <body>
+    <div class="snow-layer" id="snowLayer" aria-hidden="true"></div>
+    <main class="landing">
+      <nav class="nav">
+        <a class="brand" href="/index.html" aria-label="Summit Shred Supply home">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M16 3L30 27H2L16 3Z" fill="currentColor" opacity=".12"/>
+            <path d="M16 8L27 26H5L16 8Z" fill="currentColor" opacity=".28"/>
+            <path d="M16 14L22 25H10L16 14Z" fill="currentColor" opacity=".65"/>
+            <path d="M16 18L19 24H13L16 18Z" fill="currentColor"/>
           </svg>
-        </button>
-        <button class="icon-btn" id="logoutBtn" type="button" aria-label="Logout" hidden>
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16 17l4-4m0 0l-4-4m4 4H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-    </header>
+          <span>Summit Shred Supply</span>
+        </a>
+        <a class="nav__link" href="/auth.html">Sign in</a>
+      </nav>
 
-    <!-- ── Main layout ────────────────────────────────────────────────────── -->
-    <div class="layout">
-
-      <!-- Sidebar -->
-      <aside class="sidebar" id="sidebar" aria-label="Product Categories">
-        <p class="sidebar__label">Categories</p>
-        <nav>
-          <ul class="cat-list" id="categoryList">
-            <li class="cat-item is-active" data-category="All">
-              <span class="cat-label">All Items</span>
-              <span class="cat-count" id="count-All"></span>
-            </li>
-            <li class="cat-divider"></li>
-            <li class="cat-item" data-category="Snowboards">
-              <span class="cat-label">Snowboards</span>
-              <span class="cat-count" id="count-Snowboards"></span>
-            </li>
-            <li class="cat-item" data-category="Bindings">
-              <span class="cat-label">Bindings</span>
-              <span class="cat-count" id="count-Bindings"></span>
-            </li>
-            <li class="cat-item" data-category="Boots">
-              <span class="cat-label">Boots</span>
-              <span class="cat-count" id="count-Boots"></span>
-            </li>
-            <li class="cat-divider"></li>
-            <li class="cat-item" data-category="Helmets">
-              <span class="cat-label">Helmets</span>
-              <span class="cat-count" id="count-Helmets"></span>
-            </li>
-            <li class="cat-item" data-category="Goggles">
-              <span class="cat-label">Goggles</span>
-              <span class="cat-count" id="count-Goggles"></span>
-            </li>
-            <li class="cat-divider"></li>
-            <li class="cat-item" data-category="Jackets">
-              <span class="cat-label">Jackets</span>
-              <span class="cat-count" id="count-Jackets"></span>
-            </li>
-            <li class="cat-item" data-category="Pants">
-              <span class="cat-label">Pants</span>
-              <span class="cat-count" id="count-Pants"></span>
-            </li>
-            <li class="cat-item" data-category="Gloves">
-              <span class="cat-label">Gloves</span>
-              <span class="cat-count" id="count-Gloves"></span>
-            </li>
-            <li class="cat-item" data-category="Base Layers">
-              <span class="cat-label">Base Layers</span>
-              <span class="cat-count" id="count-Base Layers"></span>
-            </li>
-            <li class="cat-item" data-category="Socks">
-              <span class="cat-label">Socks</span>
-              <span class="cat-count" id="count-Socks"></span>
-            </li>
-            <li class="cat-divider"></li>
-            <li class="cat-item" data-category="Wax & Tuning">
-              <span class="cat-label">Wax &amp; Tuning</span>
-              <span class="cat-count" id="count-Wax &amp; Tuning"></span>
-            </li>
-            <li class="cat-item" data-category="Bags">
-              <span class="cat-label">Bags</span>
-              <span class="cat-count" id="count-Bags"></span>
-            </li>
-            <li class="cat-item" data-category="Accessories">
-              <span class="cat-label">Accessories</span>
-              <span class="cat-count" id="count-Accessories"></span>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-
-      <!-- Content -->
-      <main class="content" id="mainContent">
-        <div class="content__toolbar">
-          <div class="content__meta">
-            <h1 class="content__title" id="contentTitle">All Items</h1>
-            <span class="content__count" id="contentCount"></span>
-          </div>
-          <div class="content__controls">
-            <select class="sort-select" id="sortSelect" aria-label="Sort by">
-              <option value="default">Newest</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name-asc">Name: A–Z</option>
-            </select>
-          </div>
+      <section class="hero">
+        <div class="hero__copy">
+          <div class="eyebrow">Rider to rider gear marketplace</div>
+          <h1>Trade gear. Chase snow.</h1>
+          <p>Summit Shred Supply helps snowboarders list gear, message riders, save finds, and finish local orders without the clutter of a generic marketplace.</p>
         </div>
-
-        <div class="grid" id="itemsGrid"></div>
-
-        <div class="empty-state" id="emptyState" hidden>
-          <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <circle cx="28" cy="28" r="16" stroke="currentColor" stroke-width="1.5" opacity=".3"/>
-            <path d="M40 40l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
-            <path d="M23 28h10M28 23v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
-          </svg>
-          <p class="empty-state__title">No listings yet</p>
-          <p class="empty-state__sub">Create the first listing or try a different category</p>
-          <button class="btn btn--secondary" id="clearSearch" type="button">Clear search</button>
+        <div class="mountain-scene" aria-hidden="true">
+          <div class="peak peak--left"></div>
+          <div class="peak peak--mid"></div>
+          <div class="peak peak--right"></div>
         </div>
-      </main>
-    </div>
+      </section>
 
-    <div class="auth-lock" id="authLock">
-      <div class="auth-lock__panel">
-        <div class="auth-lock__title">Sign in to shop Summit Shred</div>
-        <div class="auth-lock__sub">Create an account or log in to browse gear, sell listings, and message other riders.</div>
-        <button class="btn btn--primary auth-lock__btn" id="authLockLogin" type="button">Log In</button>
-      </div>
-    </div>
-
-    <!-- ── Cart Toast ──────────────────────────────────────────────────────── -->
-    <div class="toast" id="cartToast" aria-live="polite"></div>
-
-    <!-- ── Cart Drawer ────────────────────────────────────────────────────── -->
-    <div class="cart-overlay" id="cartOverlay" hidden></div>
-    <div class="cart-drawer" id="cartDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Shopping bag" hidden>
-      <div class="cart-drawer__head">
-        <div class="cart-drawer__title">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          My Bag
-          <span class="cart-drawer__count" id="cartDrawerCount">0 items</span>
+      <section class="slope-panel">
+        <div class="slope-panel__inner">
+          <h2>The mountain starts here.</h2>
+          <p>Sign in to browse real listings, post your own setup, and message other riders when a piece of gear catches your eye.</p>
+          <a class="slope-cta" href="/auth.html">Head to the Slopes</a>
         </div>
-        <button class="close-btn" id="cartDrawerClose" type="button" aria-label="Close cart">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
-      </div>
-
-      <div class="cart-drawer__body" id="cartDrawerBody"></div>
-
-      <div class="cart-drawer__footer" id="cartDrawerFooter">
-        <div class="cart-total">
-          <span class="cart-total__label">Subtotal</span>
-          <span class="cart-total__val" id="cartSubtotal">$0.00</span>
-        </div>
-        <button class="btn btn--primary cart-checkout" type="button">Checkout</button>
-        <button class="btn btn--secondary cart-continue" type="button" id="cartContinue">Continue Shopping</button>
-      </div>
-    </div>
-
-    <!-- ── Chat Panel (floating widget) ───────────────────────────────────── -->
-    <div class="chat-panel" id="chatPanel" aria-hidden="true" aria-label="Messages inbox">
-      <div class="chat-panel__head">
-        <div class="chat-agent">
-          <div class="chat-agent__info">
-            <div class="chat-agent__name">Messages</div>
-            <div class="chat-agent__status">Inbox</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="chat-panel__messages" id="chatMessages"></div>
-
-      <div class="chat-panel__quick-replies" id="quickRepliesContainer"></div>
-
-      <div class="chat-panel__footer">
-        <input
-          class="chat-input"
-          id="chatInput"
-          type="text"
-          placeholder="Select a conversation to reply"
-          autocomplete="off"
-        />
-        <button class="chat-send-btn" id="chatSend" type="button" aria-label="Send">
-          <svg viewBox="0 0 20 20" fill="none">
-            <path d="M17 10L3 3l3 7-3 7 14-7z" fill="currentColor"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- ── FAB ────────────────────────────────────────────────────────────── -->
-    <button class="fab" id="chatBtn" type="button" aria-label="Open messages inbox">
-      <span class="fab__pulse" aria-hidden="true"></span>
-      <svg class="fab__icon fab__icon--chat" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
-        <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <svg class="fab__icon fab__icon--close" viewBox="0 0 20 20" fill="none" aria-hidden="true" hidden>
-        <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      <span class="fab__label">Inbox</span>
-    </button>
-
-    <!-- ── Profile Modal ───────────────────────────────────────────────────── -->
-    <div class="modal" id="profileModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Profile">
-      <div class="modal__backdrop" data-close></div>
-      <div class="modal__sheet">
-        <div class="modal__head">
-          <span class="modal__title">My Profile</span>
-          <button class="close-btn" type="button" data-close aria-label="Close">
-            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <div class="modal__body">
-          <div class="profile-avatar" id="profileAvatar">--</div>
-          <div class="profile-name" id="profileName">Signed out</div>
-          <div class="profile-since" id="profileSince">Member since --</div>
-          <div class="profile-stats">
-            <button class="stat" type="button" data-profile-view="listings">
-              <div class="stat__val" id="statItems">0</div>
-              <div class="stat__lbl">Listings</div>
-            </button>
-            <button class="stat" type="button" data-profile-view="wishlist">
-              <div class="stat__val" id="statWishlist" title="0 wish list items">0</div>
-              <div class="stat__lbl">Wish List</div>
-            </button>
-            <button class="stat" type="button" data-profile-view="orders">
-              <div class="stat__val" id="statOrders">0</div>
-              <div class="stat__lbl">Previous Orders</div>
-            </button>
-          </div>
-          <div class="profile-panel" id="profilePanel"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Item Detail Modal ───────────────────────────────────────────────── -->
-    <div class="modal" id="detailModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Item detail">
-      <div class="modal__backdrop" data-close></div>
-      <div class="modal__sheet modal__sheet--wide">
-        <div class="modal__head">
-          <span class="modal__title" id="detailTitle"></span>
-          <button class="close-btn" type="button" data-close aria-label="Close">
-            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <div class="modal__body modal__body--detail" id="detailBody"></div>
-      </div>
-    </div>
-
-    <div class="modal" id="listingModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Create listing">
-      <div class="modal__backdrop" data-close></div>
-      <div class="modal__sheet modal__sheet--wide">
-        <div class="modal__head">
-          <span class="modal__title" id="listingModalTitle">Sell Gear</span>
-          <button class="close-btn" type="button" data-close aria-label="Close create listing">
-            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <form class="modal__body listing-form" id="listingForm">
-          <div class="form-grid">
-            <label class="field">
-              <span>Title</span>
-              <input id="listingTitle" type="text" maxlength="80" required />
-            </label>
-            <label class="field">
-              <span>Price</span>
-              <input id="listingPrice" type="number" min="1" step="0.01" required />
-            </label>
-            <label class="field">
-              <span>Category</span>
-              <select id="listingCategory" required>
-                <option value="Snowboards">Snowboards</option>
-                <option value="Bindings">Bindings</option>
-                <option value="Boots">Boots</option>
-                <option value="Helmets">Helmets</option>
-                <option value="Goggles">Goggles</option>
-                <option value="Jackets">Jackets</option>
-                <option value="Pants">Pants</option>
-                <option value="Gloves">Gloves</option>
-                <option value="Base Layers">Base Layers</option>
-                <option value="Socks">Socks</option>
-                <option value="Wax & Tuning">Wax &amp; Tuning</option>
-                <option value="Bags">Bags</option>
-                <option value="Accessories">Accessories</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Condition</span>
-              <select id="listingCondition" required>
-                <option value="LIKE_NEW">Like new</option>
-                <option value="NEW">New</option>
-                <option value="GOOD">Good</option>
-                <option value="FAIR">Fair</option>
-                <option value="POOR">Poor</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Location</span>
-              <input id="listingLocation" type="text" maxlength="80" placeholder="Denver, CO" />
-            </label>
-            <label class="field">
-              <span>Image URL</span>
-              <input id="listingImageUrl" type="url" placeholder="https://..." />
-            </label>
-          </div>
-          <label class="field">
-            <span>Description</span>
-            <textarea id="listingDescription" rows="5" maxlength="1200" required></textarea>
-          </label>
-          <div class="form-actions">
-            <button class="btn btn--danger" id="listingDelete" type="button" hidden>Delete Listing</button>
-            <span class="form-status" id="listingStatus"></span>
-            <button class="btn btn--secondary" type="button" data-close>Cancel</button>
-            <button class="btn btn--primary" id="listingSubmit" type="submit">Create Listing</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="modal" id="messageModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Message seller">
-      <div class="modal__backdrop" data-close></div>
-      <div class="modal__sheet">
-        <div class="modal__head">
-          <span class="modal__title" id="messageTitle">Message Seller</span>
-          <button class="close-btn" type="button" data-close aria-label="Close message seller">
-            <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <form class="modal__body message-form" id="messageForm">
-          <label class="field">
-            <span>Message</span>
-            <textarea id="messageBody" rows="6" maxlength="1000" required></textarea>
-          </label>
-          <div class="form-actions">
-            <span class="form-status" id="messageStatus"></span>
-            <button class="btn btn--secondary" type="button" data-close>Cancel</button>
-            <button class="btn btn--primary" id="messageSubmit" type="submit">Send</button>
-          </div>
-        </form>
-      </div>
-    </div>
+      </section>
+    </main>
 
     <script>
-      // ── State ───────────────────────────────────────────────────────────────
-      let activeCategory = 'All';
-      let activeSearch   = '';
-      let activeSortOrder = 'default';
-      let marketplaceListings = [];
-      let selectedMessageListing = null;
-      let selectedInboxConversation = null;
-      let inboxConversations = [];
-      let profileOrders = [];
-      let activeProfileView = 'listings';
-      let editingListing = null;
-      const cart = {};
-      const profileState = {
-        signedIn: false,
-        userKey: 'guest',
-        displayName: 'Signed out',
-        email: '',
-        memberSince: null,
-        wishlist: [],
-        wishlistCount: 0,
-        ordersCount: 0
+      const snowLayer = document.getElementById('snowLayer');
+      for (let i = 0; i < 90; i += 1) {
+        const flake = document.createElement('span');
+        flake.className = 'flake';
+        flake.style.left = `${Math.random() * 100}%`;
+        flake.style.setProperty('--drift', `${(Math.random() - .5) * 160}px`);
+        flake.style.animationDuration = `${7 + Math.random() * 9}s`;
+        flake.style.animationDelay = `${Math.random() * -12}s`;
+        flake.style.opacity = `${.35 + Math.random() * .65}`;
+        flake.style.width = flake.style.height = `${2 + Math.random() * 4}px`;
+        snowLayer.appendChild(flake);
+      }
+
+      const update = () => {
+        const progress = Math.min(1, window.scrollY / Math.max(1, window.innerHeight * .7));
+        document.documentElement.style.setProperty('--scroll', progress.toFixed(3));
+        document.body.classList.toggle('snow-active', progress > .62);
       };
-
-      // ── DOM refs ────────────────────────────────────────────────────────────
-      const itemsGrid    = document.getElementById('itemsGrid');
-      const contentTitle = document.getElementById('contentTitle');
-      const contentCount = document.getElementById('contentCount');
-      const categoryList = document.getElementById('categoryList');
-      const searchInput  = document.getElementById('searchInput');
-      const sortSelect   = document.getElementById('sortSelect');
-      const emptyState   = document.getElementById('emptyState');
-      const cartBadge    = document.getElementById('cartBadge');
-      const statItems    = document.getElementById('statItems');
-      const cartToast    = document.getElementById('cartToast');
-      const authLock     = document.getElementById('authLock');
-      const authLockLogin = document.getElementById('authLockLogin');
-      const profileAvatar = document.getElementById('profileAvatar');
-      const profileName  = document.getElementById('profileName');
-      const profileSince = document.getElementById('profileSince');
-      const statWishlist = document.getElementById('statWishlist');
-      const statOrders   = document.getElementById('statOrders');
-      const profileBtn   = document.getElementById('profileBtn');
-      const sellBtn      = document.getElementById('sellBtn');
-      const listingModal = document.getElementById('listingModal');
-      const listingForm  = document.getElementById('listingForm');
-      const listingStatus = document.getElementById('listingStatus');
-      const listingModalTitle = document.getElementById('listingModalTitle');
-      const listingDelete = document.getElementById('listingDelete');
-      const listingSubmit = document.getElementById('listingSubmit');
-      const profilePanel = document.getElementById('profilePanel');
-      const messageModal = document.getElementById('messageModal');
-      const messageForm  = document.getElementById('messageForm');
-      const messageStatus = document.getElementById('messageStatus');
-      const messageTitle = document.getElementById('messageTitle');
-
-      function normalizeRemoteListing(listing) {
-        return {
-          ...listing,
-          id: listing.id,
-          itemName: listing.title,
-          price: listing.price,
-          description: listing.description || '',
-          category: listing.category || 'Accessories',
-          imageUrls: listing.imageUrls?.filter(Boolean)?.length ? listing.imageUrls.filter(Boolean) : ['/images/placeholder.jpg'],
-          isMarketplaceListing: true
-        };
-      }
-
-      function getCatalogItems() {
-        return marketplaceListings;
-      }
-
-      function findItemById(id) {
-        return getCatalogItems().find(item => String(item.id) === String(id));
-      }
-
-      function isOwnListing(item) {
-        return Boolean(item?.sellerSub && profileState.userKey && item.sellerSub === profileState.userKey);
-      }
-
-      function formatEditedAt(value) {
-        if (!value) return '';
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return 'Listing edited';
-        return `Listing edited ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
-      }
-
-      function renderEditedNote(item) {
-        return item.editedAt ? `<div class="listing-edited">${formatEditedAt(item.editedAt)}</div>` : '';
-      }
-
-      function sellerLabel(item) {
-        return isOwnListing(item) ? 'you' : (item.sellerName || 'Summit seller');
-      }
-
-      function getItemsByCategoryView(category) {
-        const items = getCatalogItems();
-        if (!category || category === 'All') return items;
-        return items.filter(item => item.category === category);
-      }
-
-      function searchItemsView(query) {
-        const q = query.toLowerCase().trim();
-        if (!q) return getCatalogItems();
-        return getCatalogItems().filter(
-          item =>
-            item.itemName.toLowerCase().includes(q) ||
-            item.category.toLowerCase().includes(q) ||
-            item.description.toLowerCase().includes(q)
-        );
-      }
-
-      async function refreshMarketplaceListings() {
-        if (!window.summitMarketplace || !profileState.signedIn) return;
-        try {
-          const listings = await window.summitMarketplace.listListings();
-          marketplaceListings = listings.map(normalizeRemoteListing);
-          initCounts();
-          updateProfileUI();
-          renderGrid();
-          refreshProfileOrders();
-        } catch (error) {
-          console.warn('Marketplace listings unavailable:', error);
-        }
-      }
-
-      function storageKey(name) {
-        return `summit:${profileState.userKey}:${name}`;
-      }
-
-      function setCart(nextCart) {
-        Object.keys(cart).forEach(id => delete cart[id]);
-        Object.entries(nextCart || {}).forEach(([id, qty]) => {
-          const count = Number(qty);
-          if (Number.isFinite(count) && count > 0) cart[id] = count;
-        });
-      }
-
-      function loadUserStats() {
-        try {
-          setCart(JSON.parse(localStorage.getItem(storageKey('cart')) || '{}'));
-        } catch {
-          setCart({});
-        }
-        try {
-          profileState.wishlist = JSON.parse(localStorage.getItem(storageKey('wishlist')) || '[]')
-            .map(String)
-            .filter(Boolean);
-        } catch {
-          profileState.wishlist = [];
-        }
-        profileState.wishlistCount = profileState.wishlist.length;
-        profileState.ordersCount = profileOrders.length;
-      }
-
-      function saveCart() {
-        if (profileState.signedIn) localStorage.setItem(storageKey('cart'), JSON.stringify(cart));
-      }
-
-      function saveWishlist() {
-        profileState.wishlistCount = profileState.wishlist.length;
-        if (profileState.signedIn) localStorage.setItem(storageKey('wishlist'), JSON.stringify(profileState.wishlist));
-      }
-
-      function isWishlisted(id) {
-        return profileState.wishlist.includes(String(id));
-      }
-
-      function toggleWishlist(id) {
-        const itemId = String(id);
-        if (!itemId) return;
-        if (isWishlisted(itemId)) {
-          profileState.wishlist = profileState.wishlist.filter(savedId => savedId !== itemId);
-        } else {
-          profileState.wishlist = [...profileState.wishlist, itemId];
-        }
-        saveWishlist();
-        updateProfileUI();
-        renderGrid();
-        const item = findItemById(itemId);
-        if (item) showToast(`${isWishlisted(itemId) ? 'Added' : 'Removed'} "${item.itemName}" ${isWishlisted(itemId) ? 'to' : 'from'} wish list`);
-      }
-
-      function initialsFromName(name) {
-        return (name || 'SS')
-          .split(/[\s@._-]+/)
-          .filter(Boolean)
-          .slice(0, 2)
-          .map(part => part[0].toUpperCase())
-          .join('') || 'SS';
-      }
-
-      function formatMemberSince(value) {
-        if (!value) return 'Member since --';
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return 'Member since --';
-        return `Member since ${date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`;
-      }
-
-      function updateProfileUI() {
-        if (profileAvatar) profileAvatar.textContent = initialsFromName(profileState.displayName || profileState.email);
-        if (profileName) profileName.textContent = profileState.displayName || profileState.email || 'Signed out';
-        if (profileSince) profileSince.textContent = formatMemberSince(profileState.memberSince);
-        if (statItems) statItems.textContent = marketplaceListings.filter(item => item.sellerSub === profileState.userKey).length;
-        if (statWishlist) {
-          statWishlist.textContent = profileState.wishlistCount;
-          statWishlist.title = `${profileState.wishlistCount} wish list item${profileState.wishlistCount === 1 ? '' : 's'}`;
-        }
-        if (statOrders) statOrders.textContent = profileState.ordersCount;
-        if (profileBtn) profileBtn.title = `Profile - ${profileState.wishlistCount} wish list item${profileState.wishlistCount === 1 ? '' : 's'}`;
-        if (profilePanel) renderProfilePanel(activeProfileView);
-      }
-
-      function renderProfileItem(item, actionLabel, actionAttr) {
-        const imageUrl = item.imageUrls?.[0] || 'images/placeholder.jpg';
-        return `
-          <div class="profile-item">
-            <img class="profile-item__img" src="${imageUrl}" alt="${item.itemName}" />
-            <div class="profile-item__body">
-              <div class="profile-item__title">${item.itemName}</div>
-              <div class="profile-item__meta">$${(item.price / 100).toFixed(2)}${item.location ? ` - ${item.location}` : ''}</div>
-              ${renderEditedNote(item)}
-            </div>
-            <button class="btn btn--secondary btn--sm" ${actionAttr}="${item.id}" type="button">${actionLabel}</button>
-          </div>
-        `;
-      }
-
-      function renderProfilePanel(view = 'listings') {
-        if (!profilePanel) return;
-        activeProfileView = view;
-        document.querySelectorAll('[data-profile-view]').forEach(button => {
-          button.classList.toggle('is-active', button.dataset.profileView === view);
-        });
-
-        if (view === 'listings') {
-          const items = marketplaceListings.filter(isOwnListing);
-          profilePanel.innerHTML = items.length
-            ? items.map(item => renderProfileItem(item, 'Edit', 'data-profile-edit')).join('')
-            : '<div class="profile-empty">Your listings will show here.</div>';
-          return;
-        }
-
-        if (view === 'wishlist') {
-          const items = marketplaceListings.filter(item => isWishlisted(item.id));
-          profilePanel.innerHTML = items.length
-            ? items.map(item => renderProfileItem(item, 'View', 'data-profile-view-item')).join('')
-            : '<div class="profile-empty">Your saved listings will show here.</div>';
-          return;
-        }
-
-        const orders = profileOrders;
-        profilePanel.innerHTML = orders.length
-          ? orders.map(order => `
-              <div class="profile-item profile-item--order">
-                <div class="profile-item__body">
-                  <div class="profile-item__title">${order.listingTitle || 'Completed order'}</div>
-                  <div class="profile-item__meta">
-                    Completed ${formatEditedAt(order.completedAt).replace('Listing edited ', '')}${order.price ? ` - $${(order.price / 100).toFixed(2)}` : ''}
-                  </div>
-                </div>
-                <div class="profile-item__actions">
-                  <button class="btn btn--secondary btn--sm" data-order-details="${order.id || order.conversationId}" type="button">Details</button>
-                  <button class="btn btn--primary btn--sm" data-order-chat="${order.conversationId || order.id}" data-order-name="${order.listingTitle || 'order'}" type="button">View Chat</button>
-                </div>
-              </div>
-            `).join('')
-          : '<div class="profile-empty">Previous orders will show here.</div>';
-      }
-
-      function findProfileOrder(id) {
-        return profileOrders.find(order =>
-          String(order.id) === String(id) ||
-          String(order.conversationId) === String(id) ||
-          String(order.listingId) === String(id)
-        );
-      }
-
-      function openOrderDetails(id) {
-        const order = findProfileOrder(id);
-        if (!order) return;
-        detailTitle.textContent = 'Previous Order';
-        const imageUrl = order.listingImageUrl || 'images/placeholder.jpg';
-        detailBody.innerHTML = `
-          <div class="order-detail">
-            <img class="order-detail__img" src="${imageUrl}" alt="${order.listingTitle || 'Completed order'}" />
-            <div class="order-detail__summary">
-              <h2>${order.listingTitle || 'Completed order'}</h2>
-              <p>${order.listingDescription || 'No description was recorded for this order.'}</p>
-            </div>
-            <div class="order-detail__row">
-              <span>Listing</span>
-              <strong>${order.listingTitle || 'Completed order'}</strong>
-            </div>
-            <div class="order-detail__row">
-              <span>Completed</span>
-              <strong>${formatEditedAt(order.completedAt).replace('Listing edited ', '')}</strong>
-            </div>
-            <div class="order-detail__row">
-              <span>Price</span>
-              <strong>${order.price ? `$${(order.price / 100).toFixed(2)}` : 'Not recorded'}</strong>
-            </div>
-            <div class="order-detail__row">
-              <span>Buyer</span>
-              <strong>${order.buyerName || 'Buyer'}</strong>
-            </div>
-            <div class="order-detail__row">
-              <span>Seller</span>
-              <strong>${order.sellerName || 'Seller'}</strong>
-            </div>
-            <button class="btn btn--primary" data-order-chat="${order.conversationId || order.id}" data-order-name="${order.listingTitle || 'order'}" type="button">View Previous Chat</button>
-          </div>
-        `;
-        detailBody.querySelector('[data-order-chat]')?.addEventListener('click', event => {
-          closeAllModals();
-          openPreviousOrderChat(event.currentTarget.dataset.orderChat, event.currentTarget.dataset.orderName);
-        });
-        setModalOpen(detailModal, true);
-      }
-
-      async function refreshProfileOrders() {
-        if (!window.summitMarketplace || !profileState.signedIn) return;
-        try {
-          profileOrders = await window.summitMarketplace.listOrders();
-          profileState.ordersCount = profileOrders.length;
-          if (statOrders) statOrders.textContent = profileState.ordersCount;
-          renderProfilePanel(activeProfileView);
-        } catch (error) {
-          console.warn('Orders unavailable:', error);
-        }
-      }
-
-      function setAuthLocked(locked) {
-        document.body.classList.toggle('auth-locked', locked);
-        if (authLock) authLock.hidden = !locked;
-        [searchInput, sortSelect].forEach(el => { if (el) el.disabled = locked; });
-        ['cartBtn', 'profileBtn', 'chatBtn', 'sellBtn'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.disabled = locked;
-        });
-        const logoutBtnEl = document.getElementById('logoutBtn');
-        if (logoutBtnEl) logoutBtnEl.hidden = locked;
-      }
-
-      function applySignedOutState() {
-        profileState.signedIn = false;
-        profileState.userKey = 'guest';
-        profileState.displayName = 'Signed out';
-        profileState.email = '';
-        profileState.memberSince = null;
-        profileState.wishlist = [];
-        profileState.wishlistCount = 0;
-        profileState.ordersCount = 0;
-        profileOrders = [];
-        setCart({});
-        updateCartUI();
-        closeAllModals();
-        closeCartDrawer();
-        if (chatOpen) toggleChat();
-        setAuthLocked(true);
-        renderGrid();
-      }
-
-      function applySignedInState(profile) {
-        const userKey = profile.userKey || profile.email || profile.username || 'user';
-        profileState.signedIn = true;
-        profileState.userKey = userKey;
-        profileState.email = profile.email || '';
-        profileState.displayName = profile.displayName || profile.email || profile.username || 'Summit Rider';
-        const memberKey = storageKey('memberSince');
-        const storedMemberSince = localStorage.getItem(memberKey);
-        profileState.memberSince = storedMemberSince || profile.createdAt || new Date().toISOString();
-        localStorage.setItem(memberKey, profileState.memberSince);
-        loadUserStats();
-        updateCartUI();
-        setAuthLocked(false);
-        renderGrid();
-        refreshMarketplaceListings();
-        refreshProfileOrders();
-      }
-
-      authLockLogin?.addEventListener('click', () => {
-        window.location.href = '/auth.html';
-      });
-
-      window.summitHomeAuth = {
-        applySignedInState,
-        applySignedOutState
-      };
-
-      // ── Category counts ─────────────────────────────────────────────────────
-      function initCounts() {
-        const allEl = document.getElementById('count-All');
-        const items = getCatalogItems();
-        if (allEl) allEl.textContent = items.length;
-        const cats = [...new Set(items.map(i => i.category))];
-        cats.forEach(cat => {
-          const el = document.getElementById('count-' + cat);
-          if (el) el.textContent = items.filter(i => i.category === cat).length;
-        });
-      }
-
-      // ── Filter + sort ────────────────────────────────────────────────────────
-      function getFilteredItems() {
-        let list = activeSearch
-          ? searchItemsView(activeSearch)
-          : getItemsByCategoryView(activeCategory);
-        if (activeSortOrder === 'price-asc')  list = [...list].sort((a, b) => a.price - b.price);
-        if (activeSortOrder === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
-        if (activeSortOrder === 'name-asc')   list = [...list].sort((a, b) => a.itemName.localeCompare(b.itemName));
-        return list;
-      }
-
-      // ── Render grid ──────────────────────────────────────────────────────────
-      function renderGrid() {
-        const items = getFilteredItems();
-        itemsGrid.innerHTML = '';
-        emptyState.hidden = items.length > 0;
-        contentCount.textContent = items.length + (items.length === 1 ? ' item' : ' items');
-        contentTitle.textContent = activeSearch
-          ? `Results for "${activeSearch}"`
-          : (activeCategory === 'All' ? 'All Items' : activeCategory);
-
-        items.forEach(item => {
-          const card = document.createElement('article');
-          card.className = 'card';
-          card.setAttribute('data-id', item.id);
-
-          const imageUrl = (item.imageUrls && item.imageUrls[0]) || 'images/placeholder.jpg';
-          const wished = isWishlisted(item.id);
-          const ownListing = isOwnListing(item);
-          const imageAction = ownListing
-            ? `<button class="wishlist-btn listing-menu-btn wishlist-btn--card" data-edit-listing-id="${item.id}" type="button" aria-label="Edit listing" title="Edit listing">
-                <span aria-hidden="true">...</span>
-              </button>`
-            : `<button class="wishlist-btn wishlist-btn--card${wished ? ' is-active' : ''}" data-wishlist-id="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"/>
-                </svg>
-              </button>`;
-          const actionButton = ownListing
-            ? ''
-            : `<button class="btn btn--primary btn--sm message-seller" data-id="${item.id}" type="button">Message Seller</button>`;
-          card.innerHTML = `
-            <div class="card__img-wrap">
-              <img class="card__img" src="${imageUrl}" alt="${item.itemName}" loading="lazy" />
-              <span class="card__cat-badge">${item.category}</span>
-              ${imageAction}
-              <div class="card__overlay"><span class="card__quick-view">Quick View</span></div>
-            </div>
-            <div class="card__body">
-              <div class="card__name">${item.itemName}</div>
-              <div class="card__desc">${item.description.substring(0, 90)}...</div>
-              <div class="card__seller">Listed by ${sellerLabel(item)}</div>
-              ${renderEditedNote(item)}
-              <div class="card__footer">
-                <span class="card__price">$${(item.price / 100).toFixed(2)}</span>
-                ${actionButton}
-              </div>
-            </div>
-          `;
-          itemsGrid.appendChild(card);
-        });
-      }
-
-      // ── Cart ─────────────────────────────────────────────────────────────────
-      function getTotalCartCount() {
-        return Object.values(cart).reduce((s, n) => s + n, 0);
-      }
-
-      function updateCartUI() {
-        const total = getTotalCartCount();
-        if (cartBadge) {
-          cartBadge.textContent = total;
-          cartBadge.classList.toggle('has-items', total > 0);
-        }
-        updateProfileUI();
-        saveCart();
-        // live-update drawer count if it's open
-        if (document.getElementById('cartDrawer')?.classList.contains('is-open')) {
-          renderCartPanel();
-        }
-      }
-
-      let toastTimer;
-      function showToast(msg) {
-        cartToast.textContent = msg;
-        cartToast.classList.add('is-visible');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => cartToast.classList.remove('is-visible'), 2600);
-      }
-
-      itemsGrid.addEventListener('click', e => {
-        const btn  = e.target.closest('.add-to-cart');
-        const messageBtn = e.target.closest('.message-seller');
-        const wishBtn = e.target.closest('[data-wishlist-id]');
-        const editBtn = e.target.closest('[data-edit-listing-id]');
-        const card = e.target.closest('.card');
-        if (editBtn) {
-          e.stopPropagation();
-          openEditListing(editBtn.dataset.editListingId);
-          return;
-        }
-        if (wishBtn) {
-          e.stopPropagation();
-          toggleWishlist(wishBtn.dataset.wishlistId);
-          return;
-        }
-        if (messageBtn) {
-          e.stopPropagation();
-          openMessageModal(messageBtn.dataset.id);
-          return;
-        }
-        if (btn) {
-          e.stopPropagation();
-          return;
-        }
-        if (card) openDetail(card.dataset.id);
-      });
-
-      // ── Detail modal ──────────────────────────────────────────────────────────
-      const detailModal = document.getElementById('detailModal');
-      const detailTitle = document.getElementById('detailTitle');
-      const detailBody  = document.getElementById('detailBody');
-
-      function openDetail(id) {
-        const item = findItemById(id);
-        if (!item) return;
-        detailTitle.textContent = item.itemName;
-        const wished = isWishlisted(id);
-        const ownListing = isOwnListing(item);
-        const detailTopAction = ownListing
-          ? `<button class="wishlist-btn listing-menu-btn wishlist-btn--detail" data-detail-edit="${item.id}" type="button" aria-label="Edit listing" title="Edit listing"><span aria-hidden="true">...</span></button>`
-          : `<button class="wishlist-btn wishlist-btn--detail${wished ? ' is-active' : ''}" data-detail-wishlist="${item.id}" type="button" aria-label="${wished ? 'Remove from wish list' : 'Add to wish list'}" title="${wished ? 'Remove from wish list' : 'Add to wish list'}">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"/>
-              </svg>
-            </button>`;
-        const detailAction = ownListing
-          ? ''
-          : `<button class="btn btn--primary detail__message" data-message-detail="${item.id}" type="button">Message Seller</button>`;
-        detailBody.innerHTML = `
-          <div class="detail">
-            <div class="detail__img-wrap">
-              <img class="detail__img" src="${item.imageUrls[0] || 'images/placeholder.jpg'}" alt="${item.itemName}" />
-              ${detailTopAction}
-            </div>
-            <div class="detail__info">
-              <h2 class="detail__name">${item.itemName}</h2>
-              <p class="detail__desc">${item.description}</p>
-              <p class="detail__seller">Listed by ${sellerLabel(item)}${item.location ? ` in ${item.location}` : ''}</p>
-              ${renderEditedNote(item)}
-              <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
-              ${detailAction}
-            </div>
-          </div>
-        `;
-        detailBody.querySelector('[data-message-detail]')?.addEventListener('click', () => openMessageModal(item.id));
-        detailBody.querySelector('[data-detail-edit]')?.addEventListener('click', e => {
-          e.stopPropagation();
-          setModalOpen(detailModal, false);
-          openEditListing(item.id);
-        });
-        detailBody.querySelector('[data-detail-wishlist]')?.addEventListener('click', e => {
-          e.stopPropagation();
-          toggleWishlist(id);
-          const active = isWishlisted(id);
-          const detailWishBtn = detailBody.querySelector('[data-detail-wishlist]');
-          detailWishBtn.classList.toggle('is-active', active);
-          detailWishBtn.setAttribute('aria-label', active ? 'Remove from wish list' : 'Add to wish list');
-          detailWishBtn.title = active ? 'Remove from wish list' : 'Add to wish list';
-        });
-        setModalOpen(detailModal, true);
-      }
-
-      function setFormBusy(button, busy, label) {
-        if (!button) return;
-        button.disabled = busy;
-        if (busy) {
-          button.dataset.originalText = button.textContent;
-          button.textContent = label;
-        } else {
-          button.textContent = button.dataset.originalText || button.textContent;
-        }
-      }
-
-      function resetListingFormMode() {
-        editingListing = null;
-        listingModalTitle.textContent = 'Sell Gear';
-        listingSubmit.textContent = 'Create Listing';
-        delete listingSubmit.dataset.originalText;
-        delete listingDelete.dataset.originalText;
-        listingDelete.hidden = true;
-        listingDelete.style.display = 'none';
-        listingStatus.textContent = '';
-        listingForm.reset();
-      }
-
-      function openCreateListing() {
-        resetListingFormMode();
-        setModalOpen(listingModal, true);
-      }
-
-      function openEditListing(id) {
-        const item = findItemById(id);
-        if (!item || !isOwnListing(item)) return;
-        editingListing = item;
-        listingModalTitle.textContent = 'Edit Listing';
-        listingSubmit.textContent = 'Save Changes';
-        listingDelete.style.display = '';
-        listingDelete.hidden = false;
-        listingStatus.textContent = '';
-        document.getElementById('listingTitle').value = item.itemName || '';
-        document.getElementById('listingPrice').value = item.price ? (item.price / 100).toFixed(2) : '';
-        document.getElementById('listingCategory').value = item.category || 'Accessories';
-        document.getElementById('listingCondition').value = item.condition || 'LIKE_NEW';
-        document.getElementById('listingLocation').value = item.location || '';
-        document.getElementById('listingImageUrl').value = item.imageUrls?.[0] || '';
-        document.getElementById('listingDescription').value = item.description || '';
-        setModalOpen(listingModal, true);
-      }
-
-      function listingFormPayload() {
-        const priceDollars = Number(document.getElementById('listingPrice').value);
-        const imageUrl = document.getElementById('listingImageUrl').value.trim();
-        return {
-          title: document.getElementById('listingTitle').value.trim(),
-          description: document.getElementById('listingDescription').value.trim(),
-          price: Math.round(priceDollars * 100),
-          category: document.getElementById('listingCategory').value,
-          condition: document.getElementById('listingCondition').value,
-          location: document.getElementById('listingLocation').value.trim(),
-          imageUrls: imageUrl ? [imageUrl] : [],
-        };
-      }
-
-      function openMessageModal(id) {
-        const item = findItemById(id);
-        if (!item?.isMarketplaceListing || isOwnListing(item)) return;
-        selectedMessageListing = item;
-        messageTitle.textContent = `Message ${item.sellerName || 'Seller'}`;
-        document.getElementById('messageBody').value = `Hi, is "${item.itemName}" still available?`;
-        messageStatus.textContent = '';
-        setModalOpen(messageModal, true);
-      }
-
-      listingForm?.addEventListener('submit', async event => {
-        event.preventDefault();
-        if (!window.summitMarketplace) {
-          listingStatus.textContent = 'Marketplace is still loading. Try again in a moment.';
-          return;
-        }
-
-        const submitBtn = document.getElementById('listingSubmit');
-        setFormBusy(submitBtn, true, editingListing ? 'Saving...' : 'Creating...');
-        listingStatus.textContent = '';
-
-        try {
-          const payload = listingFormPayload();
-          if (editingListing) {
-            const updated = await window.summitMarketplace.updateListing({
-              id: editingListing.id,
-              ...payload,
-            });
-            marketplaceListings = marketplaceListings.map(item =>
-              item.id === updated.id ? normalizeRemoteListing(updated) : item
-            );
-          } else {
-            const created = await window.summitMarketplace.createListing(payload);
-            marketplaceListings = [normalizeRemoteListing(created), ...marketplaceListings];
-          }
-          initCounts();
-          updateProfileUI();
-          renderGrid();
-          closeAllModals();
-          showToast(editingListing ? 'Listing updated' : 'Listing created');
-          resetListingFormMode();
-        } catch (error) {
-          listingStatus.textContent = error.message || 'Could not save listing.';
-        } finally {
-          setFormBusy(submitBtn, false);
-        }
-      });
-
-      listingDelete?.addEventListener('click', async () => {
-        if (!editingListing || !window.summitMarketplace) return;
-        listingStatus.textContent = '';
-        setFormBusy(listingDelete, true, 'Deleting...');
-        try {
-          await window.summitMarketplace.deleteListing(editingListing.id);
-          marketplaceListings = marketplaceListings.filter(item => item.id !== editingListing.id);
-          profileState.wishlist = profileState.wishlist.filter(id => id !== String(editingListing.id));
-          saveWishlist();
-          initCounts();
-          updateProfileUI();
-          renderGrid();
-          closeAllModals();
-          showToast('Listing deleted');
-          resetListingFormMode();
-        } catch (error) {
-          listingStatus.textContent = error.message || 'Could not delete listing.';
-        } finally {
-          setFormBusy(listingDelete, false);
-        }
-      });
-
-      messageForm?.addEventListener('submit', async event => {
-        event.preventDefault();
-        if (!window.summitMarketplace || !selectedMessageListing) {
-          messageStatus.textContent = 'Messaging is still loading. Try again in a moment.';
-          return;
-        }
-
-        const body = document.getElementById('messageBody').value.trim();
-        if (!body) return;
-
-        const submitBtn = document.getElementById('messageSubmit');
-        setFormBusy(submitBtn, true, 'Sending...');
-        messageStatus.textContent = '';
-
-        try {
-          await window.summitMarketplace.startConversation(selectedMessageListing, body);
-          closeAllModals();
-          showToast('Message sent');
-          if (chatOpen) loadInbox();
-        } catch (error) {
-          messageStatus.textContent = error.message || 'Could not send message.';
-        } finally {
-          setFormBusy(submitBtn, false);
-        }
-      });
-
-      window.addEventListener('summitMarketplaceReady', refreshMarketplaceListings);
-
-      // ── Categories ────────────────────────────────────────────────────────────
-      categoryList.addEventListener('click', e => {
-        const item = e.target.closest('.cat-item');
-        if (!item) return;
-        activeSearch = '';
-        searchInput.value = '';
-        activeCategory = item.dataset.category || 'All';
-        document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
-        item.classList.add('is-active');
-        renderGrid();
-      });
-
-      // ── Search ───────────────────────────────────────────────────────────────
-      let searchDebounce;
-      searchInput.addEventListener('input', () => {
-        clearTimeout(searchDebounce);
-        searchDebounce = setTimeout(() => {
-          activeSearch = searchInput.value.trim();
-          if (activeSearch) {
-            document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
-          } else {
-            document.querySelector('[data-category="All"]')?.classList.add('is-active');
-          }
-          renderGrid();
-        }, 200);
-      });
-
-      document.getElementById('clearSearch')?.addEventListener('click', () => {
-        activeSearch = '';
-        activeCategory = 'All';
-        searchInput.value = '';
-        document.querySelector('[data-category="All"]')?.classList.add('is-active');
-        renderGrid();
-      });
-
-      // ── Sort ─────────────────────────────────────────────────────────────────
-      sortSelect.addEventListener('change', () => {
-        activeSortOrder = sortSelect.value;
-        renderGrid();
-      });
-
-      // ── Modals (profile + detail) ─────────────────────────────────────────────
-      const profileModal = document.getElementById('profileModal');
-
-      function syncBodyScroll() {
-        const anyOpen =
-          profileModal.classList.contains('is-open') ||
-          detailModal.classList.contains('is-open') ||
-          listingModal.classList.contains('is-open') ||
-          messageModal.classList.contains('is-open') ||
-          document.getElementById('cartDrawer')?.classList.contains('is-open');
-        document.body.classList.toggle('modal-open', anyOpen);
-      }
-
-      function setModalOpen(el, open) {
-        el.classList.toggle('is-open', open);
-        el.setAttribute('aria-hidden', String(!open));
-        syncBodyScroll();
-      }
-
-      function closeAllModals() {
-        [profileModal, detailModal, listingModal, messageModal].forEach(m => {
-          m.classList.remove('is-open');
-          m.setAttribute('aria-hidden', 'true');
-        });
-        syncBodyScroll();
-      }
-
-      document.getElementById('profileBtn').addEventListener('click', () => {
-        renderProfilePanel(activeProfileView);
-        refreshProfileOrders();
-        setModalOpen(profileModal, true);
-      });
-      document.querySelectorAll('[data-profile-view]').forEach(button => {
-        button.addEventListener('click', async () => {
-          renderProfilePanel(button.dataset.profileView);
-          if (button.dataset.profileView === 'orders') await refreshProfileOrders();
-        });
-      });
-      profilePanel?.addEventListener('click', event => {
-        const editBtn = event.target.closest('[data-profile-edit]');
-        const viewBtn = event.target.closest('[data-profile-view-item]');
-        const orderDetailsBtn = event.target.closest('[data-order-details]');
-        const orderChatBtn = event.target.closest('[data-order-chat]');
-        if (editBtn) {
-          closeAllModals();
-          openEditListing(editBtn.dataset.profileEdit);
-        }
-        if (viewBtn) {
-          closeAllModals();
-          openDetail(viewBtn.dataset.profileViewItem);
-        }
-        if (orderDetailsBtn) {
-          closeAllModals();
-          openOrderDetails(orderDetailsBtn.dataset.orderDetails);
-        }
-        if (orderChatBtn) {
-          closeAllModals();
-          openPreviousOrderChat(orderChatBtn.dataset.orderChat, orderChatBtn.dataset.orderName);
-        }
-      });
-      sellBtn?.addEventListener('click', openCreateListing);
-
-      document.addEventListener('click', e => {
-        if (e.target.matches('[data-close]') || e.target.closest('[data-close]')) closeAllModals();
-      });
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-          closeAllModals();
-          closeCartDrawer();
-          if (chatOpen) toggleChat();
-        }
-      });
-
-      // ── Cart Drawer ───────────────────────────────────────────────────────────
-      const cartDrawer  = document.getElementById('cartDrawer');
-      const cartOverlay = document.getElementById('cartOverlay');
-
-      function openCartDrawer() {
-        cartDrawer.classList.add('is-open');
-        cartDrawer.setAttribute('aria-hidden', 'false');
-        cartOverlay.classList.add('is-open');
-        renderCartPanel();
-        syncBodyScroll();
-      }
-
-      function closeCartDrawer() {
-        cartDrawer.classList.remove('is-open');
-        cartDrawer.setAttribute('aria-hidden', 'true');
-        cartOverlay.classList.remove('is-open');
-        syncBodyScroll();
-      }
-
-      function renderCartPanel() {
-        const body       = document.getElementById('cartDrawerBody');
-        const subtotalEl = document.getElementById('cartSubtotal');
-        const countEl    = document.getElementById('cartDrawerCount');
-        const footer     = document.getElementById('cartDrawerFooter');
-
-        const entries = Object.entries(cart).filter(([, qty]) => qty > 0);
-        const totalQty = entries.reduce((s, [, qty]) => s + qty, 0);
-
-        countEl.textContent = totalQty === 0
-          ? 'Empty'
-          : `${totalQty} item${totalQty !== 1 ? 's' : ''}`;
-
-        if (entries.length === 0) {
-          body.innerHTML = `
-            <div class="cart-empty">
-              <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-                <path d="M20 8L12 20v32a4 4 0 004 4h32a4 4 0 004-4V20l-8-12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" opacity=".25"/>
-                <line x1="12" y1="20" x2="52" y2="20" stroke="currentColor" stroke-width="2" opacity=".25"/>
-                <path d="M40 28a8 8 0 01-16 0" stroke="currentColor" stroke-width="2" opacity=".25"/>
-              </svg>
-              <p class="cart-empty__title">Your bag is empty</p>
-              <p class="cart-empty__sub">Add some gear to get started</p>
-            </div>
-          `;
-          subtotalEl.textContent = '$0.00';
-          footer.hidden = true;
-          return;
-        }
-
-        footer.hidden = false;
-        let subtotal = 0;
-        body.innerHTML = '';
-
-        entries.forEach(([idStr, qty]) => {
-          const id   = Number(idStr);
-          const item = findItemById(id);
-          if (!item) return;
-          const lineTotal = item.price * qty;
-          subtotal += lineTotal;
-          const imageUrl = (item.imageUrls && item.imageUrls[0]) || '../images/placeholder.jpg';
-
-          const el = document.createElement('div');
-          el.className = 'cart-item';
-          el.innerHTML = `
-            <img class="cart-item__img" src="${imageUrl}" alt="${item.itemName}" />
-            <div class="cart-item__info">
-              <div class="cart-item__name">${item.itemName}</div>
-              <div class="cart-item__cat">${item.category}</div>
-              <div class="cart-item__price-row">
-                <span class="cart-item__unit">$${(item.price / 100).toFixed(2)}</span>
-                <span class="cart-item__qty-badge">× ${qty}</span>
-                <span class="cart-item__line">$${(lineTotal / 100).toFixed(2)}</span>
-              </div>
-            </div>
-            <button class="cart-item__remove" data-remove-id="${id}" type="button" aria-label="Remove ${item.itemName}">
-              <svg viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </button>
-          `;
-          body.appendChild(el);
-        });
-
-        subtotalEl.textContent = '$' + (subtotal / 100).toFixed(2);
-      }
-
-      document.getElementById('cartDrawerBody')?.addEventListener('click', e => {
-        const btn = e.target.closest('[data-remove-id]');
-        if (!btn) return;
-        const id = Number(btn.dataset.removeId);
-        delete cart[id];
-        updateCartUI();
-        renderCartPanel();
-        renderGrid();
-      });
-
-      document.getElementById('cartBtn')?.addEventListener('click', openCartDrawer);
-      document.getElementById('cartDrawerClose')?.addEventListener('click', closeCartDrawer);
-      document.getElementById('cartContinue')?.addEventListener('click', closeCartDrawer);
-      cartOverlay?.addEventListener('click', closeCartDrawer);
-
-      // ── Chat Panel ────────────────────────────────────────────────────────────
-      const chatPanel     = document.getElementById('chatPanel');
-      const chatMessages  = document.getElementById('chatMessages');
-      const qrContainer   = document.getElementById('quickRepliesContainer');
-      const chatInput     = document.getElementById('chatInput');
-      const chatSend      = document.getElementById('chatSend');
-      const fabIconChat   = document.querySelector('.fab__icon--chat');
-      const fabIconClose  = document.querySelector('.fab__icon--close');
-      const fabLabel      = document.querySelector('.fab__label');
-      const fabPulse      = document.querySelector('.fab__pulse');
-      let chatOpen = false;
-      let chatInitialized = false;
-
-      function toggleChat(loadConversations = true) {
-        chatOpen = !chatOpen;
-        chatPanel.classList.toggle('is-open', chatOpen);
-        chatPanel.setAttribute('aria-hidden', String(!chatOpen));
-        fabIconChat.hidden = false;
-        if (fabIconClose) fabIconClose.hidden = true;
-        fabLabel.textContent = chatOpen ? 'Close' : 'Inbox';
-        document.getElementById('chatBtn').classList.toggle('is-chat-open', chatOpen);
-        if (chatOpen) {
-          fabPulse.style.display = 'none';
-          if (!loadConversations) return;
-          if (!chatInitialized) {
-            chatInitialized = true;
-            loadInbox();
-          } else {
-            loadInbox();
-          }
-          scrollChatToBottom();
-        }
-      }
-
-      document.getElementById('chatBtn').addEventListener('click', toggleChat);
-
-      function scrollChatToBottom() {
-        setTimeout(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }, 50);
-      }
-
-      // ── Bot logic ─────────────────────────────────────────────────────────────
-      function renderInboxEmpty(message) {
-        chatMessages.innerHTML = `
-          <div class="inbox-empty">
-            <div class="inbox-empty__title">${message}</div>
-            <div class="inbox-empty__sub">Messages from listing conversations will show here.</div>
-          </div>
-        `;
-        qrContainer.innerHTML = '';
-        chatInput.disabled = true;
-        chatSend.disabled = true;
-      }
-
-      async function loadInbox() {
-        if (!window.summitMarketplace) {
-          renderInboxEmpty('Inbox is loading');
-          return;
-        }
-
-        try {
-          inboxConversations = await window.summitMarketplace.listConversations();
-          if (!inboxConversations.length) {
-            selectedInboxConversation = null;
-            renderInboxEmpty('No messages yet');
-            return;
-          }
-
-          selectedInboxConversation = selectedInboxConversation
-            ? inboxConversations.find(convo => convo.id === selectedInboxConversation.id) || inboxConversations[0]
-            : inboxConversations[0];
-          renderConversationList();
-          await renderInboxMessages(selectedInboxConversation);
-        } catch (error) {
-          renderInboxEmpty(error.message || 'Could not load inbox');
-        }
-      }
-
-      async function openPreviousOrderChat(conversationId, orderName = '') {
-        if (!window.summitMarketplace) return;
-        if (!chatOpen) toggleChat(false);
-        const conversation = await window.summitMarketplace.getConversation(conversationId).catch(() => null);
-        if (!conversation) {
-          renderInboxEmpty('Previous chat not found');
-          return;
-        }
-        inboxConversations = [];
-        selectedInboxConversation = conversation;
-        const title = orderName || conversation.listingTitle || 'order';
-        qrContainer.innerHTML = `<button class="quick-reply inbox-thread is-active" type="button">Previous order chat: ${title}</button>`;
-        await renderInboxMessages(conversation);
-      }
-
-      function renderConversationList() {
-        qrContainer.innerHTML = '';
-        inboxConversations.forEach(conversation => {
-          const button = document.createElement('button');
-          button.className = `quick-reply inbox-thread${selectedInboxConversation?.id === conversation.id ? ' is-active' : ''}`;
-          button.type = 'button';
-          button.textContent = conversation.listingTitle || 'Listing conversation';
-          button.addEventListener('click', async () => {
-            selectedInboxConversation = conversation;
-            renderConversationList();
-            await renderInboxMessages(conversation);
-          });
-          qrContainer.appendChild(button);
-        });
-      }
-
-      async function renderInboxMessages(conversation) {
-        if (!conversation) {
-          renderInboxEmpty('No messages yet');
-          return;
-        }
-        chatInput.disabled = false;
-        chatSend.disabled = false;
-        chatInput.placeholder = `Reply about ${conversation.listingTitle}`;
-        chatMessages.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-
-        try {
-          const [profile, messages] = await Promise.all([
-            window.summitMarketplace.getProfile(),
-            window.summitMarketplace.listMessages(conversation.id),
-          ]);
-
-          chatMessages.innerHTML = '';
-          messages.forEach(message => {
-            addMessage(message.senderSub === profile.sub ? 'user' : 'bot', message.body);
-          });
-          if (conversation.completedAt) {
-            addMessage('bot', 'Congrats, order is completed!');
-            chatInput.disabled = true;
-            chatSend.disabled = true;
-            chatInput.placeholder = 'Previous order chat';
-          }
-          renderOrderCompletion(conversation, profile);
-          scrollChatToBottom();
-        } catch (error) {
-          renderInboxEmpty(error.message || 'Could not load messages');
-        }
-      }
-
-      function renderOrderCompletion(conversation, profile) {
-        const isBuyer = profile.sub === conversation.buyerSub;
-        const userCompleted = isBuyer ? conversation.buyerCompletedAt : conversation.sellerCompletedAt;
-        const otherCompleted = isBuyer ? conversation.sellerCompletedAt : conversation.buyerCompletedAt;
-        const block = document.createElement('div');
-        block.className = 'order-complete-box';
-        const explanation = userCompleted
-          ? 'You already confirmed. The listing clears after the other user confirms too.'
-          : otherCompleted
-            ? 'The other user already confirmed. Click Complete Order when the sale is fully finished.'
-            : 'Both users must click Complete Order before this listing is removed and saved under Previous Orders.';
-
-        if (conversation.completedAt) {
-          block.innerHTML = `
-            <div class="order-complete-box__row">
-              <span class="order-complete-box__title">Congrats, order is completed!</span>
-              <button class="order-info-btn" type="button" aria-label="Order completion information">i
-                <span class="order-info-tooltip">This listing has been cleared from active listings and saved under Previous Orders.</span>
-              </button>
-            </div>
-          `;
-        } else {
-          block.innerHTML = `
-            <div class="order-complete-box__row">
-              <button class="order-complete-btn" data-complete-order type="button" ${userCompleted ? 'disabled' : ''}>${userCompleted ? 'Confirmed' : 'Complete Order'}</button>
-              <button class="order-info-btn" type="button" aria-label="Order completion information">i
-                <span class="order-info-tooltip">${explanation}</span>
-              </button>
-            </div>
-          `;
-        }
-
-        chatMessages.appendChild(block);
-      }
-
-      function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
-      function byCat(cat) { return getCatalogItems().filter(i => i.category === cat); }
-
-      const DEFAULT_QR = ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks'];
-
-      function getBotResponse(input) {
-        const m = input.toLowerCase();
-
-        if (/^(hi|hey|hello|yo|sup|howdy|what'?s up)/.test(m)) {
-          return {
-            text: "Hey! I'm Carlos, your Summit Shred guide. I can help you find the right board, build a complete kit, or point you to the best gear for your budget and skill level. What are you after?",
-            qr: ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks']
-          };
-        }
-
-        if (/snowboard|board|shred|all.?mountain|freestyle|pow(der)?|park|halfpipe|twin|directional/.test(m)) {
-          const b = byCat('Snowboards');
-          return {
-            text: `We carry ${b.length} boards:\n\n<strong>${b[0].itemName}</strong> — ${fmt(b[0].price)}\nBest for all-mountain and hardpack. Directional twin with great edge hold.\n\n<strong>${b[1].itemName}</strong> — ${fmt(b[1].price)}\nSoft flex designed for park and freestyle. Super butter-able.`,
-            qr: ['All-mountain riding', 'Park & freestyle', 'What bindings pair with these?', 'View all boards'],
-            action: null
-          };
-        }
-
-        if (/binding|bindings|highback|highback|mount|strap/.test(m)) {
-          const b = byCat('Bindings')[0];
-          return {
-            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} is our go-to — tool-free adjustment, cushioned EVA footbed, and compatible with all major boot standards. Hard to beat at that price.`,
-            qr: ['Add bindings to cart', 'What boots pair well?', 'View all boards']
-          };
-        }
-
-        if (/boot|boots|footwear|lace|boa|liner/.test(m)) {
-          const b = byCat('Boots')[0];
-          return {
-            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} is the most popular in our shop — BOA closure for micro-adjustments, heat-moldable liner, and a Vibram outsole. Medium-stiff flex suits most riders from beginner to intermediate.`,
-            qr: ['Tell me about bindings', 'View all boots', 'Build a full kit']
-          };
-        }
-
-        if (/helmet|head|mips|vent|protect/.test(m)) {
-          const h = byCat('Helmets')[0];
-          return {
-            text: `Safety first! The <strong>${h.itemName}</strong> at ${fmt(h.price)} has MIPS rotational protection, 12 adjustable vents, and a goggle clip system. Works great with our goggles.`,
-            qr: ['Tell me about goggles', 'Build a full kit', 'View all helmets']
-          };
-        }
-
-        if (/goggle|goggles|lens|fog|uv|vision|anti-fog/.test(m)) {
-          const g = byCat('Goggles')[0];
-          return {
-            text: `The <strong>${g.itemName}</strong> at ${fmt(g.price)} — dual anti-fog lenses, 100% UV protection, and an OTG design for glasses wearers. Pairs nicely with the Apex MIPS Helmet.`,
-            qr: ['Tell me about helmets', 'View goggles', 'Build a full kit']
-          };
-        }
-
-        if (/jacket|coat|shell|waterproof|outerwear/.test(m)) {
-          const j = byCat('Jackets')[0];
-          return {
-            text: `The <strong>${j.itemName}</strong> at ${fmt(j.price)} is built for serious days — 20K waterproofing, taped seams, underarm vents, and a powder skirt. Ready for anything the mountain throws at you.`,
-            qr: ['Tell me about pants', 'View jackets', 'Build a full kit'],
-            action: { type: 'filter', category: 'Jackets' }
-          };
-        }
-
-        if (/pant|pants|bib|outerwear bottom/.test(m)) {
-          const p = byCat('Pants')[0];
-          return {
-            text: `The <strong>${p.itemName}</strong> at ${fmt(p.price)} — bib-style with 15K waterproofing, articulated knees, boot gaiters, and reinforced cuffs. A perfect match with the Powder Pro Jacket.`,
-            qr: ['Tell me about jackets', 'View pants', 'Build a full kit']
-          };
-        }
-
-        if (/glove|gloves|mitt|hand/.test(m)) {
-          const g = byCat('Gloves')[0];
-          return {
-            text: `The <strong>${g.itemName}</strong> at ${fmt(g.price)} — waterproof shell, synthetic insulation, silicone grip palm. Warm and functional without breaking the bank.`,
-            qr: ['View gloves', 'What about base layers?', 'Build a full kit']
-          };
-        }
-
-        if (/base.?layer|merino|thermal|baselayer/.test(m)) {
-          const b = byCat('Base Layers')[0];
-          return {
-            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} — 100% merino wool, moisture-wicking, and naturally odor-resistant. One of the best investments you can make for comfort on the mountain.`,
-            qr: ['Tell me about socks', 'Build a full kit', 'Budget-friendly picks']
-          };
-        }
-
-        if (/sock|socks/.test(m)) {
-          const s = byCat('Socks')[0];
-          return {
-            text: `The <strong>${s.itemName}</strong> at ${fmt(s.price)} — over-the-calf, targeted cushioning zones, arch support, merino/nylon blend. You'd be surprised how much good socks transform your ride.`,
-            qr: ['Add to cart', 'Tell me about base layers', 'Build a full kit']
-          };
-        }
-
-        if (/wax|tune|tuning|edge|maintenance|service/.test(m)) {
-          const items = byCat('Wax & Tuning');
-          return {
-            text: `We've got ${items.length} tuning options:\n\n<strong>${items[0].itemName}</strong> — ${fmt(items[0].price)} (all-temp wax + tools)\n<strong>${items[1].itemName}</strong> — ${fmt(items[1].price)} (compact pocket tool)\n\nKeep that base flying!`,
-            qr: ['View tuning gear', 'Build a full kit']
-          };
-        }
-
-        if (/bag|pack|backpack|carry|storage/.test(m)) {
-          const b = byCat('Bags')[0];
-          return {
-            text: `The <strong>${b.itemName}</strong> at ${fmt(b.price)} — ventilated compartments, wet/dry separation, shoulder strap. Perfect for hauling boots and gear to the mountain.`,
-            qr: ['View bags', 'Build a full kit']
-          };
-        }
-
-        if (/beginner|newbie|new to|first time|start|learning|never rode/.test(m)) {
-          return {
-            text: `Welcome to snowboarding! Here's a solid beginner setup:\n\n<strong>Alpine Freestyle 148</strong> — $479 (forgiving flex)\n<strong>Peak Lock Bindings</strong> — $229\n<strong>Ridge Step Boots</strong> — $189\n<strong>Apex MIPS Helmet</strong> — $149\n\nThat's ~$1,046 for a complete, quality setup. Want to swap any piece?`,
-            qr: ['What about goggles?', 'Need something cheaper', 'Looks great, view all', 'Build a full kit']
-          };
-        }
-
-        if (/budget|cheap|afford|under \$|low.?cost|save|deal/.test(m)) {
-          const sorted = [...getCatalogItems()].sort((a, b) => a.price - b.price).slice(0, 3);
-          return {
-            text: `Here are our most affordable picks:\n\n<strong>${sorted[0].itemName}</strong> — ${fmt(sorted[0].price)}\n<strong>${sorted[1].itemName}</strong> — ${fmt(sorted[1].price)}\n<strong>${sorted[2].itemName}</strong> — ${fmt(sorted[2].price)}\n\nWant me to sort all products by price?`,
-            qr: ['Sort by price', 'Best gear for beginners', 'View all products'],
-            action: null
-          };
-        }
-
-        if (/full.?kit|complete|setup|everything|package|bundle/.test(m)) {
-          return {
-            text: `A mountain-ready kit covers:\n\n<strong>Hardware</strong> — Board + Bindings + Boots\n<strong>Protection</strong> — Helmet + Goggles\n<strong>Outerwear</strong> — Jacket + Pants + Gloves\n<strong>Layers</strong> — Base Layers + Socks\n\nStart with hardware and work outward. Which piece should we tackle first?`,
-            qr: ['Start with a snowboard', 'Show me helmets', 'View Jackets', 'Budget-friendly picks']
-          };
-        }
-
-        if (/price|cost|how much|expensive|range/.test(m)) {
-          const prices = getCatalogItems().map(i => i.price);
-          return {
-            text: `Our gear ranges from ${fmt(Math.min(...prices))} all the way to ${fmt(Math.max(...prices))}. Boards and jackets sit at the top; accessories like socks and tuning tools are very affordable. What's your rough budget?`,
-            qr: ['Under $100', 'Under $300', 'Full kit $800+', 'Budget-friendly picks']
-          };
-        }
-
-        if (/sort.?by.?price|low.?to.?high|cheapest/.test(m)) {
-          return {
-            text: `Done! I've sorted all products from lowest to highest price. Check the main view.`,
-            qr: DEFAULT_QR,
-            action: { type: 'sort', value: 'price-asc' }
-          };
-        }
-
-        if (/view.?all|show.?all|all.?product|browse|catalog/.test(m)) {
-          return {
-            text: `We have ${getCatalogItems().length} products across ${[...new Set(getCatalogItems().map(i => i.category))].length} categories. Use the sidebar to filter by category, or ask me anything specific!`,
-            qr: DEFAULT_QR,
-            action: { type: 'filter', category: 'All' }
-          };
-        }
-
-        if (/all.?mountain|am riding/.test(m)) {
-          const b = byCat('Snowboards')[0];
-          return {
-            text: `For all-mountain, the <strong>${b.itemName}</strong> at ${fmt(b.price)} is the one. Directional twin shape, poplar core, sintered base — handles hardpack and soft snow equally well.`,
-            qr: ['Add to cart', 'Tell me about bindings', 'View all boards']
-          };
-        }
-
-        if (/park|freestyle|twin|jib/.test(m)) {
-          const b = byCat('Snowboards')[1];
-          return {
-            text: `For park and freestyle, the <strong>${b.itemName}</strong> at ${fmt(b.price)} is your ride — true twin shape, soft flex, lightweight layup. Butters beautifully and pops off kickers.`,
-            qr: ['Add to cart', 'Tell me about bindings', 'View all boards']
-          };
-        }
-
-        // Fallback
-        return {
-          text: `I want to make sure I give you the best recommendation! Try asking about a specific category (snowboards, jackets, boots...), your skill level, or your budget and I'll point you in the right direction.`,
-          qr: DEFAULT_QR
-        };
-      }
-
-      function applyBotAction(action) {
-        if (!action) return;
-        if (action.type === 'filter') {
-          activeSearch = '';
-          searchInput.value = '';
-          activeCategory = action.category;
-          document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('is-active'));
-          document.querySelector(`[data-category="${action.category}"]`)?.classList.add('is-active');
-          renderGrid();
-        }
-        if (action.type === 'sort') {
-          activeSortOrder = action.value;
-          sortSelect.value = action.value;
-          renderGrid();
-        }
-      }
-
-      // ── Chat UI helpers ──────────────────────────────────────────────────────
-      function addMessage(role, html) {
-        const wrap = document.createElement('div');
-        wrap.className = `chat-msg chat-msg--${role}`;
-        const bubble = document.createElement('div');
-        bubble.className = 'chat-bubble';
-        if (role === 'bot') {
-          bubble.innerHTML = html.replace(/\n/g, '<br>');
-        } else {
-          bubble.textContent = html;
-        }
-        wrap.appendChild(bubble);
-        chatMessages.appendChild(wrap);
-        scrollChatToBottom();
-      }
-
-      function showTypingIndicator() {
-        const wrap = document.createElement('div');
-        wrap.className = 'chat-msg chat-msg--bot';
-        wrap.id = 'typingIndicator';
-        wrap.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-        chatMessages.appendChild(wrap);
-        scrollChatToBottom();
-        return wrap;
-      }
-
-      function setQuickReplies(replies) {
-        qrContainer.innerHTML = '';
-        if (!replies || !replies.length) return;
-        replies.forEach(text => {
-          const btn = document.createElement('button');
-          btn.className = 'quick-reply';
-          btn.textContent = text;
-          btn.type = 'button';
-          btn.addEventListener('click', () => handleQuickReply(text));
-          qrContainer.appendChild(btn);
-        });
-      }
-
-      function simulateBotResponse(response) {
-        setQuickReplies([]);
-        const typingEl = showTypingIndicator();
-        const delay = 700 + Math.min(response.text.length * 2, 900);
-        setTimeout(() => {
-          typingEl.remove();
-          addMessage('bot', response.text);
-          if (response.action) applyBotAction(response.action);
-          setQuickReplies(response.qr || DEFAULT_QR);
-        }, delay);
-      }
-
-      function handleQuickReply(text) {
-        addMessage('user', text);
-        setQuickReplies([]);
-
-        // Special cases
-        const lower = text.toLowerCase();
-        if (lower.includes('sort by price')) {
-          applyBotAction({ type: 'sort', value: 'price-asc' });
-          setTimeout(() => {
-            addMessage('bot', 'Done! I\'ve sorted products from lowest to highest price. Check the main view.');
-            setQuickReplies(DEFAULT_QR);
-          }, 600);
-          return;
-        }
-        if (lower.startsWith('view all') || lower.startsWith('view jackets') ||
-            lower.startsWith('view goggles') || lower.startsWith('view gloves') ||
-            lower.startsWith('view pants') || lower.startsWith('view bags') ||
-            lower.startsWith('view tuning') || lower.startsWith('view all boots') ||
-            lower.startsWith('view all helmets') || lower.startsWith('view all boards') ||
-            lower === 'looks great, view all' || lower === 'view all products') {
-          const catMatch = lower.match(/view (all )?(\w[\w\s&]*?)(\s|$)/);
-          const catMap = {
-            'boards': 'Snowboards', 'snowboards': 'Snowboards', 'bindings': 'Bindings',
-            'boots': 'Boots', 'helmets': 'Helmets', 'goggles': 'Goggles',
-            'jackets': 'Jackets', 'pants': 'Pants', 'gloves': 'Gloves',
-            'bags': 'Bags', 'tuning': 'Wax & Tuning', 'all products': 'All',
-            'all': 'All'
-          };
-          let cat = 'All';
-          for (const [key, val] of Object.entries(catMap)) {
-            if (lower.includes(key)) { cat = val; break; }
-          }
-          applyBotAction({ type: 'filter', category: cat });
-          const name = cat === 'All' ? 'all products' : cat;
-          setTimeout(() => {
-            addMessage('bot', `Done! Showing ${name} in the main view.`);
-            setQuickReplies(DEFAULT_QR);
-          }, 500);
-          return;
-        }
-
-        const response = getBotResponse(text);
-        simulateBotResponse(response);
-      }
-
-      async function handleUserSend() {
-        const text = chatInput.value.trim();
-        if (!text || !selectedInboxConversation || !window.summitMarketplace) return;
-        chatInput.value = '';
-        addMessage('user', text);
-        chatSend.disabled = true;
-        try {
-          await window.summitMarketplace.sendMessage(selectedInboxConversation, text);
-          await loadInbox();
-        } catch (error) {
-          addMessage('bot', error.message || 'Could not send message.');
-        } finally {
-          chatSend.disabled = false;
-        }
-      }
-
-      chatMessages.addEventListener('click', async event => {
-        const completeBtn = event.target.closest('[data-complete-order]');
-        if (!completeBtn || !selectedInboxConversation || !window.summitMarketplace) return;
-        setFormBusy(completeBtn, true, 'Confirming...');
-        try {
-          const profile = await window.summitMarketplace.getProfile();
-          const isBuyer = profile.sub === selectedInboxConversation.buyerSub;
-          const otherCompleted = isBuyer
-            ? selectedInboxConversation.sellerCompletedAt
-            : selectedInboxConversation.buyerCompletedAt;
-          const shouldFinishOrder = Boolean(otherCompleted);
-          const updatedConversation = await window.summitMarketplace.completeOrder(selectedInboxConversation);
-          selectedInboxConversation = updatedConversation || {
-            ...selectedInboxConversation,
-            buyerCompletedAt: isBuyer ? (selectedInboxConversation.buyerCompletedAt || new Date().toISOString()) : selectedInboxConversation.buyerCompletedAt,
-            sellerCompletedAt: !isBuyer ? (selectedInboxConversation.sellerCompletedAt || new Date().toISOString()) : selectedInboxConversation.sellerCompletedAt,
-            completedAt: shouldFinishOrder ? (selectedInboxConversation.completedAt || new Date().toISOString()) : selectedInboxConversation.completedAt,
-          };
-          await refreshMarketplaceListings();
-          await refreshProfileOrders();
-          if (selectedInboxConversation.completedAt) {
-            inboxConversations = inboxConversations.filter(conversation => conversation.id !== selectedInboxConversation.id);
-            qrContainer.innerHTML = '';
-            chatMessages.innerHTML = '';
-            addMessage('bot', 'Congrats, order is completed!');
-            renderOrderCompletion(selectedInboxConversation, profile);
-            chatInput.disabled = true;
-            chatSend.disabled = true;
-            chatInput.placeholder = 'Order completed';
-            showToast('Congrats, order is completed!');
-          } else {
-            await renderInboxMessages(selectedInboxConversation);
-            showToast('Completion confirmed');
-          }
-        } catch (error) {
-          addMessage('bot', error.message || 'Could not complete order.');
-        } finally {
-          setFormBusy(completeBtn, false);
-        }
-      });
-
-      chatSend.addEventListener('click', handleUserSend);
-      chatInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') handleUserSend();
-      });
-
-      function initChat() {
-        loadInbox();
-      }
-
-      // ── Init ─────────────────────────────────────────────────────────────────
-      initCounts();
-      renderGrid();
-      updateCartUI();
-    </script>
-
-    <!-- Amplify Gen 2 Auth Protection & Logout -->
-    <script type="module">
-      import { Amplify } from 'https://esm.sh/@aws-amplify/core@6.16.2';
-      import {
-        cognitoCredentialsProvider,
-        cognitoUserPoolsTokenProvider,
-        fetchUserAttributes,
-        getCurrentUser,
-        signOut,
-      } from 'https://esm.sh/@aws-amplify/auth@6.19.1/cognito?deps=@aws-amplify/core@6.16.2';
-
-      const getConfig = async () => {
-        const configPaths = ['./amplify_outputs.json', './amplifyconfiguration.json'];
-        for (const path of configPaths) {
-          try {
-            const response = await fetch(path);
-            if (response.ok) return normalizeAmplifyConfig(await response.json());
-          } catch {
-            // Try the next known Amplify config filename.
-          }
-        }
-
-        console.warn('Amplify configuration not found. Expected amplify_outputs.json or amplifyconfiguration.json.');
-        return null;
-      };
-
-      function normalizeAmplifyConfig(config) {
-        if (config.Auth?.Cognito?.userPoolId && config.Auth?.Cognito?.userPoolClientId) {
-          return config;
-        }
-
-        if (config.auth) {
-          const auth = config.auth;
-          return {
-            ...config,
-            Auth: {
-              Cognito: {
-                userPoolId: auth.user_pool_id,
-                userPoolClientId: auth.user_pool_client_id,
-                identityPoolId: auth.identity_pool_id,
-                allowGuestAccess: auth.unauthenticated_identities_enabled,
-                groups: auth.groups,
-                loginWith: {
-                  email: auth.username_attributes?.includes('email') ?? true,
-                  phone: auth.username_attributes?.includes('phone_number') ?? false,
-                  username: auth.username_attributes?.includes('username') ?? false,
-                },
-                signUpVerificationMethod: 'code',
-              },
-            },
-          };
-        }
-
-        if (config.aws_user_pools_id && config.aws_user_pools_web_client_id) {
-          return {
-            ...config,
-            Auth: {
-              Cognito: {
-                userPoolId: config.aws_user_pools_id,
-                userPoolClientId: config.aws_user_pools_web_client_id,
-                identityPoolId: config.aws_cognito_identity_pool_id,
-                loginWith: {
-                  email: config.aws_cognito_username_attributes?.includes('EMAIL') ?? true,
-                  phone: config.aws_cognito_username_attributes?.includes('PHONE_NUMBER') ?? false,
-                  username: !(config.aws_cognito_username_attributes?.includes('EMAIL') || config.aws_cognito_username_attributes?.includes('PHONE_NUMBER')),
-                },
-                signUpVerificationMethod: config.aws_cognito_sign_up_verification_method || 'code',
-              },
-            },
-          };
-        }
-
-        return config;
-      }
-
-      function getDisplayName(user, attributes) {
-        return attributes.name ||
-          attributes.preferred_username ||
-          attributes.nickname ||
-          attributes.email ||
-          user.signInDetails?.loginId ||
-          user.username ||
-          'Summit Rider';
-      }
-
-      function configureAmplifyAuth(config) {
-        cognitoUserPoolsTokenProvider.setAuthConfig(config.Auth);
-        Amplify.configure(config, {
-          Auth: {
-            tokenProvider: cognitoUserPoolsTokenProvider,
-            credentialsProvider: cognitoCredentialsProvider,
-          },
-        });
-      }
-
-      async function refreshHomeAuthState() {
-        const config = await getConfig();
-        if (!config) {
-          window.summitHomeAuth?.applySignedOutState();
-          return;
-        }
-
-        configureAmplifyAuth(config);
-
-        try {
-          const user = await getCurrentUser();
-          const attributes = await fetchUserAttributes().catch(() => ({}));
-          const email = attributes.email || user.signInDetails?.loginId || '';
-          window.summitHomeAuth?.applySignedInState({
-            userKey: attributes.sub || user.userId || email || user.username,
-            username: user.username,
-            email,
-            displayName: getDisplayName(user, attributes)
-          });
-        } catch {
-          window.summitHomeAuth?.applySignedOutState();
-        }
-      }
-
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-          try {
-            await signOut();
-            localStorage.removeItem('userEmail');
-            window.summitHomeAuth?.applySignedOutState();
-            window.location.href = '/index.html';
-          } catch (error) {
-            console.error('Logout error:', error);
-            window.summitHomeAuth?.applySignedOutState();
-          }
-        });
-      }
-
-      window.addEventListener('load', refreshHomeAuthState);
+      window.addEventListener('scroll', update, { passive: true });
+      update();
     </script>
   </body>
 </html>

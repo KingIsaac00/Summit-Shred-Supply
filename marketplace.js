@@ -148,6 +148,8 @@ async function createListing(input) {
     sellerName: profile.displayName,
     sellerEmail: profile.email,
     location: input.location || '',
+    latitude: input.latitude,
+    longitude: input.longitude,
     status: 'ACTIVE',
   });
   if (errors?.length) throw new Error(errors[0].message || 'Could not create listing.');
@@ -166,6 +168,8 @@ async function updateListing(input) {
     condition: input.condition,
     imageUrls: input.imageUrls || [],
     location: input.location || '',
+    latitude: input.latitude,
+    longitude: input.longitude,
     editedAt: new Date().toISOString(),
   });
   if (errors?.length) throw new Error(errors[0].message || 'Could not update listing.');

@@ -16,6 +16,8 @@ const schema = a.schema({
       sellerName: a.string(),
       sellerEmail: a.email(),
       location: a.string(),
+      latitude: a.float(),
+      longitude: a.float(),
       status: a.ref('ListingStatus').required(),
       editedAt: a.datetime(),
       soldAt: a.datetime(),
@@ -23,6 +25,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.owner(),
+      allow.ownerDefinedIn('sellerSub').identityClaim('sub'),
       allow.authenticated().to(['read']),
     ]),
 

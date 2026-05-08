@@ -17,6 +17,7 @@ frontend:
     baseDirectory: .
     files:
       - index.html
+      - marketplace.html
       - auth.html
       - auth.js
       - auth-config.js
