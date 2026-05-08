@@ -62,6 +62,7 @@ const schema = a.schema({
 
   Order: a
     .model({
+      conversationId: a.id(),
       listingId: a.id().required(),
       listingTitle: a.string().required(),
       buyerSub: a.string().required(),

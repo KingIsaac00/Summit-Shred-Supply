@@ -276,7 +276,7 @@
             </button>
             <button class="stat" type="button" data-profile-view="orders">
               <div class="stat__val" id="statOrders">0</div>
-              <div class="stat__lbl">Orders</div>
+              <div class="stat__lbl">Previous Orders</div>
             </button>
           </div>
           <div class="profile-panel" id="profilePanel"></div>
@@ -642,14 +642,64 @@
         const orders = profileOrders;
         profilePanel.innerHTML = orders.length
           ? orders.map(order => `
-              <div class="profile-item">
+              <div class="profile-item profile-item--order">
                 <div class="profile-item__body">
                   <div class="profile-item__title">${order.listingTitle || 'Completed order'}</div>
-                  <div class="profile-item__meta">Completed ${formatEditedAt(order.completedAt).replace('Listing edited ', '')}</div>
+                  <div class="profile-item__meta">
+                    Completed ${formatEditedAt(order.completedAt).replace('Listing edited ', '')}${order.price ? ` - $${(order.price / 100).toFixed(2)}` : ''}
+                  </div>
+                </div>
+                <div class="profile-item__actions">
+                  <button class="btn btn--secondary btn--sm" data-order-details="${order.id || order.conversationId}" type="button">Details</button>
+                  <button class="btn btn--primary btn--sm" data-order-chat="${order.conversationId || order.id}" type="button">View Chat</button>
                 </div>
               </div>
             `).join('')
-          : '<div class="profile-empty">Completed orders will show here.</div>';
+          : '<div class="profile-empty">Previous orders will show here.</div>';
+      }
+
+      function findProfileOrder(id) {
+        return profileOrders.find(order =>
+          String(order.id) === String(id) ||
+          String(order.conversationId) === String(id) ||
+          String(order.listingId) === String(id)
+        );
+      }
+
+      function openOrderDetails(id) {
+        const order = findProfileOrder(id);
+        if (!order) return;
+        detailTitle.textContent = 'Previous Order';
+        detailBody.innerHTML = `
+          <div class="order-detail">
+            <div class="order-detail__row">
+              <span>Listing</span>
+              <strong>${order.listingTitle || 'Completed order'}</strong>
+            </div>
+            <div class="order-detail__row">
+              <span>Completed</span>
+              <strong>${formatEditedAt(order.completedAt).replace('Listing edited ', '')}</strong>
+            </div>
+            <div class="order-detail__row">
+              <span>Price</span>
+              <strong>${order.price ? `$${(order.price / 100).toFixed(2)}` : 'Not recorded'}</strong>
+            </div>
+            <div class="order-detail__row">
+              <span>Buyer</span>
+              <strong>${order.buyerName || 'Buyer'}</strong>
+            </div>
+            <div class="order-detail__row">
+              <span>Seller</span>
+              <strong>${order.sellerName || 'Seller'}</strong>
+            </div>
+            <button class="btn btn--primary" data-order-chat="${order.conversationId || order.id}" type="button">View Previous Chat</button>
+          </div>
+        `;
+        detailBody.querySelector('[data-order-chat]')?.addEventListener('click', event => {
+          closeAllModals();
+          openPreviousOrderChat(event.currentTarget.dataset.orderChat);
+        });
+        setModalOpen(detailModal, true);
       }
 
       async function refreshProfileOrders() {
@@ -1146,6 +1196,8 @@
       profilePanel?.addEventListener('click', event => {
         const editBtn = event.target.closest('[data-profile-edit]');
         const viewBtn = event.target.closest('[data-profile-view-item]');
+        const orderDetailsBtn = event.target.closest('[data-order-details]');
+        const orderChatBtn = event.target.closest('[data-order-chat]');
         if (editBtn) {
           closeAllModals();
           openEditListing(editBtn.dataset.profileEdit);
@@ -1153,6 +1205,14 @@
         if (viewBtn) {
           closeAllModals();
           openDetail(viewBtn.dataset.profileViewItem);
+        }
+        if (orderDetailsBtn) {
+          closeAllModals();
+          openOrderDetails(orderDetailsBtn.dataset.orderDetails);
+        }
+        if (orderChatBtn) {
+          closeAllModals();
+          openPreviousOrderChat(orderChatBtn.dataset.orderChat);
         }
       });
       sellBtn?.addEventListener('click', openCreateListing);
@@ -1344,6 +1404,23 @@
         }
       }
 
+      async function openPreviousOrderChat(conversationId) {
+        if (!window.summitMarketplace) return;
+        if (!chatOpen) toggleChat();
+        await loadInbox();
+        const conversation = inboxConversations.find(convo =>
+          String(convo.id) === String(conversationId) ||
+          String(convo.listingId) === String(conversationId)
+        );
+        if (!conversation) {
+          renderInboxEmpty('Previous chat not found');
+          return;
+        }
+        selectedInboxConversation = conversation;
+        renderConversationList();
+        await renderInboxMessages(conversation);
+      }
+
       function renderConversationList() {
         qrContainer.innerHTML = '';
         inboxConversations.forEach(conversation => {
@@ -1396,7 +1473,7 @@
           block.innerHTML = `
             <div class="order-complete-box__title">Finish this order</div>
             <div class="order-complete-box__sub">${userCompleted ? 'Waiting for the other user to confirm.' : otherCompleted ? 'The other user has confirmed completion.' : 'Both users must confirm before the listing is cleared.'}</div>
-            <button class="btn btn--primary btn--sm" data-complete-order type="button" ${userCompleted ? 'disabled' : ''}>${userCompleted ? 'Confirmed' : 'Order Completed'}</button>
+            <button class="order-complete-btn" data-complete-order type="button" ${userCompleted ? 'disabled' : ''}>${userCompleted ? 'Confirmed' : 'Complete Order'}</button>
           `;
         }
 

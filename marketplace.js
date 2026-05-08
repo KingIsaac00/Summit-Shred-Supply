@@ -305,6 +305,7 @@ async function completeOrder(conversation) {
     if (client?.models?.Order) {
       const listing = await Listing.get({ id: conversation.listingId }).catch(() => ({ data: null }));
       await client.models.Order.create({
+        conversationId: conversation.id,
         listingId: conversation.listingId,
         listingTitle: conversation.listingTitle,
         buyerSub: conversation.buyerSub,

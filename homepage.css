@@ -919,7 +919,7 @@ body.auth-locked .layout {
 
 .order-complete-box {
   margin: 10px 0 4px;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid rgba(96,165,250,.28);
   border-radius: var(--r-sm);
   background: rgba(59,130,246,.1);
@@ -935,7 +935,36 @@ body.auth-locked .layout {
   color: var(--text-2);
   font-size: 12px;
   line-height: 1.45;
-  margin: 3px 0 10px;
+  margin: 3px 0 8px;
+}
+
+.order-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 11px;
+  border: 1px solid rgba(96,165,250,.42);
+  border-radius: var(--r-pill);
+  background: rgba(59,130,246,.18);
+  color: #bfdbfe;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease), color var(--t) var(--ease), transform 90ms;
+}
+
+.order-complete-btn:hover {
+  background: rgba(59,130,246,.28);
+  border-color: rgba(147,197,253,.7);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.order-complete-btn:disabled {
+  cursor: default;
+  transform: none;
+  opacity: .72;
 }
 
 @keyframes chip-in {
@@ -1099,6 +1128,10 @@ body.auth-locked .layout {
   background: var(--s1);
 }
 
+.profile-item--order {
+  grid-template-columns: 1fr auto;
+}
+
 .profile-item__img {
   width: 46px;
   height: 46px;
@@ -1119,12 +1152,46 @@ body.auth-locked .layout {
   font-size: 12px;
 }
 
+.profile-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .profile-empty {
   padding: 16px;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   background: var(--s1);
+}
+
+.order-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+}
+
+.order-detail__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.order-detail__row span {
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.order-detail__row strong {
+  color: var(--text);
+  font-size: 14px;
+  text-align: right;
 }
 
 /* ── Detail modal ───────────────────────────────────────────────────────────── */
