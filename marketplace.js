@@ -4,6 +4,7 @@ import {
   cognitoUserPoolsTokenProvider,
   fetchUserAttributes,
   getCurrentUser,
+  updateUserAttributes,
 } from 'https://esm.sh/@aws-amplify/auth@6.19.1/cognito?deps=@aws-amplify/core@6.16.2';
 import { generateClient } from 'https://esm.sh/@aws-amplify/api@6.3.25?deps=@aws-amplify/core@6.16.2';
 
@@ -83,12 +84,47 @@ async function getProfile() {
     fetchUserAttributes().catch(() => ({})),
   ]);
   const email = attributes.email || user.signInDetails?.loginId || '';
+  const savedDisplayName = attributes.name || attributes.preferred_username || '';
+  const displayName = savedDisplayName || user.username || 'Summit Rider';
   return {
     sub: attributes.sub || user.userId,
     username: user.username,
     email,
-    displayName: attributes.name || attributes.preferred_username || email || user.username || 'Summit Rider',
+    displayName,
+    hasDisplayName: Boolean(savedDisplayName && !savedDisplayName.includes('@')),
   };
+}
+
+function requireDisplayName(profile) {
+  if (!profile?.hasDisplayName) {
+    throw new Error('Set a display name before using marketplace features.');
+  }
+}
+
+async function updateDisplayName(displayName) {
+  await ensureReady();
+  const cleanName = String(displayName || '').trim().slice(0, 40);
+  if (cleanName.length < 2) throw new Error('Display name must be at least 2 characters.');
+  if (cleanName.includes('@')) throw new Error('Display name cannot be an email address.');
+
+  await updateUserAttributes({
+    userAttributes: {
+      name: cleanName,
+      preferred_username: cleanName,
+    },
+  });
+
+  const profile = await getProfile();
+  const Listing = requireModel('Listing');
+  const { data: ownListings } = await Listing.list({
+    filter: { sellerSub: { eq: profile.sub } },
+  }).catch(() => ({ data: [] }));
+
+  await Promise.all((ownListings || []).map(listing =>
+    Listing.update({ id: listing.id, sellerName: cleanName }).catch(() => null)
+  ));
+
+  return { ...profile, displayName: cleanName };
 }
 
 function requireModel(name) {
@@ -136,6 +172,7 @@ async function listOwnListings() {
 async function createListing(input) {
   await ensureReady();
   const profile = await getProfile();
+  requireDisplayName(profile);
   const Listing = requireModel('Listing');
   const { data, errors } = await Listing.create({
     title: input.title,
@@ -146,7 +183,6 @@ async function createListing(input) {
     imageUrls: input.imageUrls || [],
     sellerSub: profile.sub,
     sellerName: profile.displayName,
-    sellerEmail: profile.email,
     location: input.location || '',
     latitude: input.latitude,
     longitude: input.longitude,
@@ -187,6 +223,7 @@ async function deleteListing(id) {
 async function startConversation(listing, body) {
   await ensureReady();
   const profile = await getProfile();
+  requireDisplayName(profile);
   if (profile.sub === listing.sellerSub) {
     throw new Error('You cannot message yourself about your own listing.');
   }
@@ -255,6 +292,7 @@ async function listMessages(conversationId) {
 async function sendMessage(conversation, body) {
   await ensureReady();
   const profile = await getProfile();
+  requireDisplayName(profile);
   const participantIds = conversation.participantIds || [];
   const recipientSub = participantIds.find(id => id !== profile.sub);
   if (!recipientSub) throw new Error('Could not find the other participant.');
@@ -287,6 +325,7 @@ async function sendMessage(conversation, body) {
 async function completeOrder(conversation) {
   await ensureReady();
   const profile = await getProfile();
+  requireDisplayName(profile);
   const Conversation = requireModel('Conversation');
   const Listing = requireModel('Listing');
   const now = new Date().toISOString();
@@ -366,6 +405,7 @@ window.summitMarketplace = {
   sendMessage,
   startConversation,
   updateListing,
+  updateDisplayName,
 };
 
 window.dispatchEvent(new Event('summitMarketplaceReady'));

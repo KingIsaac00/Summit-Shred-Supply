@@ -284,9 +284,22 @@ signupForm.addEventListener('submit', async e => {
   }
 
   const email = document.getElementById('signupEmail').value.trim();
+  const displayName = document.getElementById('signupDisplayName').value.trim();
   const password = document.getElementById('signupPassword').value;
   const confirmPassword = document.getElementById('signupConfirmPassword').value;
 
+  if (!displayName) {
+    showError('signupDisplayNameError', 'Display name is required');
+    return;
+  }
+  if (displayName.length < 2) {
+    showError('signupDisplayNameError', 'Display name must be at least 2 characters');
+    return;
+  }
+  if (displayName.includes('@')) {
+    showError('signupDisplayNameError', 'Display name cannot be an email address');
+    return;
+  }
   if (!email) {
     showError('signupEmailError', 'Email is required');
     return;
@@ -310,7 +323,11 @@ signupForm.addEventListener('submit', async e => {
       username: email,
       password,
       options: {
-        userAttributes: { email },
+        userAttributes: {
+          email,
+          name: displayName,
+          preferred_username: displayName,
+        },
       },
     });
 

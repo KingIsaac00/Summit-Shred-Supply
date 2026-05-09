@@ -285,6 +285,14 @@
           <div class="profile-avatar" id="profileAvatar">--</div>
           <div class="profile-name" id="profileName">Signed out</div>
           <div class="profile-since" id="profileSince">Member since --</div>
+          <form class="display-name-form" id="displayNameForm">
+            <label class="field">
+              <span>Display Name</span>
+              <input id="displayNameInput" type="text" maxlength="40" placeholder="Choose a public name" />
+            </label>
+            <button class="btn btn--secondary btn--sm" id="displayNameSave" type="submit">Save Name</button>
+            <span class="form-status" id="displayNameStatus"></span>
+          </form>
           <div class="profile-stats">
             <button class="stat" type="button" data-profile-view="listings">
               <div class="stat__val" id="statItems">0</div>
@@ -483,6 +491,10 @@
       const listingDelete = document.getElementById('listingDelete');
       const listingSubmit = document.getElementById('listingSubmit');
       const profilePanel = document.getElementById('profilePanel');
+      const displayNameForm = document.getElementById('displayNameForm');
+      const displayNameInput = document.getElementById('displayNameInput');
+      const displayNameSave = document.getElementById('displayNameSave');
+      const displayNameStatus = document.getElementById('displayNameStatus');
       const listingCoverFile = document.getElementById('listingCoverFile');
       const listingGalleryFiles = document.getElementById('listingGalleryFiles');
       const listingImagePreview = document.getElementById('listingImagePreview');
@@ -537,8 +549,29 @@
         return item.editedAt ? `<div class="listing-edited">${formatEditedAt(item.editedAt)}</div>` : '';
       }
 
+      function publicName(name, fallback = 'Summit rider') {
+        const clean = String(name || '').trim();
+        if (!clean || clean.includes('@')) return fallback;
+        return clean;
+      }
+
+      function hasRequiredDisplayName() {
+        const clean = String(profileState.displayName || '').trim();
+        return Boolean(clean && !clean.includes('@') && clean !== 'Summit Rider' && clean !== 'Signed out');
+      }
+
+      function requireDisplayNameForAction() {
+        if (hasRequiredDisplayName()) return true;
+        activeProfileView = 'listings';
+        displayNameStatus.textContent = 'Set a display name before selling, saving, messaging, or completing orders.';
+        setModalOpen(profileModal, true);
+        displayNameInput?.focus();
+        showToast('Set a display name first');
+        return false;
+      }
+
       function sellerLabel(item) {
-        return isOwnListing(item) ? 'you' : (item.sellerName || 'Summit seller');
+        return isOwnListing(item) ? 'you' : publicName(item.sellerName, 'Summit seller');
       }
 
       function distanceMiles(a, b) {
@@ -688,6 +721,7 @@
       }
 
       function toggleWishlist(id) {
+        if (!requireDisplayNameForAction()) return;
         const itemId = String(id);
         if (!itemId) return;
         if (isWishlisted(itemId)) {
@@ -720,7 +754,8 @@
 
       function updateProfileUI() {
         if (profileAvatar) profileAvatar.textContent = initialsFromName(profileState.displayName || profileState.email);
-        if (profileName) profileName.textContent = profileState.displayName || profileState.email || 'Signed out';
+        if (profileName) profileName.textContent = publicName(profileState.displayName, profileState.signedIn ? 'Set a display name' : 'Signed out');
+        if (displayNameInput && profileState.signedIn) displayNameInput.value = publicName(profileState.displayName, '');
         if (profileSince) profileSince.textContent = formatMemberSince(profileState.memberSince);
         if (statItems) statItems.textContent = marketplaceListings.filter(item => item.sellerSub === profileState.userKey).length;
         if (statWishlist) {
@@ -823,11 +858,11 @@
             </div>
             <div class="order-detail__row">
               <span>Buyer</span>
-              <strong>${order.buyerName || 'Buyer'}</strong>
+              <strong>${publicName(order.buyerName, 'Buyer')}</strong>
             </div>
             <div class="order-detail__row">
               <span>Seller</span>
-              <strong>${order.sellerName || 'Seller'}</strong>
+              <strong>${publicName(order.sellerName, 'Seller')}</strong>
             </div>
             <button class="btn btn--primary" data-order-chat="${order.conversationId || order.id}" data-order-name="${order.listingTitle || 'order'}" type="button">View Previous Chat</button>
           </div>
@@ -940,7 +975,7 @@
         marketplaceTheme = theme === 'dark' ? 'dark' : 'light';
         document.body.classList.toggle('theme-dark', marketplaceTheme === 'dark');
         localStorage.setItem('summit:marketplaceTheme', marketplaceTheme);
-        themeToggle?.querySelector('.theme-icon--sun')?.toggleAttribute('hidden', marketplaceTheme === 'dark');
+        themeToggle?.querySelector('.theme-icon--sun')?.toggleAttribute('hidden', marketplaceTheme !== 'light');
         themeToggle?.querySelector('.theme-icon--moon')?.toggleAttribute('hidden', marketplaceTheme !== 'dark');
         if (themeToggle) themeToggle.setAttribute('aria-label', marketplaceTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
       }
@@ -984,7 +1019,9 @@
         profileState.signedIn = true;
         profileState.userKey = userKey;
         profileState.email = profile.email || '';
-        profileState.displayName = profile.displayName || profile.email || profile.username || 'Summit Rider';
+        profileState.displayName = profile.hasDisplayName
+          ? publicName(profile.displayName, 'Summit Rider')
+          : 'Summit Rider';
         const memberKey = storageKey('memberSince');
         const storedMemberSince = localStorage.getItem(memberKey);
         profileState.memberSince = storedMemberSince || profile.createdAt || new Date().toISOString();
@@ -1009,6 +1046,9 @@
 
       // ── Category counts ─────────────────────────────────────────────────────
       function initCounts() {
+        document.querySelectorAll('.cat-count').forEach(el => {
+          el.textContent = '';
+        });
         const allEl = document.getElementById('count-All');
         const items = getCatalogItems();
         if (allEl) allEl.textContent = items.length;
@@ -1298,6 +1338,7 @@
       }
 
       function openCreateListing() {
+        if (!requireDisplayNameForAction()) return;
         resetListingFormMode();
         setModalOpen(listingModal, true);
       }
@@ -1349,10 +1390,11 @@
       }
 
       function openMessageModal(id) {
+        if (!requireDisplayNameForAction()) return;
         const item = findItemById(id);
         if (!item?.isMarketplaceListing || isOwnListing(item)) return;
         selectedMessageListing = item;
-        messageTitle.textContent = `Message ${item.sellerName || 'Seller'}`;
+        messageTitle.textContent = `Message ${sellerLabel(item)}`;
         document.getElementById('messageBody').value = `Hi, is "${item.itemName}" still available?`;
         messageStatus.textContent = '';
         setModalOpen(messageModal, true);
@@ -1442,6 +1484,7 @@
           listingStatus.textContent = error.message || 'Could not delete listing.';
         } finally {
           setFormBusy(listingDelete, false);
+          listingDelete.textContent = 'Delete Listing';
         }
       });
 
@@ -1636,6 +1679,23 @@
           }
         }
         notificationPanel.hidden = true;
+      });
+      displayNameForm?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!window.summitMarketplace) return;
+        displayNameStatus.textContent = '';
+        setFormBusy(displayNameSave, true, 'Saving...');
+        try {
+          const profile = await window.summitMarketplace.updateDisplayName(displayNameInput.value);
+          profileState.displayName = publicName(profile.displayName, 'Summit Rider');
+          updateProfileUI();
+          await refreshMarketplaceListings();
+          showToast('Display name updated');
+        } catch (error) {
+          displayNameStatus.textContent = error.message || 'Could not update display name.';
+        } finally {
+          setFormBusy(displayNameSave, false);
+        }
       });
       sellBtn?.addEventListener('click', openCreateListing);
 
@@ -2222,6 +2282,7 @@
       async function handleUserSend() {
         const text = chatInput.value.trim();
         if (!text || !selectedInboxConversation || !window.summitMarketplace) return;
+        if (!requireDisplayNameForAction()) return;
         chatInput.value = '';
         addMessage('user', text);
         chatSend.disabled = true;
@@ -2238,6 +2299,7 @@
       chatMessages.addEventListener('click', async event => {
         const completeBtn = event.target.closest('[data-complete-order]');
         if (!completeBtn || !selectedInboxConversation || !window.summitMarketplace) return;
+        if (!requireDisplayNameForAction()) return;
         setFormBusy(completeBtn, true, 'Confirming...');
         try {
           const profile = await window.summitMarketplace.getProfile();
@@ -2404,7 +2466,8 @@
             userKey: attributes.sub || user.userId || email || user.username,
             username: user.username,
             email,
-            displayName: getDisplayName(user, attributes)
+            displayName: getDisplayName(user, attributes),
+            hasDisplayName: Boolean((attributes.name || attributes.preferred_username || '').trim())
           });
         } catch {
           window.summitHomeAuth?.applySignedOutState();

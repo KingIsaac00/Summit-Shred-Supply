@@ -78,13 +78,24 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        color: var(--text);
         text-decoration: none;
         font-weight: 900;
         letter-spacing: -.02em;
       }
 
-      .brand svg { width: 32px; height: 32px; color: var(--cyan); }
+      .brand svg {
+        width: 32px;
+        height: 32px;
+        color: var(--blue);
+        filter: drop-shadow(0 0 8px rgba(59,130,246,.4));
+      }
+
+      .brand span {
+        background: linear-gradient(120deg, #10233f 0%, #2563eb 55%, #0e7490 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
 
       .hero {
         position: sticky;
@@ -123,12 +134,12 @@
       .hero p {
         width: min(680px, 100%);
         margin: 0 auto;
-        color: var(--muted);
+        color: #d1d5db;
         font-size: clamp(17px, 2vw, 22px);
         line-height: 1.6;
         font-weight: 800;
         text-shadow: 0 1px 0 rgba(255,255,255,.4), 0 12px 30px rgba(255,255,255,.5);
-        -webkit-text-stroke: .45px #22d3ee;
+        -webkit-text-stroke: .9px #22d3ee;
         paint-order: stroke fill;
       }
 

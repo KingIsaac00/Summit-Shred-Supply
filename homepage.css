@@ -73,6 +73,12 @@ body.theme-dark {
   --sh-chat:     0 8px 32px rgba(0,0,0,.5), 0 32px 80px rgba(0,0,0,.4);
 }
 
+body.theme-dark {
+  background-image:
+    radial-gradient(ellipse 80vw 55vh at 12% -8%, rgba(37,99,235,.11) 0%, transparent 60%),
+    radial-gradient(ellipse 50vw 40vh at 88% 95%, rgba(14,165,233,.06) 0%, transparent 55%);
+}
+
 body.theme-dark .header {
   background: rgba(6,9,20,.86);
 }
@@ -633,13 +639,13 @@ body.auth-locked .layout {
 .btn--secondary:hover { background: var(--s3); border-color: var(--border-hi); color: var(--text); }
 
 .btn--danger {
-  background: rgba(239,68,68,.14);
-  border-color: rgba(239,68,68,.34);
-  color: #fecaca;
+  background: #991b1b;
+  border-color: #7f1d1d;
+  color: #fff;
 }
 .btn--danger:hover {
-  background: rgba(239,68,68,.24);
-  border-color: rgba(239,68,68,.55);
+  background: #7f1d1d;
+  border-color: #450a0a;
   color: #fff;
 }
 
@@ -1247,6 +1253,19 @@ body.auth-locked .layout {
 
 .profile-name  { text-align: center; font-size: 19px; font-weight: 800; }
 .profile-since { text-align: center; font-size: 12px; color: var(--text-3); margin-top: 4px; margin-bottom: 22px; }
+
+.display-name-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.display-name-form .form-status {
+  grid-column: 1 / -1;
+  min-height: 16px;
+}
 
 .profile-stats {
   display: grid;
