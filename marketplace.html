@@ -150,6 +150,10 @@
               <option value="distance">Distance from Location</option>
               <option value="name-asc">Name: A–Z</option>
             </select>
+            <div class="location-picker location-picker--sort" id="sortLocationPicker" hidden>
+              <input class="sort-location-input" id="sortLocationInput" type="text" placeholder="Type a US city, ZIP, or address" autocomplete="off" />
+              <div class="location-suggestions" id="sortLocationSuggestions" hidden></div>
+            </div>
           </div>
         </div>
 
@@ -354,7 +358,9 @@
             </label>
             <label class="field">
               <span>Location</span>
-              <input id="listingLocation" type="text" maxlength="80" placeholder="Denver, CO" required />
+              <input id="listingLocation" type="text" maxlength="120" placeholder="Denver, CO" required autocomplete="off" />
+              <div class="location-suggestions location-suggestions--form" id="listingLocationSuggestions" hidden></div>
+              <small class="field-hint">Select a verified US location from the suggestions.</small>
             </label>
           </div>
           <div class="form-grid">
@@ -420,6 +426,7 @@
       let editingListing = null;
       let uploadedListingImages = [];
       let distanceOrigin = null;
+      let selectedListingLocation = null;
       let notifications = [];
       let notificationPollTimer = null;
       const cart = {};
@@ -441,6 +448,9 @@
       const categoryList = document.getElementById('categoryList');
       const searchInput  = document.getElementById('searchInput');
       const sortSelect   = document.getElementById('sortSelect');
+      const sortLocationPicker = document.getElementById('sortLocationPicker');
+      const sortLocationInput = document.getElementById('sortLocationInput');
+      const sortLocationSuggestions = document.getElementById('sortLocationSuggestions');
       const emptyState   = document.getElementById('emptyState');
       const cartBadge    = document.getElementById('cartBadge');
       const statItems    = document.getElementById('statItems');
@@ -473,6 +483,8 @@
       const messageForm  = document.getElementById('messageForm');
       const messageStatus = document.getElementById('messageStatus');
       const messageTitle = document.getElementById('messageTitle');
+      const listingLocationInput = document.getElementById('listingLocation');
+      const listingLocationSuggestions = document.getElementById('listingLocationSuggestions');
 
       function normalizeRemoteListing(listing) {
         return {
@@ -534,13 +546,59 @@
         const cacheKey = `summit:geo:${query.toLowerCase()}`;
         const cached = localStorage.getItem(cacheKey);
         if (cached) return JSON.parse(cached);
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&countrycodes=us&q=${encodeURIComponent(query)}`);
         if (!response.ok) return null;
         const [match] = await response.json();
         if (!match) return null;
         const coords = { latitude: Number(match.lat), longitude: Number(match.lon) };
         localStorage.setItem(cacheKey, JSON.stringify(coords));
         return coords;
+      }
+
+      async function searchUsLocations(query) {
+        const q = (query || '').trim();
+        if (q.length < 3) return [];
+        const cacheKey = `summit:geo-options:${q.toLowerCase()}`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=us&q=${encodeURIComponent(q)}`);
+        if (!response.ok) return [];
+        const results = (await response.json()).map(result => ({
+          label: result.display_name,
+          latitude: Number(result.lat),
+          longitude: Number(result.lon),
+        })).filter(result => Number.isFinite(result.latitude) && Number.isFinite(result.longitude));
+        localStorage.setItem(cacheKey, JSON.stringify(results));
+        return results;
+      }
+
+      function renderLocationSuggestions(container, results, onSelect) {
+        if (!container) return;
+        if (!results.length) {
+          container.hidden = true;
+          container.innerHTML = '';
+          return;
+        }
+        container.hidden = false;
+        container.innerHTML = results.map((result, index) => `
+          <button type="button" data-location-index="${index}">
+            ${result.label}
+          </button>
+        `).join('');
+        container.querySelectorAll('[data-location-index]').forEach(button => {
+          button.addEventListener('click', () => {
+            container.hidden = true;
+            onSelect(results[Number(button.dataset.locationIndex)]);
+          });
+        });
+      }
+
+      function debounce(fn, delay = 280) {
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn(...args), delay);
+        };
       }
 
       function getItemsByCategoryView(category) {
@@ -1205,6 +1263,8 @@
         listingStatus.textContent = '';
         listingForm.reset();
         uploadedListingImages = [];
+        selectedListingLocation = null;
+        if (listingLocationSuggestions) listingLocationSuggestions.hidden = true;
         renderListingImagePreview();
       }
 
@@ -1227,6 +1287,9 @@
         document.getElementById('listingCategory').value = item.category || 'Accessories';
         document.getElementById('listingCondition').value = item.condition || 'LIKE_NEW';
         document.getElementById('listingLocation').value = item.location || '';
+        selectedListingLocation = item.latitude && item.longitude
+          ? { label: item.location || '', latitude: item.latitude, longitude: item.longitude }
+          : null;
         document.getElementById('listingDescription').value = item.description || '';
         uploadedListingImages = item.imageUrls?.filter(Boolean) || [];
         renderListingImagePreview();
@@ -1237,7 +1300,10 @@
         const priceDollars = Number(document.getElementById('listingPrice').value);
         const location = document.getElementById('listingLocation').value.trim();
         if (!location) throw new Error('Location is required.');
-        const coords = await geocodeLocation(location).catch(() => null);
+        if (!selectedListingLocation || selectedListingLocation.label !== location) {
+          throw new Error('Select a verified US location from the suggestions.');
+        }
+        const coords = selectedListingLocation;
         const images = [...uploadedListingImages];
         return {
           title: document.getElementById('listingTitle').value.trim(),
@@ -1413,29 +1479,34 @@
       });
 
       // ── Sort ─────────────────────────────────────────────────────────────────
+      const updateListingLocationSuggestions = debounce(async () => {
+        selectedListingLocation = null;
+        const results = await searchUsLocations(listingLocationInput.value);
+        renderLocationSuggestions(listingLocationSuggestions, results, result => {
+          selectedListingLocation = result;
+          listingLocationInput.value = result.label;
+        });
+      });
+
+      const updateSortLocationSuggestions = debounce(async () => {
+        const results = await searchUsLocations(sortLocationInput.value);
+        renderLocationSuggestions(sortLocationSuggestions, results, result => {
+          distanceOrigin = result;
+          sortLocationInput.value = result.label;
+          showToast(`Sorting by distance from ${result.label}`);
+          renderGrid();
+        });
+      });
+
+      listingLocationInput?.addEventListener('input', updateListingLocationSuggestions);
+      sortLocationInput?.addEventListener('input', updateSortLocationSuggestions);
+
       sortSelect.addEventListener('change', () => {
         activeSortOrder = sortSelect.value;
+        if (sortLocationPicker) sortLocationPicker.hidden = activeSortOrder !== 'distance';
         if (activeSortOrder === 'distance' && !distanceOrigin) {
-          const origin = prompt('Enter a city, state, ZIP, or address to sort from:');
-          if (!origin) {
-            activeSortOrder = 'default';
-            sortSelect.value = 'default';
-            renderGrid();
-            return;
-          }
-          geocodeLocation(origin)
-            .then(coords => {
-              if (!coords) throw new Error('Location not found.');
-              distanceOrigin = coords;
-              showToast(`Sorting by distance from ${origin}`);
-              renderGrid();
-            })
-            .catch(error => {
-              showToast(error.message || 'Could not sort by location.');
-              activeSortOrder = 'default';
-              sortSelect.value = 'default';
-              renderGrid();
-            });
+          sortLocationInput?.focus();
+          showToast('Choose a verified US location to sort by distance.');
           return;
         }
         renderGrid();
