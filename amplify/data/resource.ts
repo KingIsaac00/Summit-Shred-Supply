@@ -14,6 +14,7 @@ const schema = a.schema({
       imageUrls: a.string().array(),
       sellerSub: a.string().required(),
       sellerName: a.string(),
+      sellerAvatarKey: a.string(),
       sellerEmail: a.email(),
       location: a.string(),
       latitude: a.float(),
@@ -35,8 +36,10 @@ const schema = a.schema({
       listingTitle: a.string().required(),
       buyerSub: a.string().required(),
       buyerName: a.string(),
+      buyerAvatarKey: a.string(),
       sellerSub: a.string().required(),
       sellerName: a.string(),
+      sellerAvatarKey: a.string(),
       participantIds: a.string().array().required(),
       lastMessagePreview: a.string(),
       lastMessageAt: a.datetime(),
@@ -54,6 +57,7 @@ const schema = a.schema({
       listingId: a.id().required(),
       senderSub: a.string().required(),
       senderName: a.string(),
+      senderAvatarKey: a.string(),
       recipientSub: a.string().required(),
       body: a.string().required(),
       participantIds: a.string().array().required(),
@@ -74,12 +78,24 @@ const schema = a.schema({
       buyerName: a.string(),
       sellerSub: a.string().required(),
       sellerName: a.string(),
+      sellerAvatarKey: a.string(),
       participantIds: a.string().array().required(),
       price: a.integer(),
       completedAt: a.datetime().required(),
     })
     .authorization((allow) => [
       allow.ownersDefinedIn('participantIds').identityClaim('sub'),
+      allow.authenticated().to(['read']),
+    ]),
+
+  UserProfile: a
+    .model({
+      userSub: a.string().required(),
+      displayName: a.string().required(),
+      avatarKey: a.string(),
+    })
+    .authorization((allow) => [
+      allow.ownerDefinedIn('userSub').identityClaim('sub'),
       allow.authenticated().to(['read']),
     ]),
 });

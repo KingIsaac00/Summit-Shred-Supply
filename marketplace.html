@@ -284,7 +284,10 @@
         <div class="modal__body">
           <div class="profile-avatar" id="profileAvatar">--</div>
           <div class="profile-name" id="profileName">Signed out</div>
+          <div class="profile-email" id="profileEmail"></div>
           <div class="profile-since" id="profileSince">Member since --</div>
+          <label class="profile-avatar-upload" for="profileAvatarInput">Upload Profile Picture</label>
+          <input class="visually-hidden-file" id="profileAvatarInput" type="file" accept="image/*" />
           <form class="display-name-form" id="displayNameForm">
             <label class="field">
               <span>Display Name</span>
@@ -455,6 +458,8 @@
         userKey: 'guest',
         displayName: 'Signed out',
         email: '',
+        avatarUrl: '',
+        avatarKey: '',
         memberSince: null,
         wishlist: [],
         wishlistCount: 0,
@@ -479,7 +484,9 @@
       const authLockLogin = document.getElementById('authLockLogin');
       const profileAvatar = document.getElementById('profileAvatar');
       const profileName  = document.getElementById('profileName');
+      const profileEmail = document.getElementById('profileEmail');
       const profileSince = document.getElementById('profileSince');
+      const profileAvatarInput = document.getElementById('profileAvatarInput');
       const statWishlist = document.getElementById('statWishlist');
       const statOrders   = document.getElementById('statOrders');
       const profileBtn   = document.getElementById('profileBtn');
@@ -520,6 +527,9 @@
           description: listing.description || '',
           category: listing.category || 'Accessories',
           imageUrls: listing.imageUrls?.filter(Boolean)?.length ? listing.imageUrls.filter(Boolean) : ['/images/placeholder.jpg'],
+          imageRefs: listing.imageRefs || listing.imageUrls || [],
+          sellerAvatarKey: listing.sellerAvatarKey || '',
+          sellerAvatarUrl: listing.sellerAvatarUrl || '',
           latitude: Number.isFinite(Number(listing.latitude)) ? Number(listing.latitude) : null,
           longitude: Number.isFinite(Number(listing.longitude)) ? Number(listing.longitude) : null,
           isMarketplaceListing: true
@@ -572,6 +582,13 @@
 
       function sellerLabel(item) {
         return isOwnListing(item) ? 'you' : publicName(item.sellerName, 'Summit seller');
+      }
+
+      function sellerAvatarMarkup(item) {
+        if (item.sellerAvatarUrl) {
+          return `<img class="seller-avatar" src="${item.sellerAvatarUrl}" alt="${sellerLabel(item)}" />`;
+        }
+        return `<span class="seller-avatar">${initialsFromName(sellerLabel(item))}</span>`;
       }
 
       function distanceMiles(a, b) {
@@ -753,8 +770,13 @@
       }
 
       function updateProfileUI() {
-        if (profileAvatar) profileAvatar.textContent = initialsFromName(profileState.displayName || profileState.email);
+        if (profileAvatar) {
+          profileAvatar.innerHTML = profileState.avatarUrl
+            ? `<img src="${profileState.avatarUrl}" alt="${publicName(profileState.displayName, 'Profile')}" />`
+            : initialsFromName(profileState.displayName || profileState.email);
+        }
         if (profileName) profileName.textContent = publicName(profileState.displayName, profileState.signedIn ? 'Set a display name' : 'Signed out');
+        if (profileEmail) profileEmail.textContent = profileState.signedIn ? profileState.email : '';
         if (displayNameInput && profileState.signedIn) displayNameInput.value = publicName(profileState.displayName, '');
         if (profileSince) profileSince.textContent = formatMemberSince(profileState.memberSince);
         if (statItems) statItems.textContent = marketplaceListings.filter(item => item.sellerSub === profileState.userKey).length;
@@ -997,6 +1019,8 @@
         profileState.userKey = 'guest';
         profileState.displayName = 'Signed out';
         profileState.email = '';
+        profileState.avatarUrl = '';
+        profileState.avatarKey = '';
         profileState.memberSince = null;
         profileState.wishlist = [];
         profileState.wishlistCount = 0;
@@ -1019,6 +1043,8 @@
         profileState.signedIn = true;
         profileState.userKey = userKey;
         profileState.email = profile.email || '';
+        profileState.avatarUrl = profile.avatarUrl || '';
+        profileState.avatarKey = profile.avatarKey || '';
         profileState.displayName = profile.hasDisplayName
           ? publicName(profile.displayName, 'Summit Rider')
           : 'Summit Rider';
@@ -1115,7 +1141,7 @@
             <div class="card__body">
               <div class="card__name">${item.itemName}</div>
               <div class="card__desc">${item.description.substring(0, 90)}...</div>
-              <div class="card__seller">Listed by ${sellerLabel(item)}</div>
+              <div class="card__seller">${sellerAvatarMarkup(item)}<span>Listed by ${sellerLabel(item)}</span></div>
               ${distanceOrigin && Number.isFinite(distanceMiles(distanceOrigin, item)) ? `<div class="card__distance">${distanceMiles(distanceOrigin, item).toFixed(1)} miles away</div>` : ''}
               ${renderEditedNote(item)}
               <div class="card__footer">
@@ -1219,7 +1245,7 @@
             <div class="detail__info">
               <h2 class="detail__name">${item.itemName}</h2>
               <p class="detail__desc">${item.description}</p>
-              <p class="detail__seller">Listed by ${sellerLabel(item)}${item.location ? ` in ${item.location}` : ''}</p>
+              <p class="detail__seller">${sellerAvatarMarkup(item)}<span>Listed by ${sellerLabel(item)}${item.location ? ` in ${item.location}` : ''}</span></p>
               ${renderEditedNote(item)}
               <div class="detail__price">$${(item.price / 100).toFixed(2)}</div>
               ${detailAction}
@@ -1279,9 +1305,9 @@
             ? `${remaining} image${remaining === 1 ? '' : 's'} remaining. The first image is the cover.`
             : 'Cover image required. 10 images remaining.';
         }
-        listingImagePreview.innerHTML = uploadedListingImages.map((url, index) => `
+        listingImagePreview.innerHTML = uploadedListingImages.map((image, index) => `
           <div class="image-preview">
-            <img src="${url}" alt="Listing image ${index + 1}" />
+            <img src="${image.preview || image.url || image.key}" alt="Listing image ${index + 1}" />
             <span>${index === 0 ? 'Cover' : `Image ${index + 1}`}</span>
             <button type="button" data-remove-upload-image="${index}" aria-label="Remove image">x</button>
           </div>
@@ -1302,7 +1328,14 @@
               canvas.width = Math.max(1, Math.round(image.width * scale));
               canvas.height = Math.max(1, Math.round(image.height * scale));
               canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-              resolve(canvas.toDataURL('image/jpeg', 0.78));
+              canvas.toBlob(blob => {
+                if (!blob) reject(new Error('Could not prepare image.'));
+                else resolve({
+                  blob,
+                  preview: URL.createObjectURL(blob),
+                  name: file.name || 'image.jpg',
+                });
+              }, 'image/jpeg', 0.82);
             };
             image.src = reader.result;
           };
@@ -1314,10 +1347,10 @@
         const remaining = Math.max(0, 10 - uploadedListingImages.length);
         const selected = Array.from(files || []).slice(0, cover ? 1 : remaining);
         if (!selected.length) return;
-        const urls = await Promise.all(selected.map(resizeImageFile));
+        const images = await Promise.all(selected.map(resizeImageFile));
         uploadedListingImages = cover
-          ? [...urls, ...uploadedListingImages.slice(1)]
-          : [...uploadedListingImages, ...urls].slice(0, 10);
+          ? [...images, ...uploadedListingImages.slice(1)]
+          : [...uploadedListingImages, ...images].slice(0, 10);
         renderListingImagePreview();
       }
 
@@ -1361,7 +1394,8 @@
           ? { label: item.location || '', latitude: item.latitude, longitude: item.longitude }
           : null;
         document.getElementById('listingDescription').value = item.description || '';
-        uploadedListingImages = item.imageUrls?.filter(Boolean) || [];
+        uploadedListingImages = (item.imageRefs?.filter(Boolean) || item.imageUrls?.filter(Boolean) || [])
+          .map((ref, index) => ({ key: ref, preview: item.imageUrls?.[index] || ref, name: `image-${index + 1}.jpg` }));
         renderListingImagePreview();
         setModalOpen(listingModal, true);
       }
@@ -1374,7 +1408,14 @@
           throw new Error('Select a verified US location from the suggestions.');
         }
         const coords = selectedListingLocation;
-        const images = [...uploadedListingImages];
+        const images = [];
+        for (const image of uploadedListingImages) {
+          if (image.key) {
+            images.push(image.key);
+          } else if (image.blob) {
+            images.push(await window.summitMarketplace.uploadImage(image.blob, 'listing-images', image.name));
+          }
+        }
         if (!images.length) throw new Error('Cover image is required.');
         return {
           title: document.getElementById('listingTitle').value.trim(),
@@ -1697,6 +1738,24 @@
           setFormBusy(displayNameSave, false);
         }
       });
+      profileAvatarInput?.addEventListener('change', async event => {
+        const [file] = Array.from(event.target.files || []);
+        if (!file || !window.summitMarketplace) return;
+        displayNameStatus.textContent = '';
+        try {
+          const image = await resizeImageFile(file);
+          const profile = await window.summitMarketplace.updateProfileAvatar(image.blob, file.name);
+          profileState.avatarUrl = profile.avatarUrl || image.preview;
+          profileState.avatarKey = profile.avatarKey || '';
+          updateProfileUI();
+          await refreshMarketplaceListings();
+          showToast('Profile picture updated');
+        } catch (error) {
+          displayNameStatus.textContent = error.message || 'Could not update profile picture.';
+        } finally {
+          event.target.value = '';
+        }
+      });
       sellBtn?.addEventListener('click', openCreateListing);
 
       document.addEventListener('click', e => {
@@ -1902,6 +1961,8 @@
       function renderConversationList() {
         qrContainer.innerHTML = '';
         inboxConversations.forEach(conversation => {
+          const wrap = document.createElement('div');
+          wrap.className = `inbox-thread-wrap${selectedInboxConversation?.id === conversation.id ? ' is-active' : ''}`;
           const button = document.createElement('button');
           button.className = `quick-reply inbox-thread${selectedInboxConversation?.id === conversation.id ? ' is-active' : ''}`;
           button.type = 'button';
@@ -1911,7 +1972,24 @@
             renderConversationList();
             await renderInboxMessages(conversation);
           });
-          qrContainer.appendChild(button);
+          const clear = document.createElement('button');
+          clear.className = 'inbox-thread-clear';
+          clear.type = 'button';
+          clear.setAttribute('aria-label', 'Clear conversation');
+          clear.textContent = 'x';
+          clear.addEventListener('click', async event => {
+            event.stopPropagation();
+            await window.summitMarketplace.deleteConversation(conversation.id);
+            inboxConversations = inboxConversations.filter(item => item.id !== conversation.id);
+            if (selectedInboxConversation?.id === conversation.id) selectedInboxConversation = inboxConversations[0] || null;
+            if (!selectedInboxConversation) renderInboxEmpty('No messages yet');
+            else {
+              renderConversationList();
+              await renderInboxMessages(selectedInboxConversation);
+            }
+          });
+          wrap.append(button, clear);
+          qrContainer.appendChild(wrap);
         });
       }
 
@@ -1926,12 +2004,19 @@
         chatMessages.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
 
         try {
-          const [profile, messages] = await Promise.all([
+          const [profile, messages, listing] = await Promise.all([
             window.summitMarketplace.getProfile(),
             window.summitMarketplace.listMessages(conversation.id),
+            window.summitMarketplace.getListing(conversation.listingId).catch(() => null),
           ]);
 
           chatMessages.innerHTML = '';
+          if (!listing) {
+            const notice = document.createElement('div');
+            notice.className = 'deleted-listing-notice';
+            notice.textContent = 'This listing has been deleted. You can still view this conversation, but the item is no longer available.';
+            chatMessages.appendChild(notice);
+          }
           messages.forEach(message => {
             addMessage(message.senderSub === profile.sub ? 'user' : 'bot', message.body);
           });
