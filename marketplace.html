@@ -41,6 +41,15 @@
 
       <div class="header__actions">
         <button class="btn btn--primary btn--sm header-sell-btn" id="sellBtn" type="button">Sell Gear</button>
+        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode">
+          <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M12 2v3M12 19v3M4.9 4.9L7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden>
+            <path d="M20 15.2A8.5 8.5 0 018.8 4a7 7 0 1011.2 11.2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+        </button>
         <button class="icon-btn notification-btn" id="notificationBtn" type="button" aria-label="Notifications">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M18 9a6 6 0 10-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -366,14 +375,16 @@
           <div class="form-grid">
             <label class="field">
               <span>Cover Image Upload</span>
-              <input id="listingCoverFile" type="file" accept="image/*" />
+              <label class="file-picker" for="listingCoverFile">Choose Cover</label>
+              <input class="visually-hidden-file" id="listingCoverFile" type="file" accept="image/*" />
             </label>
             <label class="field">
               <span>Additional Images (up to 9)</span>
-              <input id="listingGalleryFiles" type="file" accept="image/*" multiple />
+              <label class="file-picker" for="listingGalleryFiles">Choose Images</label>
+              <input class="visually-hidden-file" id="listingGalleryFiles" type="file" accept="image/*" multiple />
             </label>
           </div>
-          <div class="image-upload-note" id="listingImageNote">You can upload up to 10 total images. The cover image appears first.</div>
+          <div class="image-upload-note" id="listingImageNote">Cover image required. 10 images remaining.</div>
           <div class="image-preview-list" id="listingImagePreview"></div>
           <label class="field">
             <span>Description</span>
@@ -429,6 +440,7 @@
       let selectedListingLocation = null;
       let notifications = [];
       let notificationPollTimer = null;
+      let marketplaceTheme = localStorage.getItem('summit:marketplaceTheme') || 'light';
       const cart = {};
       const profileState = {
         signedIn: false,
@@ -479,6 +491,7 @@
       const notificationPanel = document.getElementById('notificationPanel');
       const notificationList = document.getElementById('notificationList');
       const notificationClear = document.getElementById('notificationClear');
+      const themeToggle = document.getElementById('themeToggle');
       const messageModal = document.getElementById('messageModal');
       const messageForm  = document.getElementById('messageForm');
       const messageStatus = document.getElementById('messageStatus');
@@ -923,6 +936,15 @@
         notificationPollTimer = setInterval(pollNotifications, 30000);
       }
 
+      function applyMarketplaceTheme(theme) {
+        marketplaceTheme = theme === 'dark' ? 'dark' : 'light';
+        document.body.classList.toggle('theme-dark', marketplaceTheme === 'dark');
+        localStorage.setItem('summit:marketplaceTheme', marketplaceTheme);
+        themeToggle?.querySelector('.theme-icon--sun')?.toggleAttribute('hidden', marketplaceTheme === 'dark');
+        themeToggle?.querySelector('.theme-icon--moon')?.toggleAttribute('hidden', marketplaceTheme !== 'dark');
+        if (themeToggle) themeToggle.setAttribute('aria-label', marketplaceTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+
       function setAuthLocked(locked) {
         document.body.classList.toggle('auth-locked', locked);
         if (authLock) authLock.hidden = !locked;
@@ -1211,6 +1233,12 @@
 
       function renderListingImagePreview() {
         if (!listingImagePreview) return;
+        const remaining = Math.max(0, 10 - uploadedListingImages.length);
+        if (document.getElementById('listingImageNote')) {
+          document.getElementById('listingImageNote').textContent = uploadedListingImages.length
+            ? `${remaining} image${remaining === 1 ? '' : 's'} remaining. The first image is the cover.`
+            : 'Cover image required. 10 images remaining.';
+        }
         listingImagePreview.innerHTML = uploadedListingImages.map((url, index) => `
           <div class="image-preview">
             <img src="${url}" alt="Listing image ${index + 1}" />
@@ -1243,7 +1271,8 @@
       }
 
       async function addUploadedImages(files, { cover = false } = {}) {
-        const selected = Array.from(files || []).slice(0, cover ? 1 : 9);
+        const remaining = Math.max(0, 10 - uploadedListingImages.length);
+        const selected = Array.from(files || []).slice(0, cover ? 1 : remaining);
         if (!selected.length) return;
         const urls = await Promise.all(selected.map(resizeImageFile));
         uploadedListingImages = cover
@@ -1305,6 +1334,7 @@
         }
         const coords = selectedListingLocation;
         const images = [...uploadedListingImages];
+        if (!images.length) throw new Error('Cover image is required.');
         return {
           title: document.getElementById('listingTitle').value.trim(),
           description: document.getElementById('listingDescription').value.trim(),
@@ -1585,6 +1615,9 @@
         notifications = [];
         saveNotifications();
         renderNotifications();
+      });
+      themeToggle?.addEventListener('click', () => {
+        applyMarketplaceTheme(marketplaceTheme === 'dark' ? 'light' : 'dark');
       });
       notificationList?.addEventListener('click', async event => {
         const item = event.target.closest('[data-notification-id]');
@@ -2253,6 +2286,7 @@
       }
 
       // ── Init ─────────────────────────────────────────────────────────────────
+      applyMarketplaceTheme(marketplaceTheme);
       initCounts();
       renderGrid();
       updateCartUI();

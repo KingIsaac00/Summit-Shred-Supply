@@ -56,6 +56,41 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 body.modal-open { overflow: hidden; }
+body.theme-dark {
+  --bg-solid:    #060914;
+  --s0:          #0a1020;
+  --s1:          #0e1832;
+  --s2:          #13203e;
+  --s3:          #18294a;
+  --border:      rgba(148,163,184,.09);
+  --border-hi:   rgba(99,179,237,.3);
+  --text:        #f0f4fc;
+  --text-2:      #8fa3c0;
+  --text-3:      #4e6480;
+  --sh-card:     0 1px 3px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.35);
+  --sh-hover:    0 4px 6px rgba(0,0,0,.4), 0 12px 40px rgba(0,0,0,.5);
+  --sh-modal:    0 32px 96px rgba(0,0,0,.75);
+  --sh-chat:     0 8px 32px rgba(0,0,0,.5), 0 32px 80px rgba(0,0,0,.4);
+}
+
+body.theme-dark .header {
+  background: rgba(6,9,20,.86);
+}
+
+body.theme-dark .header__wordmark {
+  background: linear-gradient(120deg, #dde8fc 0%, #93c5fd 55%, #a5d0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.theme-dark .sidebar {
+  background: transparent;
+}
+
+body.theme-dark .chat-panel__head {
+  background: linear-gradient(135deg, #0d1b3b 0%, #0f1e42 100%);
+}
 img { display: block; max-width: 100%; }
 button { font-family: inherit; cursor: pointer; }
 input, select { font-family: inherit; }
@@ -171,6 +206,11 @@ ul { list-style: none; }
 }
 .icon-btn svg { width: 18px; height: 18px; }
 .icon-btn:hover { background: var(--s3); border-color: var(--border-hi); color: var(--text); }
+
+.theme-toggle .theme-icon {
+  width: 18px;
+  height: 18px;
+}
 
 .cart-badge {
   position: absolute;
@@ -1597,6 +1637,36 @@ body.auth-locked .layout {
   color: var(--text-3);
   font-size: 12px;
   font-weight: 600;
+}
+
+.file-picker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px dashed var(--border-hi);
+  border-radius: var(--r-sm);
+  background: rgba(59,130,246,.1);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease), transform 90ms;
+}
+
+.file-picker:hover {
+  background: rgba(59,130,246,.16);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.visually-hidden-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .image-preview-list {
