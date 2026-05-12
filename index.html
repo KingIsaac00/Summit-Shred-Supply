@@ -78,20 +78,27 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
+        position: relative;
+        padding: 4px 0;
         text-decoration: none;
         font-weight: 900;
         letter-spacing: -.02em;
+        text-shadow: 0 10px 24px rgba(2, 6, 23, .44);
       }
 
       .brand svg {
+        position: relative;
+        z-index: 1;
         width: 32px;
         height: 32px;
-        color: var(--blue);
-        filter: drop-shadow(0 0 8px rgba(59,130,246,.4));
+        color: #e0f2fe;
+        filter: drop-shadow(0 0 10px rgba(34,211,238,.5));
       }
 
       .brand span {
-        background: linear-gradient(120deg, #10233f 0%, #2563eb 55%, #0e7490 100%);
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(120deg, #ffffff 0%, #bfdbfe 46%, #67e8f9 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -117,11 +124,12 @@
       }
 
       .eyebrow {
-        color: var(--cyan);
+        color: #93e8ff;
         font-size: 12px;
         font-weight: 900;
         letter-spacing: .18em;
         text-transform: uppercase;
+        text-shadow: 0 10px 28px rgba(2,6,23,.62);
       }
 
       h1 {
@@ -129,18 +137,22 @@
         font-size: clamp(48px, 10vw, 118px);
         line-height: .88;
         letter-spacing: -.07em;
+        color: #f8fbff;
+        text-shadow:
+          0 3px 0 rgba(8, 28, 55, .62),
+          0 24px 58px rgba(2,6,23,.66);
       }
 
       .hero p {
         width: min(680px, 100%);
         margin: 0 auto;
-        color: #d1d5db;
+        color: #eef7ff;
         font-size: clamp(17px, 2vw, 22px);
         line-height: 1.6;
         font-weight: 800;
-        text-shadow: 0 1px 0 rgba(255,255,255,.4), 0 12px 30px rgba(255,255,255,.5);
-        -webkit-text-stroke: .9px #22d3ee;
-        paint-order: stroke fill;
+        text-shadow:
+          0 1px 0 rgba(3, 18, 38, .86),
+          0 12px 30px rgba(2,6,23,.72);
       }
 
       .mountain-scene {

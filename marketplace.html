@@ -388,15 +388,16 @@
               <span>Cover Image Upload</span>
               <label class="file-picker" for="listingCoverFile">Choose Cover</label>
               <input class="visually-hidden-file" id="listingCoverFile" type="file" accept="image/*" />
+              <div class="image-preview-list image-preview-list--single" id="listingCoverPreview"></div>
             </label>
             <label class="field">
               <span>Additional Images (up to 9)</span>
               <label class="file-picker" for="listingGalleryFiles">Choose Images</label>
               <input class="visually-hidden-file" id="listingGalleryFiles" type="file" accept="image/*" multiple />
+              <div class="image-preview-list image-preview-list--gallery" id="listingGalleryPreview"></div>
             </label>
           </div>
           <div class="image-upload-note" id="listingImageNote">Cover image required. 10 images remaining.</div>
-          <div class="image-preview-list" id="listingImagePreview"></div>
           <label class="field">
             <span>Description</span>
             <textarea id="listingDescription" rows="5" maxlength="1200" required></textarea>
@@ -504,7 +505,8 @@
       const displayNameStatus = document.getElementById('displayNameStatus');
       const listingCoverFile = document.getElementById('listingCoverFile');
       const listingGalleryFiles = document.getElementById('listingGalleryFiles');
-      const listingImagePreview = document.getElementById('listingImagePreview');
+      const listingCoverPreview = document.getElementById('listingCoverPreview');
+      const listingGalleryPreview = document.getElementById('listingGalleryPreview');
       const notificationBtn = document.getElementById('notificationBtn');
       const notificationBadge = document.getElementById('notificationBadge');
       const notificationPanel = document.getElementById('notificationPanel');
@@ -774,6 +776,7 @@
           profileAvatar.innerHTML = profileState.avatarUrl
             ? `<img src="${profileState.avatarUrl}" alt="${publicName(profileState.displayName, 'Profile')}" />`
             : initialsFromName(profileState.displayName || profileState.email);
+          profileAvatar.classList.toggle('has-image', Boolean(profileState.avatarUrl));
         }
         if (profileName) profileName.textContent = publicName(profileState.displayName, profileState.signedIn ? 'Set a display name' : 'Signed out');
         if (profileEmail) profileEmail.textContent = profileState.signedIn ? profileState.email : '';
@@ -1298,20 +1301,35 @@
       }
 
       function renderListingImagePreview() {
-        if (!listingImagePreview) return;
+        if (!listingCoverPreview && !listingGalleryPreview) return;
         const remaining = Math.max(0, 10 - uploadedListingImages.length);
         if (document.getElementById('listingImageNote')) {
           document.getElementById('listingImageNote').textContent = uploadedListingImages.length
             ? `${remaining} image${remaining === 1 ? '' : 's'} remaining. The first image is the cover.`
             : 'Cover image required. 10 images remaining.';
         }
-        listingImagePreview.innerHTML = uploadedListingImages.map((image, index) => `
+        if (listingCoverPreview) {
+          const cover = uploadedListingImages[0];
+          listingCoverPreview.innerHTML = cover ? `
+            <div class="image-preview">
+              <img src="${cover.preview || cover.url || cover.key}" alt="Cover image preview" />
+              <span>Cover</span>
+              <button type="button" data-remove-upload-image="0" aria-label="Remove cover image">x</button>
+            </div>
+          ` : '';
+        }
+        if (listingGalleryPreview) {
+          listingGalleryPreview.innerHTML = uploadedListingImages.slice(1).map((image, galleryIndex) => {
+            const index = galleryIndex + 1;
+            return `
           <div class="image-preview">
             <img src="${image.preview || image.url || image.key}" alt="Listing image ${index + 1}" />
-            <span>${index === 0 ? 'Cover' : `Image ${index + 1}`}</span>
+            <span>Image ${index + 1}</span>
             <button type="button" data-remove-upload-image="${index}" aria-label="Remove image">x</button>
           </div>
-        `).join('');
+            `;
+          }).join('');
+        }
       }
 
       function resizeImageFile(file) {
@@ -1499,12 +1517,15 @@
         }
       });
 
-      listingImagePreview?.addEventListener('click', event => {
+      function removeUploadedImage(event) {
         const removeBtn = event.target.closest('[data-remove-upload-image]');
         if (!removeBtn) return;
         uploadedListingImages.splice(Number(removeBtn.dataset.removeUploadImage), 1);
         renderListingImagePreview();
-      });
+      }
+
+      listingCoverPreview?.addEventListener('click', removeUploadedImage);
+      listingGalleryPreview?.addEventListener('click', removeUploadedImage);
 
       listingDelete?.addEventListener('click', async () => {
         if (!editingListing || !window.summitMarketplace) return;
@@ -1744,6 +1765,8 @@
         displayNameStatus.textContent = '';
         try {
           const image = await resizeImageFile(file);
+          profileState.avatarUrl = image.preview;
+          updateProfileUI();
           const profile = await window.summitMarketplace.updateProfileAvatar(image.blob, file.name);
           profileState.avatarUrl = profile.avatarUrl || image.preview;
           profileState.avatarKey = profile.avatarKey || '';

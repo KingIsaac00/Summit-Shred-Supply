@@ -1298,6 +1298,10 @@ body.auth-locked .layout {
   box-shadow: 0 0 0 4px rgba(59,130,246,.18);
 }
 
+.profile-avatar.has-image {
+  background: var(--s2);
+}
+
 .profile-avatar img {
   width: 100%;
   height: 100%;
@@ -1788,7 +1792,19 @@ body.auth-locked .layout {
   grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
   gap: 10px;
   max-height: 220px;
-  overflow: hidden;
+  overflow: auto;
+}
+
+.image-preview-list:empty {
+  display: none;
+}
+
+.image-preview-list--single {
+  grid-template-columns: minmax(0, 132px);
+}
+
+.image-preview-list--gallery {
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
 }
 
 .image-preview {
