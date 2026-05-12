@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Summit Shred Supply</title>
+    <link rel="icon" type="image/svg+xml" href="/images/summit-shred-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -1056,6 +1057,7 @@
         profileState.memberSince = storedMemberSince || profile.createdAt || new Date().toISOString();
         localStorage.setItem(memberKey, profileState.memberSince);
         loadUserStats();
+        updateProfileUI();
         updateCartUI();
         setAuthLocked(false);
         renderGrid();
@@ -2547,6 +2549,28 @@
           'Summit Rider';
       }
 
+      let baseSignedInProfile = null;
+
+      async function applyMarketplaceProfile() {
+        if (!baseSignedInProfile || !window.summitMarketplace?.getProfile) return;
+
+        try {
+          const profile = await window.summitMarketplace.getProfile();
+          window.summitHomeAuth?.applySignedInState({
+            ...baseSignedInProfile,
+            userKey: profile.sub || baseSignedInProfile.userKey,
+            username: profile.username || baseSignedInProfile.username,
+            email: profile.email || baseSignedInProfile.email,
+            displayName: profile.displayName || baseSignedInProfile.displayName,
+            hasDisplayName: profile.hasDisplayName,
+            avatarUrl: profile.avatarUrl || '',
+            avatarKey: profile.avatarKey || '',
+          });
+        } catch {
+          // Keep the Cognito-only profile state if marketplace profile data is unavailable.
+        }
+      }
+
       function configureAmplifyAuth(config) {
         cognitoUserPoolsTokenProvider.setAuthConfig(config.Auth);
         Amplify.configure(config, {
@@ -2570,14 +2594,17 @@
           const user = await getCurrentUser();
           const attributes = await fetchUserAttributes().catch(() => ({}));
           const email = attributes.email || user.signInDetails?.loginId || '';
-          window.summitHomeAuth?.applySignedInState({
+          baseSignedInProfile = {
             userKey: attributes.sub || user.userId || email || user.username,
             username: user.username,
             email,
             displayName: getDisplayName(user, attributes),
             hasDisplayName: Boolean((attributes.name || attributes.preferred_username || '').trim())
-          });
+          };
+          window.summitHomeAuth?.applySignedInState(baseSignedInProfile);
+          await applyMarketplaceProfile();
         } catch {
+          baseSignedInProfile = null;
           window.summitHomeAuth?.applySignedOutState();
         }
       }
@@ -2598,6 +2625,7 @@
       }
 
       window.addEventListener('load', refreshHomeAuthState);
+      window.addEventListener('summitMarketplaceReady', applyMarketplaceProfile);
     </script>
   </body>
 </html>
