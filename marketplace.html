@@ -90,13 +90,25 @@
               <span class="cat-label">Snowboards</span>
               <span class="cat-count" id="count-Snowboards"></span>
             </li>
+            <li class="cat-item" data-category="Skis">
+              <span class="cat-label">Skis</span>
+              <span class="cat-count" id="count-Skis"></span>
+            </li>
             <li class="cat-item" data-category="Bindings">
               <span class="cat-label">Bindings</span>
               <span class="cat-count" id="count-Bindings"></span>
             </li>
+            <li class="cat-item" data-category="Ski Bindings">
+              <span class="cat-label">Ski Bindings</span>
+              <span class="cat-count" id="count-Ski Bindings"></span>
+            </li>
             <li class="cat-item" data-category="Boots">
               <span class="cat-label">Boots</span>
               <span class="cat-count" id="count-Boots"></span>
+            </li>
+            <li class="cat-item" data-category="Ski Boots">
+              <span class="cat-label">Ski Boots</span>
+              <span class="cat-count" id="count-Ski Boots"></span>
             </li>
             <li class="cat-divider"></li>
             <li class="cat-item" data-category="Helmets">
@@ -140,6 +152,10 @@
             <li class="cat-item" data-category="Accessories">
               <span class="cat-label">Accessories</span>
               <span class="cat-count" id="count-Accessories"></span>
+            </li>
+            <li class="cat-item" data-category="Ski Poles">
+              <span class="cat-label">Ski Poles</span>
+              <span class="cat-count" id="count-Ski Poles"></span>
             </li>
           </ul>
         </nav>
@@ -185,7 +201,7 @@
     <div class="auth-lock" id="authLock">
       <div class="auth-lock__panel">
         <div class="auth-lock__title">Sign in to shop Summit Shred</div>
-        <div class="auth-lock__sub">Create an account or log in to browse gear, sell listings, and message other riders.</div>
+        <div class="auth-lock__sub">Create an account or log in to browse ski and snowboard gear, sell listings, and message other riders.</div>
         <button class="btn btn--primary auth-lock__btn" id="authLockLogin" type="button">Log In</button>
       </div>
     </div>
@@ -264,7 +280,6 @@
 
     <!-- ── FAB ────────────────────────────────────────────────────────────── -->
     <button class="fab" id="chatBtn" type="button" aria-label="Open messages inbox">
-      <span class="fab__pulse" aria-hidden="true"></span>
       <svg class="fab__icon fab__icon--chat" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
         <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -353,8 +368,11 @@
               <span>Category</span>
               <select id="listingCategory" required>
                 <option value="Snowboards">Snowboards</option>
+                <option value="Skis">Skis</option>
                 <option value="Bindings">Bindings</option>
+                <option value="Ski Bindings">Ski Bindings</option>
                 <option value="Boots">Boots</option>
+                <option value="Ski Boots">Ski Boots</option>
                 <option value="Helmets">Helmets</option>
                 <option value="Goggles">Goggles</option>
                 <option value="Jackets">Jackets</option>
@@ -365,6 +383,7 @@
                 <option value="Wax & Tuning">Wax &amp; Tuning</option>
                 <option value="Bags">Bags</option>
                 <option value="Accessories">Accessories</option>
+                <option value="Ski Poles">Ski Poles</option>
               </select>
             </label>
             <label class="field">
@@ -1901,7 +1920,6 @@
       const chatSend      = document.getElementById('chatSend');
       const fabIconChat   = document.querySelector('.fab__icon--chat');
       const fabLabel      = document.querySelector('.fab__label');
-      const fabPulse      = document.querySelector('.fab__pulse');
       let chatOpen = false;
       let chatInitialized = false;
 
@@ -1913,7 +1931,6 @@
         fabLabel.textContent = chatOpen ? 'Close' : 'Inbox';
         document.getElementById('chatBtn').classList.toggle('is-chat-open', chatOpen);
         if (chatOpen) {
-          fabPulse.style.display = 'none';
           if (!loadConversations) return;
           if (!chatInitialized) {
             chatInitialized = true;
@@ -2096,15 +2113,50 @@
       function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
       function byCat(cat) { return getCatalogItems().filter(i => i.category === cat); }
 
-      const DEFAULT_QR = ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks'];
+      const DEFAULT_QR = ['Find skis or a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks'];
 
       function getBotResponse(input) {
         const m = input.toLowerCase();
 
         if (/^(hi|hey|hello|yo|sup|howdy|what'?s up)/.test(m)) {
           return {
-            text: "Hey! I'm Carlos, your Summit Shred guide. I can help you find the right board, build a complete kit, or point you to the best gear for your budget and skill level. What are you after?",
-            qr: ['Find a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks']
+            text: "Hey! I'm Carlos, your Summit Shred guide. I can help you find the right skis or board, build a complete kit, or point you to the best gear for your budget and skill level. What are you after?",
+            qr: ['Find skis or a snowboard', 'Build a full kit', 'Best gear for beginners', 'Budget-friendly picks']
+          };
+        }
+
+        if (/ski.?boot|ski boots/.test(m)) {
+          return {
+            text: `Ski boot listings will show here as sellers add them.`,
+            action: { type: 'filter', category: 'Ski Boots' },
+            qr: ['Show skis', 'Show ski bindings', 'Show ski poles', 'Build a full kit']
+          };
+        }
+
+        if (/ski.?binding|ski bindings/.test(m)) {
+          return {
+            text: `Ski binding listings will show here as sellers add them.`,
+            action: { type: 'filter', category: 'Ski Bindings' },
+            qr: ['Show skis', 'Show ski boots', 'Show ski poles', 'Build a full kit']
+          };
+        }
+
+        if (/ski.?pole|ski poles|poles/.test(m)) {
+          return {
+            text: `Ski pole listings will show here as sellers add them.`,
+            action: { type: 'filter', category: 'Ski Poles' },
+            qr: ['Show skis', 'Show ski boots', 'Show ski bindings', 'Build a full kit']
+          };
+        }
+
+        if (/ski|skis|skiing|carv(e|ing)|piste|mogul|touring/.test(m) && !/snowboard/.test(m)) {
+          const skis = byCat('Skis');
+          return {
+            text: skis.length
+              ? `Here are the skis currently listed. You can also filter for ski boots, ski bindings, and ski poles if you're building a full setup.`
+              : `I don't see ski listings yet, but sellers can now create listings under Skis, Ski Boots, Ski Bindings, and Ski Poles.`,
+            action: { type: 'filter', category: 'Skis' },
+            qr: ['Show ski boots', 'Show ski bindings', 'Show ski poles', 'Build a full kit']
           };
         }
 
@@ -2224,8 +2276,8 @@
 
         if (/full.?kit|complete|setup|everything|package|bundle/.test(m)) {
           return {
-            text: `A mountain-ready kit covers:\n\n<strong>Hardware</strong> — Board + Bindings + Boots\n<strong>Protection</strong> — Helmet + Goggles\n<strong>Outerwear</strong> — Jacket + Pants + Gloves\n<strong>Layers</strong> — Base Layers + Socks\n\nStart with hardware and work outward. Which piece should we tackle first?`,
-            qr: ['Start with a snowboard', 'Show me helmets', 'View Jackets', 'Budget-friendly picks']
+            text: `A mountain-ready kit covers:\n\n<strong>Hardware</strong> — Skis or Board + Bindings + Boots\n<strong>Protection</strong> — Helmet + Goggles\n<strong>Outerwear</strong> — Jacket + Pants + Gloves\n<strong>Layers</strong> — Base Layers + Socks\n\nStart with hardware and work outward. Which piece should we tackle first?`,
+            qr: ['Start with skis', 'Start with a snowboard', 'Show me helmets', 'View Jackets']
           };
         }
 
@@ -2271,7 +2323,7 @@
 
         // Fallback
         return {
-          text: `I want to make sure I give you the best recommendation! Try asking about a specific category (snowboards, jackets, boots...), your skill level, or your budget and I'll point you in the right direction.`,
+          text: `I want to make sure I give you the best recommendation! Try asking about a specific category (skis, snowboards, jackets, boots...), your skill level, or your budget and I'll point you in the right direction.`,
           qr: DEFAULT_QR
         };
       }
@@ -2366,10 +2418,11 @@
             lower === 'looks great, view all' || lower === 'view all products') {
           const catMatch = lower.match(/view (all )?(\w[\w\s&]*?)(\s|$)/);
           const catMap = {
-            'boards': 'Snowboards', 'snowboards': 'Snowboards', 'bindings': 'Bindings',
-            'boots': 'Boots', 'helmets': 'Helmets', 'goggles': 'Goggles',
+            'boards': 'Snowboards', 'snowboards': 'Snowboards', 'skis': 'Skis', 'ski': 'Skis',
+            'ski bindings': 'Ski Bindings', 'snowboard bindings': 'Bindings', 'bindings': 'Bindings',
+            'ski boots': 'Ski Boots', 'snowboard boots': 'Boots', 'boots': 'Boots', 'helmets': 'Helmets', 'goggles': 'Goggles',
             'jackets': 'Jackets', 'pants': 'Pants', 'gloves': 'Gloves',
-            'bags': 'Bags', 'tuning': 'Wax & Tuning', 'all products': 'All',
+            'poles': 'Ski Poles', 'ski poles': 'Ski Poles', 'bags': 'Bags', 'tuning': 'Wax & Tuning', 'all products': 'All',
             'all': 'All'
           };
           let cat = 'All';
